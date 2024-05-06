@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<offlineAnnotation>
+  <registration>
+    <markers>
+      <point x="1323.0933" y="393.956862" />
+      <point x="2181.045874" y="395.048404" />
+      <point x="2178.952784" y="2081.032604" />
+      <point x="1318.958425" y="2079.952209" />
+    </markers>
+    <frameOffset>26.5747193244879</frameOffset>
+    <scale>0.142535722561058</scale>
+    <translation>1349.66801932449 420.531581324488</translation>
+    <rotation>0.00155562155322484 1349.66801932449 420.531581324488</rotation>
+  </registration>
+  <symbols>
+    <symbol id="0" name="text">
+      <bounds x="1666" y="761" width="317" height="130" />
+      <textMeaning>Input $X$</textMeaning>
+    </symbol>
+    <symbol id="1" name="text">
+      <bounds x="1554" y="1121" width="448" height="127" />
+      <textMeaning>$X=X*X$</textMeaning>
+    </symbol>
+    <symbol id="2" name="text">
+      <bounds x="1522" y="1519" width="512" height="152" />
+      <textMeaning>Output $X$</textMeaning>
+    </symbol>
+    <symbol id="3" name="arrow">
+      <bounds x="1728" y="557" width="87" height="119" />
+      <arrowAnnotation>
+        <headBounds x="1728" y="632" width="87" height="44" />
+        <from x="1765" y="557" />
+        <to x="1767" y="675" />
+      </arrowAnnotation>
+    </symbol>
+    <symbol id="4" name="arrow">
+      <bounds x="1744" y="926" width="83" height="156" />
+      <arrowAnnotation>
+        <headBounds x="1744" y="1028" width="83" height="53" />
+        <from x="1782" y="926" />
+        <to x="1784" y="1081" />
+      </arrowAnnotation>
+    </symbol>
+    <symbol id="5" name="arrow">
+      <bounds x="1744" y="1310" width="84" height="160" />
+      <arrowAnnotation>
+        <headBounds x="1744" y="1416" width="84" height="44" />
+        <from x="1789" y="1310" />
+        <to x="1782" y="1470" />
+      </arrowAnnotation>
+    </symbol>
+    <symbol id="6" name="arrow">
+      <bounds x="1733" y="1696" width="69" height="236" />
+      <arrowAnnotation>
+        <headBounds x="1733" y="1876" width="69" height="57" />
+        <from x="1768" y="1696" />
+        <to x="1769" y="1932" />
+      </arrowAnnotation>
+    </symbol>
+    <symbol id="7" name="connection">
+      <bounds x="1695" y="421" width="133" height="161" />
+    </symbol>
+    <symbol id="8" name="connection">
+      <bounds x="1695" y="1930" width="125" height="125" />
+    </symbol>
+    <symbol id="9" name="data">
+      <bounds x="1482" y="667" width="617" height="260" />
+    </symbol>
+    <symbol id="10" name="data">
+      <bounds x="1413" y="1081" width="685" height="231" />
+    </symbol>
+    <symbol id="11" name="data">
+      <bounds x="1347" y="1455" width="806" height="258" />
+    </symbol>
+  </symbols>
+  <relations>
+    <relation id="0" arity="3" name="arrow_connection">
+      <symbolView symbolDataRef="3" />
+      <symbolView symbolDataRef="7" connectionPoint="bottom" />
+      <symbolView symbolDataRef="9" connectionPoint="top" />
+    </relation>
+    <relation id="1" arity="3" name="arrow_connection">
+      <symbolView symbolDataRef="4" />
+      <symbolView symbolDataRef="9" connectionPoint="bottom" />
+      <symbolView symbolDataRef="10" connectionPoint="top" />
+    </relation>
+    <relation id="2" arity="3" name="arrow_connection">
+      <symbolView symbolDataRef="5" />
+      <symbolView symbolDataRef="10" connectionPoint="bottom" />
+      <symbolView symbolDataRef="11" connectionPoint="top" />
+    </relation>
+    <relation id="3" arity="3" name="arrow_connection">
+      <symbolView symbolDataRef="6" />
+      <symbolView symbolDataRef="11" connectionPoint="bottom" />
+      <symbolView symbolDataRef="8" connectionPoint="top" />
+    </relation>
+    <relation id="4" arity="2" name="text_inside">
+      <symbolView symbolDataRef="0" />
+      <symbolView symbolDataRef="9" />
+    </relation>
+    <relation id="5" arity="2" name="text_inside">
+      <symbolView symbolDataRef="1" />
+      <symbolView symbolDataRef="10" />
+    </relation>
+    <relation id="6" arity="2" name="text_inside">
+      <symbolView symbolDataRef="2" />
+      <symbolView symbolDataRef="11" />
+    </relation>
+  </relations>
+</offlineAnnotation>

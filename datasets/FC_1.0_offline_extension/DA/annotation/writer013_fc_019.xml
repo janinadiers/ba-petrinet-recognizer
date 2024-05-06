@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<offlineAnnotation>
+  <registration>
+    <markers>
+      <point x="607" y="4" />
+      <point x="2309" y="2002" />
+    </markers>
+    <frameOffset>5</frameOffset>
+    <scale>0.110974656693089</scale>
+    <translation>612 9</translation>
+    <rotation>0 612 9</rotation>
+  </registration>
+  <symbols>
+    <symbol id="0" name="text">
+      <bounds x="822" y="53" width="177" height="83" />
+      <textMeaning>Start</textMeaning>
+    </symbol>
+    <symbol id="1" name="text">
+      <bounds x="650" y="508" width="527" height="185" />
+      <textMeaning>Request key\\from memcached</textMeaning>
+    </symbol>
+    <symbol id="2" name="text">
+      <bounds x="796" y="1098" width="255" height="201" />
+      <textMeaning>Does key\\exist?</textMeaning>
+    </symbol>
+    <symbol id="3" name="text">
+      <bounds x="1426" y="1062" width="61" height="68" />
+      <textMeaning>No</textMeaning>
+    </symbol>
+    <symbol id="4" name="text">
+      <bounds x="1723" y="1100" width="465" height="221" />
+      <textMeaning>Load data\\from database</textMeaning>
+    </symbol>
+    <symbol id="5" name="text">
+      <bounds x="984" y="1422" width="88" height="72" />
+      <textMeaning>Yes</textMeaning>
+    </symbol>
+    <symbol id="6" name="text">
+      <bounds x="778" y="1738" width="332" height="93" />
+      <textMeaning>Use data</textMeaning>
+    </symbol>
+    <symbol id="7" name="text">
+      <bounds x="1701" y="1798" width="515" height="98" />
+      <textMeaning>Update memcached</textMeaning>
+    </symbol>
+    <symbol id="8" name="arrow">
+      <bounds x="883" y="202" width="35" height="229" />
+      <arrowAnnotation>
+        <headBounds x="883" y="381" width="1735" height="3341" />
+        <from x="904" y="202" />
+        <to x="904" y="430" />
+      </arrowAnnotation>
+    </symbol>
+    <symbol id="9" name="arrow">
+      <bounds x="889" y="729" width="44" height="256" />
+      <arrowAnnotation>
+        <headBounds x="889" y="925" width="44" height="60" />
+        <from x="910" y="729" />
+        <to x="911" y="985" />
+      </arrowAnnotation>
+    </symbol>
+    <symbol id="10" name="arrow">
+      <bounds x="1258" y="1135" width="377" height="66" />
+      <arrowAnnotation>
+        <headBounds x="1590" y="1135" width="45" height="66" />
+        <from x="1258" y="1163" />
+        <to x="1635" y="1157" />
+      </arrowAnnotation>
+    </symbol>
+    <symbol id="11" name="arrow">
+      <bounds x="904" y="1366" width="53" height="261" />
+      <arrowAnnotation>
+        <headBounds x="904" y="1566" width="53" height="61" />
+        <from x="928" y="1367" />
+        <to x="936" y="1627" />
+      </arrowAnnotation>
+    </symbol>
+    <symbol id="12" name="arrow">
+      <bounds x="1903" y="1394" width="50" height="281" />
+      <arrowAnnotation>
+        <headBounds x="1903" y="1606" width="50" height="69" />
+        <from x="1940" y="1394" />
+        <to x="1922" y="1674" />
+      </arrowAnnotation>
+    </symbol>
+    <symbol id="13" name="arrow">
+      <bounds x="1195" y="1765" width="430" height="66" />
+      <arrowAnnotation>
+        <headBounds x="1195" y="1765" width="30" height="66" />
+        <from x="1625" y="1803" />
+        <to x="1195" y="1790" />
+      </arrowAnnotation>
+    </symbol>
+    <symbol id="14" name="decision">
+      <bounds x="630" y="1002" width="624" height="375" />
+    </symbol>
+    <symbol id="15" name="process">
+      <bounds x="612" y="443" width="614" height="292" />
+    </symbol>
+    <symbol id="16" name="process">
+      <bounds x="1640" y="1023" width="665" height="385" />
+    </symbol>
+    <symbol id="17" name="process">
+      <bounds x="1630" y="1672" width="634" height="325" />
+    </symbol>
+    <symbol id="18" name="terminator">
+      <bounds x="699" y="9" width="430" height="203" />
+    </symbol>
+    <symbol id="19" name="terminator">
+      <bounds x="678" y="1627" width="517" height="318" />
+    </symbol>
+  </symbols>
+  <relations>
+    <relation id="0" arity="3" name="arrow_connection">
+      <symbolView symbolDataRef="8" />
+      <symbolView symbolDataRef="18" connectionPoint="bottom" />
+      <symbolView symbolDataRef="15" connectionPoint="top" />
+    </relation>
+    <relation id="1" arity="3" name="arrow_connection">
+      <symbolView symbolDataRef="9" />
+      <symbolView symbolDataRef="15" connectionPoint="bottom" />
+      <symbolView symbolDataRef="14" connectionPoint="top" />
+    </relation>
+    <relation id="2" arity="3" name="arrow_connection">
+      <symbolView symbolDataRef="10" />
+      <symbolView symbolDataRef="14" connectionPoint="right" />
+      <symbolView symbolDataRef="16" connectionPoint="left" />
+    </relation>
+    <relation id="3" arity="3" name="arrow_connection">
+      <symbolView symbolDataRef="11" />
+      <symbolView symbolDataRef="14" connectionPoint="bottom" />
+      <symbolView symbolDataRef="19" connectionPoint="top" />
+    </relation>
+    <relation id="4" arity="3" name="arrow_connection">
+      <symbolView symbolDataRef="12" />
+      <symbolView symbolDataRef="16" connectionPoint="bottom" />
+      <symbolView symbolDataRef="17" connectionPoint="top" />
+    </relation>
+    <relation id="5" arity="3" name="arrow_connection">
+      <symbolView symbolDataRef="13" />
+      <symbolView symbolDataRef="17" connectionPoint="left" />
+      <symbolView symbolDataRef="19" connectionPoint="right" />
+    </relation>
+    <relation id="6" arity="2" name="text_inside">
+      <symbolView symbolDataRef="0" />
+      <symbolView symbolDataRef="18" />
+    </relation>
+    <relation id="7" arity="2" name="text_inside">
+      <symbolView symbolDataRef="1" />
+      <symbolView symbolDataRef="15" />
+    </relation>
+    <relation id="8" arity="2" name="text_inside">
+      <symbolView symbolDataRef="2" />
+      <symbolView symbolDataRef="14" />
+    </relation>
+    <relation id="9" arity="2" name="arrow_label">
+      <symbolView symbolDataRef="3" />
+      <symbolView symbolDataRef="10" />
+    </relation>
+    <relation id="10" arity="2" name="text_inside">
+      <symbolView symbolDataRef="4" />
+      <symbolView symbolDataRef="16" />
+    </relation>
+    <relation id="11" arity="2" name="arrow_label">
+      <symbolView symbolDataRef="5" />
+      <symbolView symbolDataRef="11" />
+    </relation>
+    <relation id="12" arity="2" name="text_inside">
+      <symbolView symbolDataRef="6" />
+      <symbolView symbolDataRef="19" />
+    </relation>
+    <relation id="13" arity="2" name="text_inside">
+      <symbolView symbolDataRef="7" />
+      <symbolView symbolDataRef="17" />
+    </relation>
+  </relations>
+</offlineAnnotation>

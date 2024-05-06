@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<offlineAnnotation>
+  <registration>
+    <markers>
+      <point x="952.094395" y="393.935268" />
+      <point x="2548.064957" y="397.074882" />
+      <point x="2544.929198" y="2083.067824" />
+      <point x="947.913287" y="2079.966822" />
+    </markers>
+    <frameOffset>26.5930856458076</frameOffset>
+    <scale>0.161696347032395</scale>
+    <translation>978.687480645808 420.528353645808</translation>
+    <rotation>0.0020621721573244 978.687480645808 420.528353645808</rotation>
+  </registration>
+  <symbols>
+    <symbol id="0" name="text">
+      <bounds x="1054" y="1128" width="269" height="110" />
+      <textMeaning>$A&gt;B$</textMeaning>
+    </symbol>
+    <symbol id="1" name="text">
+      <bounds x="1554" y="1080" width="230" height="103" />
+      <textMeaning>Yes</textMeaning>
+    </symbol>
+    <symbol id="2" name="text">
+      <bounds x="1053" y="1542" width="107" height="52" />
+      <textMeaning>No</textMeaning>
+    </symbol>
+    <symbol id="3" name="text">
+      <bounds x="2146" y="1401" width="274" height="90" />
+      <textMeaning>$T=B$</textMeaning>
+    </symbol>
+    <symbol id="4" name="text">
+      <bounds x="2166" y="1777" width="259" height="232" />
+      <textMeaning>$B=A$\\$A=T$</textMeaning>
+    </symbol>
+    <symbol id="5" name="arrow">
+      <bounds x="1179" y="728" width="100" height="274" />
+      <arrowAnnotation>
+        <headBounds x="1179" y="932" width="100" height="70" />
+        <from x="1210" y="728" />
+        <to x="1226" y="1002" />
+      </arrowAnnotation>
+    </symbol>
+    <symbol id="6" name="arrow">
+      <bounds x="1398" y="1172" width="966" height="156" />
+      <arrowAnnotation>
+        <headBounds x="2289" y="1269" width="75" height="59" />
+        <from x="1398" y="1205" />
+        <to x="2315" y="1327" />
+      </arrowAnnotation>
+    </symbol>
+    <symbol id="7" name="arrow">
+      <bounds x="1195" y="1423" width="91" height="291" />
+      <arrowAnnotation>
+        <headBounds x="1195" y="1639" width="91" height="74" />
+        <from x="1232" y="1423" />
+        <to x="1236" y="1713" />
+      </arrowAnnotation>
+    </symbol>
+    <symbol id="8" name="arrow">
+      <bounds x="2263" y="1562" width="86" height="152" />
+      <arrowAnnotation>
+        <headBounds x="2263" y="1652" width="86" height="63" />
+        <from x="2312" y="1562" />
+        <to x="2305" y="1714" />
+      </arrowAnnotation>
+    </symbol>
+    <symbol id="9" name="arrow">
+      <bounds x="1352" y="1818" width="696" height="110" />
+      <arrowAnnotation>
+        <headBounds x="2329" y="8641" width="584" height="675" />
+        <from x="2047" y="1889" />
+        <to x="1352" y="1881" />
+      </arrowAnnotation>
+    </symbol>
+    <symbol id="10" name="connection">
+      <bounds x="1030" y="421" width="335" height="263" />
+    </symbol>
+    <symbol id="11" name="connection">
+      <bounds x="1125" y="1779" width="196" height="164" />
+    </symbol>
+    <symbol id="12" name="decision">
+      <bounds x="977" y="1056" width="430" height="320" />
+    </symbol>
+    <symbol id="13" name="process">
+      <bounds x="2077" y="1374" width="408" height="174" />
+    </symbol>
+    <symbol id="14" name="process">
+      <bounds x="2064" y="1730" width="453" height="327" />
+    </symbol>
+  </symbols>
+  <relations>
+    <relation id="0" arity="3" name="arrow_connection">
+      <symbolView symbolDataRef="5" />
+      <symbolView symbolDataRef="10" connectionPoint="bottom" />
+      <symbolView symbolDataRef="12" connectionPoint="top" />
+    </relation>
+    <relation id="1" arity="3" name="arrow_connection">
+      <symbolView symbolDataRef="6" />
+      <symbolView symbolDataRef="12" connectionPoint="right" />
+      <symbolView symbolDataRef="13" connectionPoint="top" />
+    </relation>
+    <relation id="2" arity="3" name="arrow_connection">
+      <symbolView symbolDataRef="7" />
+      <symbolView symbolDataRef="12" connectionPoint="bottom" />
+      <symbolView symbolDataRef="11" connectionPoint="top" />
+    </relation>
+    <relation id="3" arity="3" name="arrow_connection">
+      <symbolView symbolDataRef="8" />
+      <symbolView symbolDataRef="13" connectionPoint="bottom" />
+      <symbolView symbolDataRef="14" connectionPoint="top" />
+    </relation>
+    <relation id="4" arity="3" name="arrow_connection">
+      <symbolView symbolDataRef="9" />
+      <symbolView symbolDataRef="14" connectionPoint="left" />
+      <symbolView symbolDataRef="11" connectionPoint="right" />
+    </relation>
+    <relation id="5" arity="2" name="text_inside">
+      <symbolView symbolDataRef="0" />
+      <symbolView symbolDataRef="12" />
+    </relation>
+    <relation id="6" arity="2" name="arrow_label">
+      <symbolView symbolDataRef="1" />
+      <symbolView symbolDataRef="6" />
+    </relation>
+    <relation id="7" arity="2" name="arrow_label">
+      <symbolView symbolDataRef="2" />
+      <symbolView symbolDataRef="7" />
+    </relation>
+    <relation id="8" arity="2" name="text_inside">
+      <symbolView symbolDataRef="3" />
+      <symbolView symbolDataRef="13" />
+    </relation>
+    <relation id="9" arity="2" name="text_inside">
+      <symbolView symbolDataRef="4" />
+      <symbolView symbolDataRef="14" />
+    </relation>
+  </relations>
+</offlineAnnotation>
