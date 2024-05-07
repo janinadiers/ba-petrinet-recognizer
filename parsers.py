@@ -1,20 +1,20 @@
 import xml.etree.ElementTree as ET
 
 
-def parse_traces_from_inkml_file(file_path):
+def parse_traces_from_inkml_file(file_path: str)-> list[dict]:
     # Parse the XML file
-    tree = ET.parse(file_path)
-    root = tree.getroot()
+    tree:ET.ElementTree = ET.parse(file_path)
+    root:ET.Element = tree.getroot()
+
     # Namespace handling
     namespaces = {'inkml': 'http://www.w3.org/2003/InkML'}
 
     # Extract traces
     traces = []
-    amount = 0
     for trace in root.findall('trace', namespaces):
         # Extract trace data
-        trace_data = trace.text.strip().split(',')
-        trace_id = trace.attrib['id']
+        trace_data:list = trace.text.strip().split(',')
+        trace_id:str = trace.attrib['id']
         trace_points = []
         # Parse each coordinate in the trace
         for point in trace_data:
@@ -22,13 +22,14 @@ def parse_traces_from_inkml_file(file_path):
             point = list(filter(None, point))
             trace_points.append({'x': point[0], 'y': point[1], 't': point[2]}) 
         traces.append({trace_id: trace_points})
+
     return traces
 
 
-def parse_ground_truth(file_path):
+def parse_ground_truth(file_path: str)-> list[dict]:
     # Parse the XML file
-    tree = ET.parse(file_path)
-    root = tree.getroot()
+    tree:ET.ElementTree = ET.parse(file_path)
+    root:ET.Element = tree.getroot()
     # Namespace handling
     namespaces = {'inkml': 'http://www.w3.org/2003/InkML'}
     # Extract shapes
@@ -67,15 +68,14 @@ def parse_ground_truth(file_path):
                 shapes.append(new_entry)
             else:
                 print('Unknown shape type: ', annotations[0].text, 'please add it to the parser')
-            
     return shapes
 
 
 
-def parse_shape_types_with_amount_of_occurence(file_path):
+def parse_shape_types_with_amount_of_occurence(file_path:str) -> dict:
      # Parse the XML file
-    tree = ET.parse(file_path)
-    root = tree.getroot()
+    tree:ET.ElementTree = ET.parse(file_path)
+    root:ET.Element = tree.getroot()
     
      # Namespace handling
     namespaces = {'inkml': 'http://www.w3.org/2003/InkML'}

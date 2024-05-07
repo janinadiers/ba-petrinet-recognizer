@@ -1,40 +1,40 @@
 import math
 import numpy as np
 
-class DistanceWithBoundingBox:
 
-    def get_bounding_box_center(self, stroke):
+
+def get_bounding_box_center(stroke: dict) -> tuple:
+    points:list = next(iter(stroke.values()))
+    min_x:int = min(int(point['x']) for point in points)
+    max_x:int = max(int(point['x']) for point in points)
+    min_y:int = min(int(point['y']) for point in points)
+    max_y:int = max(int(point['y']) for point in points)
+    center_point:tuple = (min_x + max_x) / 2, (min_y + max_y) / 2
+
+    return center_point
+
+def distance(point1:tuple, point2:tuple) -> float:
+    # This should compute some form of distance between strokes, simple Euclidean distance between their centroids for example
+    return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
+
+
+def get_distance(stroke1:dict, stroke2:dict) -> float:
+    """Calculate the distance between two strokes based on their bounding box centers."""
+    center1:tuple = get_bounding_box_center(stroke1)
+    center2:tuple = get_bounding_box_center(stroke2)
+    return distance(center1, center2)
         
-        points = next(iter(stroke.values()))
-        min_x = min(int(point['x']) for point in points)
-        max_x = max(int(point['x']) for point in points)
-        min_y = min(int(point['y']) for point in points)
-        max_y = max(int(point['y']) for point in points)
-        center_point = (min_x + max_x) / 2, (min_y + max_y) / 2
-        return center_point
-
-    def distance(self, point1, point2):
-        # This should compute some form of distance between strokes, simple Euclidean distance between their centroids for example
-        return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
-
-
-    def get_distance(self, stroke1, stroke2):
-        """Calculate the distance between two strokes based on their bounding box centers."""
-        center1 = self.get_bounding_box_center(stroke1)
-        center2 = self.get_bounding_box_center(stroke2)
-        return self.distance(center1, center2)
+def initialize_adjacency_matrix(strokes:list[dict]) -> np.ndarray:
+    """Initialize the adjacency matrix A based on the spatial proximity of strokes."""
+    num_strokes:int = len(strokes)
+    matrix:np.ndarray = np.zeros((num_strokes, num_strokes), dtype=int)
+    MAX_DIST:int=1200
+    # Iterate over all pairs of strokes and determine if they are neighbors
+    for i in range(num_strokes):
+        for j in range(i + 1, num_strokes):
+            distance:float = get_distance(strokes[i], strokes[j])
+            # If distance is less than or equal to threshold, mark them as neighbors
+            if distance <= MAX_DIST:
+                matrix[i, j] = 1
         
-    def initialize_adjacency_matrix(self,strokes):
-        """Initialize the adjacency matrix A based on the spatial proximity of strokes."""
-        num_strokes = len(strokes)
-        matrix = np.zeros((num_strokes, num_strokes), dtype=int)
-        max_dist=1200
-        # Iterate over all pairs of strokes and determine if they are neighbors
-        for i in range(num_strokes):
-            for j in range(i + 1, num_strokes):
-                distance = self.get_distance(strokes[i], strokes[j])
-                # If distance is less than or equal to threshold, mark them as neighbors
-                if distance <= max_dist:
-                    matrix[i, j] = 1
-          
-        return matrix
+    return matrix

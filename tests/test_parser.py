@@ -1,5 +1,5 @@
 import unittest
-from parser import parse_traces_from_inkml_file, parse_ground_truth, parse_shape_types_with_amount_of_occurence
+from parsers import parse_traces_from_inkml_file, parse_ground_truth, parse_shape_types_with_amount_of_occurence
 
 class TestParserMethods(unittest.TestCase):
 
