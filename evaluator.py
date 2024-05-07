@@ -108,8 +108,7 @@ def evaluate_grouper(path:str, dataset_type:str = 'Both') -> None:
         for root, dirs, files in os.walk(path):
             for file in files:
                 file_path = os.path.join(root, file)
-                # get all test inkml files
-                if(file_path.endswith('FA_fake_Test.txt')):
+                if(file_path.endswith('FA_Test.txt')):
                     with open(file_path) as f:
                         content = f.readlines()
                     for line in content:

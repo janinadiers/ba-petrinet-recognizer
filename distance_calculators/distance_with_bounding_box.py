@@ -4,25 +4,22 @@ import numpy as np
 
 
 def get_bounding_box_center(stroke: dict) -> tuple:
-    points:list = next(iter(stroke.values()))
+    points:list = []
+    for key, val in stroke.items():
+        points = val
     min_x:int = min(int(point['x']) for point in points)
     max_x:int = max(int(point['x']) for point in points)
     min_y:int = min(int(point['y']) for point in points)
     max_y:int = max(int(point['y']) for point in points)
     center_point:tuple = (min_x + max_x) / 2, (min_y + max_y) / 2
-
     return center_point
-
-def distance(point1:tuple, point2:tuple) -> float:
-    # This should compute some form of distance between strokes, simple Euclidean distance between their centroids for example
-    return math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
 
 def get_distance(stroke1:dict, stroke2:dict) -> float:
     """Calculate the distance between two strokes based on their bounding box centers."""
     center1:tuple = get_bounding_box_center(stroke1)
     center2:tuple = get_bounding_box_center(stroke2)
-    return distance(center1, center2)
+    return math.sqrt((center1[0] - center2[0])**2 + (center1[1] - center2[1])**2)
         
 def initialize_adjacency_matrix(strokes:list[dict]) -> np.ndarray:
     """Initialize the adjacency matrix A based on the spatial proximity of strokes."""

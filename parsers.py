@@ -72,7 +72,7 @@ def parse_ground_truth(file_path: str)-> list[dict]:
 
 
 
-def parse_shape_types_with_amount_of_occurence(file_path:str) -> dict:
+def parse_shape_types_with_amount_of_occurence(file_path:str):
      # Parse the XML file
     tree:ET.ElementTree = ET.parse(file_path)
     root:ET.Element = tree.getroot()
