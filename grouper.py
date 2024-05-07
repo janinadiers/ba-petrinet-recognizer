@@ -68,8 +68,11 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                 
                 next_neighbour:int = neighbors[next_neighbor_index]
                 candidate_shape.append(next_neighbour)
+                
+                
                 for subset in get_all_subsets(candidate_shape):
                     if subset_already_checked(subset, checked_subsets):
+                        print('subset already checked')
                         continue
                     subset_with_ids = get_ids_from_index(subset, strokes)
                     is_shape = is_a_shape(subset_with_ids, expected_shapes)
