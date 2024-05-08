@@ -3,6 +3,7 @@ import numpy as np
 from typing import Callable
 import time
 from normalizer import normalize
+from export_normalized_points_to_inkml import export_normalized_points_to_inkml
 
 average_time_for_initialization = 0
     
@@ -46,12 +47,14 @@ def normalize_all_strokes(strokes:list[dict]) -> list[dict]:
     for stroke in strokes:
         stroke_points = next(iter(stroke.values()))
         stroke_points = convert_string_points_to_int(stroke_points)
-        print('stroke_points', stroke_points[1])
+        print('stroke points: ', len(stroke_points))
         normalized_points = normalize(stroke_points, len(stroke_points))
-        print('normalized stroke_points', stroke_points[1])
         # Add the normalized points to the stroke
+        stroke[next(iter(stroke))] = normalized_points
         # add the stroke to the list of normalized strokes
-        # return the list of normalized strokes
+        normalized_strokes.append(stroke)
+    # return the list of normalized strokes
+    return normalized_strokes
        
             
     return normalized_strokes
@@ -61,6 +64,8 @@ def convert_string_points_to_int(points:list[dict]) -> list[dict]:
         point['x'] = int(point['x'])
         point['y'] = int(point['y'])
     return points
+
+
 def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:Callable, expected_shapes:list[dict]) -> dict:
     global average_time_for_initialization
     MAX_STROKE_LIMIT:int = 6
@@ -68,7 +73,10 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
     recognized_shapes:list[dict] = []
     checked_subsets:list[list[int]] = []
     start_time = time.time()  # Startzeit speichern
+    export_normalized_points_to_inkml(strokes, 'original_points.inkml')
     normalized_strokes = normalize_all_strokes(strokes)
+    print('normalized strokes: ', normalized_strokes)
+    export_normalized_points_to_inkml(normalized_strokes, 'normalized_points.inkml')
     return
     matrix:np.ndarray = initialize_adjacency_matrix(strokes)
     end_time = time.time()  # Endzeit speichern
