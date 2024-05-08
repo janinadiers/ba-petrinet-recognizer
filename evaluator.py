@@ -1,6 +1,6 @@
 import sys
 import os
-from grouper import group
+from grouper import group, get_average_time_for_initialization
 from parsers import parse_ground_truth, parse_traces_from_inkml_file
 import time
 from distance_calculators.distance_between_all_points import initialize_adjacency_matrix as initialize_adjacency_matrix
@@ -35,6 +35,7 @@ def evaluate_grouper(path:str, dataset_type:str = 'Both') -> None:
                 if(file_path.endswith('FA_Test.txt')):
                     with open(file_path) as f:
                         content = f.readlines()
+
                     for line in content:
                         line = line.strip()
                         if not line.endswith('.inkml'):
@@ -43,7 +44,7 @@ def evaluate_grouper(path:str, dataset_type:str = 'Both') -> None:
                         expected_shapes:list[dict] = parse_ground_truth(test_file)
                         traces:list[dict] = parse_traces_from_inkml_file(test_file)
                         start_time = time.time()  # Startzeit speichern
-                        grouped_traces:dict = group(traces, is_a_shape, initialize_adjacency_matrix, expected_shapes)
+                        grouped_traces:dict = group(traces, is_a_shape, initialize_adjacency_matrix2, expected_shapes)
                         end_time = time.time()  # Endzeit speichern
                         elapsed_time = end_time - start_time  # Differenz berechnen
                         print(f"Laufzeit: {elapsed_time} Sekunden")
@@ -51,7 +52,9 @@ def evaluate_grouper(path:str, dataset_type:str = 'Both') -> None:
                         amount_valid_shapes += get_amount_valid_shapes(expected_shapes)
                         amount_correctly_recognized_shapes += get_amount_correctly_recognized_shapes(grouped_traces['recognized shapes'], expected_shapes)
                         print(amount_correctly_recognized_shapes, ' / ', amount_valid_shapes, 'richtig erkannt')
-                       
+                        print('average time for initialization: ', get_average_time_for_initialization(), len(content))
+                    print('average time for initialization: ', get_average_time_for_initialization() / len(content))
+  
                        
         
                                                   
