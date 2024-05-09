@@ -16,8 +16,21 @@ def get_unrecognized_strokes(matrix:np.ndarray, strokes:list[dict]) -> list[dict
     
 def find_neighbors(matrix:np.ndarray, stroke_index:int) -> list[int]:
     """ Returns the indices of the neighbors of the given stroke_index which not already belong to a recognized shape"""
-    neighbors = np.where((matrix[stroke_index] == 1) & (matrix[stroke_index][stroke_index] != 1))[0]
-    return neighbors
+    # Filter out tuples where the first element is 1
+    filtered_tuples = []
+    for i, item in enumerate(matrix[stroke_index]):
+        if type(item) == tuple and item[0] == 1:
+            new_tuple = item + (i,)
+            filtered_tuples.append(new_tuple)
+    print('filtered_tuples: ', filtered_tuples)
+    # Sort the filtered tuples by the distance value (second element of tuple)
+    neighbors = sorted(filtered_tuples, key=lambda x: x[1])
+    print('sorted neighbors: ', neighbors)
+    result = []
+    for neighbor in neighbors:
+        result.append(neighbor[2])
+        
+    return result
 
 def get_all_subsets(candidate_shape:list[int]) -> list[list[int]]:
     all_subsets = list(itertools.chain.from_iterable(itertools.combinations(candidate_shape, r) for r in range(1, len(candidate_shape)+1)))
@@ -69,7 +82,7 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
             # Ich berechne die Nachbarn einmalig und speichere sie in einer Liste, um die Berechnung zu beschleunigen. Verzichte also darauf auch die Nachbarn der Nachbarn zu berechnen, ob sich das nachteilig auf die Erkennung auswirkt, müsste genauer untersucht werden
             neighbors:list[int] = find_neighbors(matrix, index_of_primary_stroke)
             next_neighbor_index = 0
-            
+            print('neighbors: ', len(neighbors))
             while (len(candidate_shape) < current_stroke_limit) and (not found_shape) and next_neighbor_index < len(neighbors):
                 # falls ein stroke keinen Nachbarn hat soll trotzdem geprüft werden, ob er alleine eine gültige shape ist
                 if(len(neighbors) == 0):

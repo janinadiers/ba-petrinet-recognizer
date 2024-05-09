@@ -66,7 +66,7 @@ def evaluate_grouper(path:str, dataset_type:str = 'Both') -> None:
                         strokes:list[dict] = parse_strokes_from_inkml_file(test_file)
                         strokes = normalize_all_strokes(strokes)
                         start_time = time.time()  # Startzeit speichern
-                        grouped_strokes:dict = group(strokes, is_a_shape, initialize_adjacency_matrix, expected_shapes)
+                        grouped_strokes:dict = group(strokes, is_a_shape, initialize_adjacency_matrix3, expected_shapes)
                         end_time = time.time()  # Endzeit speichern
                         elapsed_time = end_time - start_time  # Differenz berechnen
                         print(f"Laufzeit: {elapsed_time} Sekunden")
