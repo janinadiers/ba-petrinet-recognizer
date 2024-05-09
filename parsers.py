@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 
 
-def parse_traces_from_inkml_file(file_path: str)-> list[dict]:
+def parse_strokes_from_inkml_file(file_path: str)-> list[dict]:
     # Parse the XML file
     tree:ET.ElementTree = ET.parse(file_path)
     root:ET.Element = tree.getroot()

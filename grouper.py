@@ -2,7 +2,6 @@ import itertools
 import numpy as np
 from typing import Callable
 import time
-from normalizer import normalize
 from export_points_to_inkml import export_points_to_inkml
 
 average_time_for_initialization = 0
@@ -42,27 +41,6 @@ def get_average_time_for_initialization():
     global average_time_for_initialization
     return average_time_for_initialization
 
-def normalize_all_strokes(strokes:list[dict]) -> list[dict]:
-    normalized_strokes = []
-    for stroke in strokes:
-        stroke_points = next(iter(stroke.values()))
-        stroke_points = convert_string_points_to_int(stroke_points)
-        normalized_points = normalize(stroke_points)
-        # Add the normalized points to the stroke
-        stroke[next(iter(stroke))] = normalized_points
-        # add the stroke to the list of normalized strokes
-        normalized_strokes.append(stroke)
-    # return the list of normalized strokes
-    return normalized_strokes
-       
-            
-    return normalized_strokes
-
-def convert_string_points_to_int(points:list[dict]) -> list[dict]:
-    for point in points:
-        point['x'] = int(point['x'])
-        point['y'] = int(point['y'])
-    return points
 
 
 def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:Callable, expected_shapes:list[dict]) -> dict:
@@ -72,23 +50,23 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
     recognized_shapes:list[dict] = []
     checked_subsets:list[list[int]] = []
     start_time = time.time()  # Startzeit speichern
-    export_points_to_inkml(strokes, 'original_points.inkml')
-    normalized_strokes = normalize_all_strokes(strokes)
-    print('normalized strokes: ', normalized_strokes)
-    export_points_to_inkml(normalized_strokes, 'normalized_points.inkml')
-    return
     matrix:np.ndarray = initialize_adjacency_matrix(strokes)
     end_time = time.time()  # Endzeit speichern
     average_time_for_initialization += end_time - start_time
-    while current_stroke_limit < MAX_STROKE_LIMIT:
+    
+    while (current_stroke_limit < MAX_STROKE_LIMIT) and (MAX_STROKE_LIMIT <= len(strokes)):
         # set next stroke as primary stroke and add it to the new candidate shape
         for stroke in strokes: 
             primary_stroke = stroke
             index_of_primary_stroke = strokes.index(primary_stroke)
+            # Wir wollen keien stroke in shape candidate haben, der bereits erkannt wurde, also soll ein neuer primary stroke gewählt werden
             if matrix[index_of_primary_stroke, index_of_primary_stroke] == 1:
                 continue
+            
             candidate_shape:list[int] = [index_of_primary_stroke]
             found_shape = False
+            # Im ursprünglichen Algorithmus werden die Nachbarn erst in der While loop berechnet und zwar jedes mal neu, weil sich ja beim hinzufügen von neuen strokes in candidate_shape auch die Nachbarn ändern
+            # Ich berechne die Nachbarn einmalig und speichere sie in einer Liste, um die Berechnung zu beschleunigen. Verzichte also darauf auch die Nachbarn der Nachbarn zu berechnen, ob sich das nachteilig auf die Erkennung auswirkt, müsste genauer untersucht werden
             neighbors:list[int] = find_neighbors(matrix, index_of_primary_stroke)
             next_neighbor_index = 0
             
@@ -111,7 +89,12 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                     if subset_already_checked(subset, checked_subsets):
                         print('subset already checked')
                         continue
+                    
+                    # because the subset contains a list of stroke indices, we need to get the corresponding stroke ids from strokes
+                    # The recognizer expects a list of stroke ids, so we need to convert the indices to ids
+                    # This is because we cannot be sure, that the indices of the strokes are the same as the ids
                     subset_with_ids = get_ids_from_index(subset, strokes)
+                    
                     is_shape = is_a_shape(subset_with_ids, expected_shapes)
                     if 'valid' in is_shape:
                         for stroke_index in list(subset):
@@ -121,6 +104,7 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                         recognized_shapes.append(is_shape['valid'])
                         found_shape = True
                         checked_subsets.append(subset)
+                        
                 next_neighbor_index += 1
         current_stroke_limit += 1     
         

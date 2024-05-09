@@ -1,11 +1,13 @@
 import sys
 import os
 from grouper import group, get_average_time_for_initialization
-from parsers import parse_ground_truth, parse_traces_from_inkml_file
+from parsers import parse_ground_truth, parse_strokes_from_inkml_file
 import time
 from distance_calculators.distance_between_all_points import initialize_adjacency_matrix as initialize_adjacency_matrix
 from distance_calculators.distance_with_bounding_box import initialize_adjacency_matrix as initialize_adjacency_matrix2
+from distance_calculators.distance_with_average_of_all_points import initialize_adjacency_matrix as initialize_adjacency_matrix3
 from recognizer.perfectMockRecognizer import is_a_shape, get_count
+from normalizer import normalize
 
 
 def get_amount_valid_shapes(expected_shapes:list[dict]) -> int:
@@ -24,6 +26,25 @@ def get_amount_correctly_recognized_shapes(recognized_shapes:list[dict], expecte
                 amount += 1
     return amount
 
+def convert_string_points_to_int(points:list[dict]) -> list[dict]:
+    for point in points:
+        point['x'] = int(point['x'])
+        point['y'] = int(point['y'])
+    return points
+
+def normalize_all_strokes(strokes:list[dict]) -> list[dict]:
+    normalized_strokes = []
+    for stroke in strokes:
+        stroke_points = next(iter(stroke.values()))
+        stroke_points = convert_string_points_to_int(stroke_points)
+        normalized_points = normalize(stroke_points)
+        # Add the normalized points to the stroke
+        stroke[next(iter(stroke))] = normalized_points
+        # add the stroke to the list of normalized strokes
+        normalized_strokes.append(stroke)
+    # return the list of normalized strokes
+    return normalized_strokes
+    
 
 def evaluate_grouper(path:str, dataset_type:str = 'Both') -> None:
     amount_valid_shapes:int = 0
@@ -42,15 +63,16 @@ def evaluate_grouper(path:str, dataset_type:str = 'Both') -> None:
                             continue
                         test_file:str = os.path.dirname(file_path) + '/' + line.strip()
                         expected_shapes:list[dict] = parse_ground_truth(test_file)
-                        traces:list[dict] = parse_traces_from_inkml_file(test_file)
+                        strokes:list[dict] = parse_strokes_from_inkml_file(test_file)
+                        strokes = normalize_all_strokes(strokes)
                         start_time = time.time()  # Startzeit speichern
-                        grouped_traces:dict = group(traces, is_a_shape, initialize_adjacency_matrix2, expected_shapes)
+                        grouped_strokes:dict = group(strokes, is_a_shape, initialize_adjacency_matrix, expected_shapes)
                         end_time = time.time()  # Endzeit speichern
                         elapsed_time = end_time - start_time  # Differenz berechnen
                         print(f"Laufzeit: {elapsed_time} Sekunden")
                         print('recognizer count: ', get_count())
                         amount_valid_shapes += get_amount_valid_shapes(expected_shapes)
-                        amount_correctly_recognized_shapes += get_amount_correctly_recognized_shapes(grouped_traces['recognized shapes'], expected_shapes)
+                        amount_correctly_recognized_shapes += get_amount_correctly_recognized_shapes(grouped_strokes['recognized shapes'], expected_shapes)
                         print(amount_correctly_recognized_shapes, ' / ', amount_valid_shapes, 'richtig erkannt')
                         print('average time for initialization: ', get_average_time_for_initialization(), len(content))
                     print('average time for initialization: ', get_average_time_for_initialization() / len(content))
