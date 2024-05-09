@@ -68,6 +68,7 @@ elif(sys.argv[1] == '--fa'):
     evaluate_grouper(path, 'FA')
 elif(sys.argv[1] == '--fc'):
     path = "datasets/FC_1.0"
+    evaluate_grouper(path, 'FA')
 
     
 

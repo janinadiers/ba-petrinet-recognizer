@@ -3,7 +3,7 @@ import numpy as np
 from typing import Callable
 import time
 from normalizer import normalize
-from export_normalized_points_to_inkml import export_normalized_points_to_inkml
+from export_points_to_inkml import export_points_to_inkml
 
 average_time_for_initialization = 0
     
@@ -47,8 +47,7 @@ def normalize_all_strokes(strokes:list[dict]) -> list[dict]:
     for stroke in strokes:
         stroke_points = next(iter(stroke.values()))
         stroke_points = convert_string_points_to_int(stroke_points)
-        print('stroke points: ', len(stroke_points))
-        normalized_points = normalize(stroke_points, len(stroke_points))
+        normalized_points = normalize(stroke_points)
         # Add the normalized points to the stroke
         stroke[next(iter(stroke))] = normalized_points
         # add the stroke to the list of normalized strokes
@@ -73,10 +72,10 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
     recognized_shapes:list[dict] = []
     checked_subsets:list[list[int]] = []
     start_time = time.time()  # Startzeit speichern
-    export_normalized_points_to_inkml(strokes, 'original_points.inkml')
+    export_points_to_inkml(strokes, 'original_points.inkml')
     normalized_strokes = normalize_all_strokes(strokes)
     print('normalized strokes: ', normalized_strokes)
-    export_normalized_points_to_inkml(normalized_strokes, 'normalized_points.inkml')
+    export_points_to_inkml(normalized_strokes, 'normalized_points.inkml')
     return
     matrix:np.ndarray = initialize_adjacency_matrix(strokes)
     end_time = time.time()  # Endzeit speichern
