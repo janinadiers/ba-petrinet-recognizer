@@ -9,7 +9,7 @@ def is_a_shape(grouped_ids:list[int], expected_shapes:list[dict]) -> dict:
     count += 1
     for dictionary in expected_shapes:
         for shape_name, trace_ids in dictionary.items():
-            if trace_ids == grouped_ids and (shape_name == 'circle' or shape_name == 'rectangle'):
+            if set(trace_ids) == set(grouped_ids) and (shape_name == 'circle' or shape_name == 'rectangle'):
                 print('-------------------------- >>>>>>>>>>>>>>>>>> valid')
                 return {'valid': {shape_name: trace_ids}}
         

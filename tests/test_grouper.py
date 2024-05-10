@@ -1,14 +1,14 @@
 import unittest
-from grouper import get_all_subsets, get_neighbors, get_unrecognized_strokes, subset_already_checked, get_ids_from_index
+from grouper import get_new_subsets, get_neighbors, get_unrecognized_strokes, subset_already_checked, get_ids_from_index
 import numpy as np
 
 class TestGrouperMethods(unittest.TestCase):
 
     def test_get_all_subsets(self):
-        self.assertEqual(get_all_subsets([1, 2, 3]), [(1,), (2,), (3,), (1, 2), (1, 3), (2, 3), (1, 2, 3)])
-        self.assertNotEqual(get_all_subsets([1, 2, 3]), [(1,), (2,), (3,), (1, 2), (2, 1), (1, 3), (3, 1), (2, 3), (3, 2), (1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1)])
-        self.assertNotEqual(get_all_subsets([1, 2, 3]), [(1,), (2,), (3,), (1, 2),(2, 1),(1, 3), (2, 3), (1, 2, 3)])
-        self.assertEqual(get_all_subsets([2, 3, 1]), [(2,), (3,), (1,), (2, 3), (2, 1), (3, 1), (2, 3, 1)])
+        self.assertEqual(get_new_subsets([1, 2, 3], 3), [[3],[3,1], [3, 2], [3, 1, 2]])
+        self.assertNotEqual(get_new_subsets([1, 2, 3], 3), [[3], [1, 3], [3, 1], [3, 2], [2, 3], [3, 2, 1], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]])
+        self.assertNotEqual(get_new_subsets([1, 2, 3], 3), [[1], [2], [3], [1, 2],[1, 3], [2, 3], [1, 2, 3]])
+        self.assertEqual(get_new_subsets([2, 3, 1], 1), [[1], [1,2], [1, 3], [1,2, 3]])
     
     def test_subset_already_checked(self):
         subsets = [[1, 2, 3], [2, 3, 1], [1, 2, 3, 4], [1,2,7]]
