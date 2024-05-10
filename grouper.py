@@ -63,7 +63,7 @@ def get_average_time_for_initialization():
 
 def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:Callable, expected_shapes:list[dict]) -> dict:
     global average_time_for_initialization
-    MAX_STROKE_LIMIT:int = 6
+    MAX_STROKE_LIMIT:int = 8
     current_stroke_limit:int = 5 
     recognized_shapes:list[dict] = []
     checked_subsets:list[list[int]] = []
@@ -102,7 +102,6 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                 
                 for subset in get_new_subsets(candidate_shape, candidate_shape[-1]):
                     if subset_already_checked(subset, checked_subsets):
-                        print('subset already checked')
                         continue
                     
                     # because the subset contains a list of stroke indices, we need to get the corresponding stroke ids from strokes
@@ -124,7 +123,6 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                 next_neighbor_index += 1 
                 candidate_shape.append(next_neighbour)     
                 
-        current_stroke_limit += 1     
-        
+        current_stroke_limit += 1      
     unrecognized_strokes = get_unrecognized_strokes(matrix, strokes)
     return {'recognized shapes': recognized_shapes, 'unrecognized strokes': unrecognized_strokes}

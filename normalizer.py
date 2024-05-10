@@ -16,13 +16,15 @@ def resample(points:list[dict]):
         amount_new_points = path_length(points) / pixel_distance # Anzahl der neuen Punkte, die hinzugefügt werden sollen: Die Anzahl setzt sich aus der Länge des Pfades zusammen, wo wir jeweils nach 32 Pixeln einen neuen Punkt setzen wollen
     
     I = path_length(points) / (amount_new_points - 1) # beschreibt die Länge der Abstände zwischen den Punkten, die -1 ist deshalb nötig, weil der letzte Punkt keien Verbindung zu einem weiteren Punkt hat
+    # I ist null, wenn es nur Punkte mit den gleichen Koordinaten gibt
+    if(I == 0):
+        return points
     D = 0 # Beschreibt die bisher zurückgelegte Pfadlänge
     new_points = [points[0]] 
     i = 1
     
     while i < len(points):
         d = distance(points[i-1], points[i])
-
         if D + d >= I:
             t = (I - D) / d
             qx = points[i-1]['x'] + t * (points[i]['x'] - points[i-1]['x'])

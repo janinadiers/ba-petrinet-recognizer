@@ -41,14 +41,13 @@ def normalize_all_strokes(strokes:list[dict]) -> list[dict]:
     
 
 def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> None:
-    print('Evaluating grouper')
     amount_valid_shapes:int = 0
     amount_correctly_recognized_shapes:int = 0
     if dataset_type == 'FA' or dataset_type == 'FC':
         for root, dirs, files in os.walk(path):
             for file in files:
                 file_path = os.path.join(root, file)
-                if(file_path.endswith('FA_Test.txt')):
+                if(file_path.endswith('FC_Test.txt')):
                     with open(file_path) as f:
                         content = f.readlines()
 
@@ -57,6 +56,7 @@ def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> No
                         if not line.endswith('.inkml'):
                             continue
                         test_file:str = os.path.dirname(file_path) + '/' + line.strip()
+                        print(test_file)
                         expected_shapes:list[dict] = parse_ground_truth(test_file)
                         strokes:list[dict] = parse_strokes_from_inkml_file(test_file)
                         strokes = normalize_all_strokes(strokes)
@@ -69,6 +69,5 @@ def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> No
                         amount_valid_shapes += get_amount_valid_shapes(expected_shapes)
                         amount_correctly_recognized_shapes += get_amount_correctly_recognized_shapes(grouped_strokes['recognized shapes'], expected_shapes)
                         print(amount_correctly_recognized_shapes, ' / ', amount_valid_shapes, 'richtig erkannt')
-                        print('average time for initialization: ', get_average_time_for_initialization(), len(content))
                     print('average time for initialization: ', get_average_time_for_initialization() / len(content))
   
