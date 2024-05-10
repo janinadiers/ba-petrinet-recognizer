@@ -1,5 +1,5 @@
 import unittest
-from grouper import get_all_subsets, find_neighbors, get_unrecognized_strokes, subset_already_checked, get_ids_from_index
+from grouper import get_all_subsets, get_neighbors, get_unrecognized_strokes, subset_already_checked, get_ids_from_index
 import numpy as np
 
 class TestGrouperMethods(unittest.TestCase):
@@ -28,32 +28,43 @@ class TestGrouperMethods(unittest.TestCase):
         self.assertEqual(get_ids_from_index([0, 3], strokes), [1, 4])
     
     
-    def test_find_neighbors(self):
-        expected_matrix = np.zeros((4, 4), dtype=int)
+    def test_get_neighbors(self):
+        expected_matrix = np.zeros((5, 5), dtype=int)
         expected_matrix[0, 0] = 0
         expected_matrix[0, 1] = 1
         expected_matrix[0, 2] = 1
         expected_matrix[0, 3] = 0
+        expected_matrix[0,4] = 1
         expected_matrix[1, 0] = 0
         expected_matrix[1, 1] = 0
         expected_matrix[1, 2] = 1
         expected_matrix[1, 3] = 0
+        expected_matrix[1,4] = 0
         expected_matrix[2, 0] = 0
         expected_matrix[2, 1] = 0
         expected_matrix[2, 2] = 0
-        expected_matrix[2, 3] = 0
+        expected_matrix[2, 3] = 1
+        expected_matrix[2,4] = 0
         expected_matrix[3, 0] = 0
         expected_matrix[3, 1] = 0
         expected_matrix[3, 2] = 0
         expected_matrix[3, 3] = 0
+        expected_matrix[3,4] = 1
+        expected_matrix[4,0] = 1
+        expected_matrix[4,1] = 0
+        expected_matrix[4,2] = 0
+        expected_matrix[4,3] = 1
+        expected_matrix[4,4] = 0
         
-        expected_result1 = np.array([1, 2])
-        expected_result2 = np.array([2])
-        expected_result3 = np.array([])
+        expected_result1 = np.array([1, 2, 4])
+        expected_result2 = np.array([1,2, 4])
+        expected_result3 = np.array([1,2, 4,3])
         
-        np.testing.assert_array_equal(find_neighbors(expected_matrix, 0), expected_result1)
-        np.testing.assert_array_equal(find_neighbors(expected_matrix, 1), expected_result2)
-        np.testing.assert_array_equal(find_neighbors(expected_matrix, 2), expected_result3)
+        np.testing.assert_array_equal(get_neighbors(expected_matrix, [0], []), expected_result1)
+        np.testing.assert_array_equal(get_neighbors(expected_matrix, [0,1], [1,2,4]), expected_result2)
+        np.testing.assert_array_equal(get_neighbors(expected_matrix, [0,1,2], [1,2, 4]), expected_result3)
+        np.testing.assert_array_equal(get_neighbors(expected_matrix, [0,1,2,4], [1,2, 4]), expected_result3)
+
 
     def test_get_unrecognized_strokes(self):
         

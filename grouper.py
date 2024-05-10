@@ -14,10 +14,15 @@ def get_unrecognized_strokes(matrix:np.ndarray, strokes:list[dict]) -> list[dict
             unrecognized_strokes.append(strokes[i])
     return unrecognized_strokes  
     
-def find_neighbors(matrix:np.ndarray, stroke_index:int) -> list[int]:
+def get_neighbors(matrix:np.ndarray, candidate_shape:list[int], neighbors:list[int]) -> list[int]:
     """ Returns the indices of the neighbors of the given stroke_index which not already belong to a recognized shape"""
-    neighbors = np.where((matrix[stroke_index] == 1) & (matrix[stroke_index][stroke_index] != 1))[0]
-    return neighbors
+    new_neighbors = list(neighbors)
+    for stroke_index in candidate_shape:
+        neighbors_of_stroke = np.where((matrix[stroke_index] == 1) & (matrix[stroke_index][stroke_index] != 1))[0]
+        for neighbor in neighbors_of_stroke:
+            if neighbor not in new_neighbors and neighbor not in candidate_shape:
+                new_neighbors.append(neighbor)
+    return new_neighbors
 
 def get_all_subsets(candidate_shape:list[int]) -> list[list[int]]:
     all_subsets = list(itertools.chain.from_iterable(itertools.combinations(candidate_shape, r) for r in range(1, len(candidate_shape)+1)))
@@ -65,12 +70,16 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
             
             candidate_shape:list[int] = [index_of_primary_stroke]
             found_shape = False
-            # Im ursprünglichen Algorithmus werden die Nachbarn erst in der While loop berechnet und zwar jedes mal neu, weil sich ja beim hinzufügen von neuen strokes in candidate_shape auch die Nachbarn ändern
-            # Ich berechne die Nachbarn einmalig und speichere sie in einer Liste, um die Berechnung zu beschleunigen. Verzichte also darauf auch die Nachbarn der Nachbarn zu berechnen, ob sich das nachteilig auf die Erkennung auswirkt, müsste genauer untersucht werden
-            neighbors:list[int] = find_neighbors(matrix, index_of_primary_stroke)
-            next_neighbor_index = 0
+            neighbors:list[int] = []
+            next_neighbor_index:int = 0
             
-            while (len(candidate_shape) < current_stroke_limit) and (not found_shape) and next_neighbor_index < len(neighbors):
+            # Die dritte bedingung wurde weggelassen, da ein stroke alleine ja auch eine gültige shape sein kann
+            while (len(candidate_shape) < current_stroke_limit) and (not found_shape):
+                print('candidate_shape: ', candidate_shape)
+                # Hier sollen alle neuen neighbors hinzugefügt werden, die nicht bereits in neighbors sind
+                neighbors:list[int] = get_neighbors(matrix, candidate_shape, neighbors)
+                print('current neighbors: ', neighbors)
+                # print('neighbors: ', neighbors)
                 # falls ein stroke keinen Nachbarn hat soll trotzdem geprüft werden, ob er alleine eine gültige shape ist
                 if(len(neighbors) == 0):
                     is_shape:dict = is_a_shape(candidate_shape, expected_shapes)
@@ -80,8 +89,10 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                         recognized_shapes.append(is_shape['valid'])
                         found_shape = True
                     break
-                
+                if next_neighbor_index >= len(neighbors):
+                    break
                 next_neighbour:int = neighbors[next_neighbor_index]
+                next_neighbor_index += 1 
                 candidate_shape.append(next_neighbour)
                 
                 
@@ -104,8 +115,8 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                         recognized_shapes.append(is_shape['valid'])
                         found_shape = True
                         checked_subsets.append(subset)
-                        
-                next_neighbor_index += 1
+                      
+                
         current_stroke_limit += 1     
         
     unrecognized_strokes = get_unrecognized_strokes(matrix, strokes)
