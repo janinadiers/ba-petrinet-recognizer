@@ -1,5 +1,5 @@
 import unittest
-from recognizer.perfectMockRecognizer import is_a_shape
+from recognizer.perfect_mock_recognizer import is_a_shape
 class TestPerfectMockRecognizerMethods(unittest.TestCase):
 
     def test_is_a_shape(self):

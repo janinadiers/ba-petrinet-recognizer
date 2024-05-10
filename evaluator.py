@@ -6,7 +6,7 @@ import time
 from distance_calculators.distance_between_all_points import initialize_adjacency_matrix as initialize_adjacency_matrix
 from distance_calculators.distance_with_bounding_box import initialize_adjacency_matrix as initialize_adjacency_matrix2
 from distance_calculators.distance_with_average_of_all_points import initialize_adjacency_matrix as initialize_adjacency_matrix3
-from recognizer.perfectMockRecognizer import is_a_shape, get_count
+from recognizer.perfect_mock_recognizer import is_a_shape, get_count
 from normalizer import normalize
 
 
