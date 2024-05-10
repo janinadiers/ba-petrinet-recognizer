@@ -1,4 +1,4 @@
-import sys
+
 import os
 from grouper import group, get_average_time_for_initialization
 from parsers import parse_ground_truth, parse_strokes_from_inkml_file
@@ -40,7 +40,8 @@ def normalize_all_strokes(strokes:list[dict]) -> list[dict]:
     return normalized_strokes
     
 
-def evaluate_grouper(path:str, dataset_type:str = 'Both') -> None:
+def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> None:
+    print('Evaluating grouper')
     amount_valid_shapes:int = 0
     amount_correctly_recognized_shapes:int = 0
     if dataset_type == 'FA' or dataset_type == 'FC':
@@ -71,21 +72,3 @@ def evaluate_grouper(path:str, dataset_type:str = 'Both') -> None:
                         print('average time for initialization: ', get_average_time_for_initialization(), len(content))
                     print('average time for initialization: ', get_average_time_for_initialization() / len(content))
   
-                       
-        
-                                                  
-
-# get input from command line: --fa or --fc or both
-
-if len(sys.argv) < 2:
-    path = ["datasets/FC_1.0", "../../../datasets/FA_1.1"] 
-elif(sys.argv[1] == '--fa'):
-    path = "datasets/FA_1.1"
-    evaluate_grouper(path, 'FA')
-elif(sys.argv[1] == '--fc'):
-    path = "datasets/FC_1.0"
-    evaluate_grouper(path, 'FA')
-
-    
-
-
