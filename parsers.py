@@ -1,15 +1,10 @@
 import xml.etree.ElementTree as ET
 
-
 def parse_strokes_from_inkml_file(file_path: str)-> list[dict]:
     # Parse the XML file
     tree:ET.ElementTree = ET.parse(file_path)
     root:ET.Element = tree.getroot()
-
-    # Namespace handling
     namespaces = {'inkml': 'http://www.w3.org/2003/InkML'}
-
-    # Extract traces
     traces = []
     for trace in root.findall('trace', namespaces):
         # Extract trace data
@@ -20,7 +15,7 @@ def parse_strokes_from_inkml_file(file_path: str)-> list[dict]:
         for point in trace_data:
             point = list(point.split(' '))
             point = list(filter(None, point))
-            trace_points.append({'x': point[0], 'y': point[1], 't': point[2]}) 
+            trace_points.append({'x': int(point[0]), 'y': int(point[1]), 't': int(point[2])}) 
         traces.append({trace_id: trace_points})
 
     return traces
@@ -30,9 +25,7 @@ def parse_ground_truth(file_path: str)-> list[dict]:
     # Parse the XML file
     tree:ET.ElementTree = ET.parse(file_path)
     root:ET.Element = tree.getroot()
-    # Namespace handling
     namespaces = {'inkml': 'http://www.w3.org/2003/InkML'}
-    # Extract shapes
     shapes = []
     
     for symbol in root.findall('symbols', namespaces):

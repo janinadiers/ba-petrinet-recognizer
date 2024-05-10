@@ -26,17 +26,11 @@ def get_amount_correctly_recognized_shapes(recognized_shapes:list[dict], expecte
                 amount += 1
     return amount
 
-def convert_string_points_to_int(points:list[dict]) -> list[dict]:
-    for point in points:
-        point['x'] = int(point['x'])
-        point['y'] = int(point['y'])
-    return points
 
 def normalize_all_strokes(strokes:list[dict]) -> list[dict]:
     normalized_strokes = []
     for stroke in strokes:
         stroke_points = next(iter(stroke.values()))
-        stroke_points = convert_string_points_to_int(stroke_points)
         normalized_points = normalize(stroke_points)
         # Add the normalized points to the stroke
         stroke[next(iter(stroke))] = normalized_points
