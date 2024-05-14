@@ -12,53 +12,38 @@ def get_unrecognized_strokes(matrix:np.ndarray, strokes:list[dict]) -> list[dict
     return unrecognized_strokes  
 
     
-def get_neighbors(matrix:np.ndarray, candidate_shape:list[int], neighbors:list[int], strokes) -> list[int]:
-    """ Returns the indices of the neighbors of the given stroke_index which not already belong to a recognized shape"""
-    new_neighbors = list(neighbors)
-    neighbors_of_stroke = np.where((matrix[candidate_shape[-1]] > 0) & (matrix[candidate_shape[-1]][candidate_shape[-1]] != 1))[0]
-    for neighbor in neighbors_of_stroke:
-        if neighbor not in new_neighbors and neighbor not in candidate_shape and matrix[neighbor, neighbor] != 1:
-            new_neighbors.append(neighbor)
-    return new_neighbors
+def get_neighbors(matrix, candidate_shape, neighbors, strokes):
+    last_index = candidate_shape[-1]
+    # Using NumPy to directly find non-zero elements which are not self-loops and not already in the shape
+    potential_neighbors = np.where((matrix[last_index] > 0) & (np.arange(matrix.shape[0]) != last_index))[0]
+    new_neighbors = [n for n in potential_neighbors if n not in candidate_shape and n not in neighbors]
+    neighbors.extend(new_neighbors)
+    return neighbors
 
-def get_new_subsets(candidate_shape: list[int], new_stroke: int) -> list[list[int]]:
+def get_new_subsets(candidate_shape: list[int], new_stroke: int) -> set:
     # Ensure new_stroke is part of the candidate_shape
-    if new_stroke in candidate_shape:
-        remaining_elements = [x for x in candidate_shape if x != new_stroke]
-    else:
-        Exception("new_stroke is not part of the candidate_shape")
+    if new_stroke not in candidate_shape:
+        raise Exception("new_stroke is not part of the candidate_shape")
 
-    # Generate all combinations of the remaining elements
-    all_combinations = []
-    for r in range(len(remaining_elements) + 1):
-        for combination in itertools.combinations(remaining_elements, r):
-            # Add new_stroke to each combination
-            all_combinations.append([new_stroke] + list(combination))
+    # Generate all combinations of the candidate_shape
+    all_combinations = set()
+    for r in range(1, len(candidate_shape) + 1):  # start from 1 to include at least one element
+        for combination in itertools.combinations(candidate_shape, r):
+            all_combinations.add(frozenset(combination))
+
     return all_combinations
 
 
 # Function to check if a subset (regardless of order) is in the list of subsets
-def subset_already_checked(subset, subsets):
-    for existing_subset in subsets:
-        if sorted(existing_subset) == sorted(subset):
-            return True
-    return False
-
-# def get_ids(subset, strokes):
-#     stroke_ids = []
-#     for index in subset:
-#         stroke_ids.append(int(next(iter(strokes[index]))))
-#     return stroke_ids
-
-def get_ids(subset, strokes):
-    return [next(iter(strokes[index])) for index in subset]
+def subset_already_checked(subset: frozenset, subsets: set) -> bool:
+    return subset in subsets
 
 
 def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:Callable, expected_shapes:list[dict]) -> dict:
     MAX_STROKE_LIMIT:int = 11
     current_stroke_limit:int = 5
     recognized_shapes:list[dict] = []
-    checked_subsets:list[list[int]] = []
+    checked_subsets = set()
     matrix:np.ndarray = initialize_adjacency_matrix(strokes)
     
     while (current_stroke_limit < MAX_STROKE_LIMIT) and (current_stroke_limit <= len(strokes)):
@@ -79,21 +64,17 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
             # Die dritte bedingung wurde weggelassen, da ein stroke alleine ja auch eine gültige shape sein kann
             while (len(candidate_shape) <= current_stroke_limit) and (not found_shape):
                 # Hier sollen alle neuen neighbors hinzugefügt werden, die nicht bereits in neighbors sind
-                start_time = time.time()  # Start timing
                 neighbors:list[int] = get_neighbors(matrix, candidate_shape, neighbors, strokes)
-                end_time = time.time()  # End timing
-                # print(f" get_neighbors Function ran for {end_time - start_time} seconds")
-                
-                # print('neighbors', len(neighbors))
                 # falls ein stroke keinen Nachbarn hat soll trotzdem geprüft werden, ob er alleine eine gültige shape ist
                 if(len(neighbors) == 0):
-                    subset_with_ids = get_ids(candidate_shape, strokes)
-                    is_shape:dict = is_a_shape(subset_with_ids, expected_shapes)
-                    if 'valid' in is_shape:
-                        # Update the diagonal entry to indicate recognition of the new shape
-                        matrix[candidate_shape[0], candidate_shape[0]] = 1
-                        recognized_shapes.append(is_shape['valid'])
-                        found_shape = True
+                    if not subset_already_checked(frozenset(candidate_shape), checked_subsets):
+                        checked_subsets.add(frozenset(candidate_shape))
+                        is_shape:dict = is_a_shape(candidate_shape, expected_shapes)
+                        if 'valid' in is_shape:
+                            # Update the diagonal entry to indicate recognition of the new shape
+                            matrix[candidate_shape[0], candidate_shape[0]] = 1
+                            recognized_shapes.append(is_shape['valid'])
+                            found_shape = True    
                     break
                 
                 if next_neighbor_index > len(neighbors) -1:
@@ -103,32 +84,16 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                 next_neighbor_index += 1 
                  
                 for subset in get_new_subsets(candidate_shape, candidate_shape[-1]):
-                    if subset_already_checked(subset, checked_subsets):
-                        continue
-                    
-                    # because the subset contains a list of stroke indices, we need to get the corresponding stroke ids from strokes
-                    # The recognizer expects a list of stroke ids, so we need to convert the indices to ids
-                    # This is because we cannot be sure, that the indices of the strokes are the same as the ids
-                    # Which they are not since the text is removed manually
-                    start_time = time.time()  # Start timing
-                    subset_with_ids = get_ids(subset, strokes)
-                    end_time = time.time()  # End timing
-                    print(f" get_ids Function ran for {end_time - start_time} seconds")
-                    start_time = time.time()  # Start timing
-                    is_shape = is_a_shape(subset_with_ids, expected_shapes)
-                    end_time = time.time()  # End timing
-                    # print(f"is_a_shape Function ran for {end_time - start_time} seconds")
-                    if 'valid' in is_shape:
-                        for stroke_index in list(subset):
-                            matrix[stroke_index, stroke_index] = 1
-                            
-                        recognized_shapes.append(is_shape['valid'])
-                        found_shape = True
-                        checked_subsets.append(subset)
-                
-                  
-                
-                
+                    if not subset_already_checked(frozenset(subset), checked_subsets):
+                        checked_subsets.add(frozenset(subset))
+                        is_shape = is_a_shape(subset, expected_shapes)
+                        if 'valid' in is_shape:
+                            for stroke_index in list(subset):
+                                matrix[stroke_index, stroke_index] = 1
+                                
+                            recognized_shapes.append(is_shape['valid'])
+                            found_shape = True
+                              
         current_stroke_limit += 1      
     unrecognized_strokes = get_unrecognized_strokes(matrix, strokes)
     return {'recognized shapes': recognized_shapes, 'unrecognized strokes': unrecognized_strokes}

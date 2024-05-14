@@ -66,7 +66,7 @@ def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> No
         for root, dirs, files in os.walk(path):
             for file in files:
                 file_path = os.path.join(root, file)
-                if(file_path.endswith('FC_Train.txt') or file_path.endswith('FA_Train.txt')):
+                if(file_path.endswith('FC_Test.txt') or file_path.endswith('FA_Test.txt')):
                     runtimes = []
                     with open(file_path) as f:
                         content = f.readlines()
@@ -78,7 +78,7 @@ def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> No
                         test_file:str = os.path.dirname(file_path) + '/' + line.strip()
                         expected_shapes:list[dict] = parse_ground_truth(test_file)
                         strokes:list[dict] = parse_strokes_from_inkml_file(test_file)
-                        # strokes:list[dict] = exclude_text_strokes(strokes, expected_shapes)
+                        strokes:list[dict] = exclude_text_strokes(strokes, expected_shapes)
                         # strokes = normalize_all_strokes(strokes)
                         start_time = time.time()  # Startzeit speichern
                         grouped_strokes:dict = group(strokes, is_a_shape, initialize_adjacency_matrix, expected_shapes)

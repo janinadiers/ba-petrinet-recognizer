@@ -11,10 +11,10 @@ def get_min_distance(stroke1:dict, stroke2:dict) -> float:
 #     
     """Calculate the minimum Euclidean distance between all point pairs of two strokes."""
     # min_distance:float = float('inf')
-    points_stroke1:list[dict] = next(iter(stroke1.values()))
-    points_stroke2:list[dict] = next(iter(stroke2.values()))
-    s1 = convert_dict_to_nparray(points_stroke1)
-    s2 = convert_dict_to_nparray(points_stroke2)
+    # points_stroke1:list[dict] = next(iter(stroke1.values()))
+    # points_stroke2:list[dict] = next(iter(stroke2.values()))
+    s1 = convert_dict_to_nparray(stroke1)
+    s2 = convert_dict_to_nparray(stroke2)
     return distance.cdist(s1,s2).min(axis=1).min()
 
 def euclidean_distance(point1: dict, point2:dict) -> float:
