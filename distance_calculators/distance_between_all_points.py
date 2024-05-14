@@ -63,4 +63,6 @@ def initialize_adjacency_matrix(strokes:list[dict]) -> np.ndarray:
             # If distance is less than or equal to threshold, mark them as neighbors
             if distance <= max_dist:
                 matrix[i, j] = distance
+                matrix[j, i] = distance
+                
     return matrix

@@ -46,7 +46,7 @@ def initialize_adjacency_matrix(normalized_strokes:list[dict]) -> np.ndarray:
     """Initialize the adjacency matrix A based on the spatial proximity of strokes."""
     num_normalized_strokes:int = len(normalized_strokes)
     matrix:np.ndarray = np.zeros((num_normalized_strokes, num_normalized_strokes), dtype=int)
-    MAX_DIST:int= get_max_dist(normalized_strokes) * 0.35
+    MAX_DIST:int= 5000
     
     
     # Iterate over all pairs of normalized_strokes and determine if they are neighbors

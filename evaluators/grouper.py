@@ -1,6 +1,6 @@
 
 import os
-from grouper import group, get_average_time_for_initialization
+from grouper import group
 from parsers import parse_ground_truth, parse_strokes_from_inkml_file
 import time
 from distance_calculators.distance_between_all_points import initialize_adjacency_matrix as initialize_adjacency_matrix
@@ -26,6 +26,19 @@ def get_amount_correctly_recognized_shapes(recognized_shapes:list[dict], expecte
                 amount += 1
     return amount
 
+def exclude_text_strokes(strokes:list[dict], expected_shapes) -> list[dict]:
+    result = list(strokes)
+    for shape in expected_shapes:
+        shape_name = next(iter(shape))
+        if shape_name == 'text':
+            text_stroke_ids = shape[shape_name]
+            for text_stroke_id in text_stroke_ids:
+                for stroke in result:
+                    if str(text_stroke_id) in stroke:
+                        result.remove(stroke)
+   
+    return result
+    
 def get_average_run_time(runtimes:list) -> time:
     sum = 0
     for runtime in runtimes:
@@ -53,8 +66,7 @@ def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> No
         for root, dirs, files in os.walk(path):
             for file in files:
                 file_path = os.path.join(root, file)
-                if(file_path.endswith('Fake_Test.txt')):
-                # if(file_path.endswith('FC_Test.txt') or file_path.endswith('FA_Test.txt')):
+                if(file_path.endswith('FC_Train.txt') or file_path.endswith('FA_Train.txt')):
                     runtimes = []
                     with open(file_path) as f:
                         content = f.readlines()
@@ -64,10 +76,10 @@ def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> No
                         if not line.endswith('.inkml'):
                             continue
                         test_file:str = os.path.dirname(file_path) + '/' + line.strip()
-                        print(test_file)
                         expected_shapes:list[dict] = parse_ground_truth(test_file)
                         strokes:list[dict] = parse_strokes_from_inkml_file(test_file)
-                        strokes = normalize_all_strokes(strokes)
+                        # strokes:list[dict] = exclude_text_strokes(strokes, expected_shapes)
+                        # strokes = normalize_all_strokes(strokes)
                         start_time = time.time()  # Startzeit speichern
                         grouped_strokes:dict = group(strokes, is_a_shape, initialize_adjacency_matrix, expected_shapes)
                         end_time = time.time()  # Endzeit speichern

@@ -2,9 +2,6 @@ import itertools
 import numpy as np
 from typing import Callable
 import time
-from export_points_to_inkml import export_points_to_inkml
-
-average_time_for_initialization = 0
     
 def get_unrecognized_strokes(matrix:np.ndarray, strokes:list[dict]) -> list[dict]: 
     """ Returns the strokes that have an entry of 0 in the diagonal of the adjacency matrix"""
@@ -14,16 +11,14 @@ def get_unrecognized_strokes(matrix:np.ndarray, strokes:list[dict]) -> list[dict
             unrecognized_strokes.append(strokes[i])
     return unrecognized_strokes  
 
-
     
-def get_neighbors(matrix:np.ndarray, candidate_shape:list[int], neighbors:list[int]) -> list[int]:
+def get_neighbors(matrix:np.ndarray, candidate_shape:list[int], neighbors:list[int], strokes) -> list[int]:
     """ Returns the indices of the neighbors of the given stroke_index which not already belong to a recognized shape"""
     new_neighbors = list(neighbors)
-    for stroke_index in candidate_shape:
-        neighbors_of_stroke = np.where((matrix[stroke_index] > 0) & (matrix[stroke_index][stroke_index] != 1))[0]
-        for neighbor in neighbors_of_stroke:
-            if neighbor not in new_neighbors and neighbor not in candidate_shape:
-                new_neighbors.append(neighbor)
+    neighbors_of_stroke = np.where((matrix[candidate_shape[-1]] > 0) & (matrix[candidate_shape[-1]][candidate_shape[-1]] != 1))[0]
+    for neighbor in neighbors_of_stroke:
+        if neighbor not in new_neighbors and neighbor not in candidate_shape and matrix[neighbor, neighbor] != 1:
+            new_neighbors.append(neighbor)
     return new_neighbors
 
 def get_new_subsets(candidate_shape: list[int], new_stroke: int) -> list[list[int]]:
@@ -49,48 +44,28 @@ def subset_already_checked(subset, subsets):
             return True
     return False
 
-def get_ids_from_index(subset, strokes):
-    stroke_ids = []
-    for index in subset:
-        stroke_ids.append(int(next(iter(strokes[index]))))
-    return stroke_ids
+# def get_ids(subset, strokes):
+#     stroke_ids = []
+#     for index in subset:
+#         stroke_ids.append(int(next(iter(strokes[index]))))
+#     return stroke_ids
 
-def get_average_time_for_initialization():
-    global average_time_for_initialization
-    return average_time_for_initialization
-
-def is_direct_successor(num1, num2):
-    return num2 == num1 + 1
-
-def shape_candidate_has_only_strokes_in_temporal_order_with_only_one_exception(candidate_shape:list[int]) -> dict:
-    """Checks if the strokes in the candidate shape are temporally concurrent with only one exception"""
-    exception_exists = False
-    for index in candidate_shape:
-        if is_direct_successor(index, index + 1):
-            continue
-        else:
-            if exception_exists:
-                return False
-            exception_exists = True
-    return True
-
+def get_ids(subset, strokes):
+    return [next(iter(strokes[index])) for index in subset]
 
 
 def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:Callable, expected_shapes:list[dict]) -> dict:
-    global average_time_for_initialization
     MAX_STROKE_LIMIT:int = 11
     current_stroke_limit:int = 5
     recognized_shapes:list[dict] = []
     checked_subsets:list[list[int]] = []
-    start_time = time.time()  # Startzeit speichern
     matrix:np.ndarray = initialize_adjacency_matrix(strokes)
-    end_time = time.time()  # Endzeit speichern
-    average_time_for_initialization += end_time - start_time
     
-    while (current_stroke_limit < MAX_STROKE_LIMIT) and (MAX_STROKE_LIMIT <= len(strokes)):
+    while (current_stroke_limit < MAX_STROKE_LIMIT) and (current_stroke_limit <= len(strokes)):
         # every stroke in strokes should be a primary stroke at least once
         for stroke in strokes: 
             primary_stroke = stroke
+            # strokes are stored with their index in the matrix, so we need to get the index of the primary stroke
             index_of_primary_stroke = strokes.index(primary_stroke)
             # Wir wollen keien stroke in shape candidate haben, der bereits erkannt wurde, also soll ein neuer primary stroke gewählt werden
             if matrix[index_of_primary_stroke, index_of_primary_stroke] == 1:
@@ -104,10 +79,16 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
             # Die dritte bedingung wurde weggelassen, da ein stroke alleine ja auch eine gültige shape sein kann
             while (len(candidate_shape) <= current_stroke_limit) and (not found_shape):
                 # Hier sollen alle neuen neighbors hinzugefügt werden, die nicht bereits in neighbors sind
-                neighbors:list[int] = get_neighbors(matrix, candidate_shape, neighbors)
+                start_time = time.time()  # Start timing
+                neighbors:list[int] = get_neighbors(matrix, candidate_shape, neighbors, strokes)
+                end_time = time.time()  # End timing
+                # print(f" get_neighbors Function ran for {end_time - start_time} seconds")
+                
+                # print('neighbors', len(neighbors))
                 # falls ein stroke keinen Nachbarn hat soll trotzdem geprüft werden, ob er alleine eine gültige shape ist
                 if(len(neighbors) == 0):
-                    is_shape:dict = is_a_shape(candidate_shape, expected_shapes)
+                    subset_with_ids = get_ids(candidate_shape, strokes)
+                    is_shape:dict = is_a_shape(subset_with_ids, expected_shapes)
                     if 'valid' in is_shape:
                         # Update the diagonal entry to indicate recognition of the new shape
                         matrix[candidate_shape[0], candidate_shape[0]] = 1
@@ -115,6 +96,12 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                         found_shape = True
                     break
                 
+                if next_neighbor_index > len(neighbors) -1:
+                    break
+                next_neighbour:int = neighbors[next_neighbor_index]
+                candidate_shape.append(next_neighbour)
+                next_neighbor_index += 1 
+                 
                 for subset in get_new_subsets(candidate_shape, candidate_shape[-1]):
                     if subset_already_checked(subset, checked_subsets):
                         continue
@@ -122,8 +109,15 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                     # because the subset contains a list of stroke indices, we need to get the corresponding stroke ids from strokes
                     # The recognizer expects a list of stroke ids, so we need to convert the indices to ids
                     # This is because we cannot be sure, that the indices of the strokes are the same as the ids
-                    subset_with_ids = get_ids_from_index(subset, strokes)
+                    # Which they are not since the text is removed manually
+                    start_time = time.time()  # Start timing
+                    subset_with_ids = get_ids(subset, strokes)
+                    end_time = time.time()  # End timing
+                    print(f" get_ids Function ran for {end_time - start_time} seconds")
+                    start_time = time.time()  # Start timing
                     is_shape = is_a_shape(subset_with_ids, expected_shapes)
+                    end_time = time.time()  # End timing
+                    # print(f"is_a_shape Function ran for {end_time - start_time} seconds")
                     if 'valid' in is_shape:
                         for stroke_index in list(subset):
                             matrix[stroke_index, stroke_index] = 1
@@ -132,11 +126,7 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                         found_shape = True
                         checked_subsets.append(subset)
                 
-                if next_neighbor_index >= len(neighbors):
-                    break
-                next_neighbour:int = neighbors[next_neighbor_index]
-                next_neighbor_index += 1 
-                candidate_shape.append(next_neighbour)   
+                  
                 
                 
         current_stroke_limit += 1      

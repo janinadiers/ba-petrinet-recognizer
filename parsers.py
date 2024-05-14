@@ -9,7 +9,7 @@ def parse_strokes_from_inkml_file(file_path: str)-> list[dict]:
     for trace in root.findall('trace', namespaces):
         # Extract trace data
         trace_data:list = trace.text.strip().split(',')
-        trace_id:str = trace.attrib['id']
+        trace_id:str = int(trace.attrib['id'])
         trace_points = []
         # Parse each coordinate in the trace
         for point in trace_data:
@@ -62,7 +62,6 @@ def parse_ground_truth(file_path: str)-> list[dict]:
             else:
                 print('Unknown shape type: ', annotations[0].text, 'please add it to the parser')
     return shapes
-
 
 
 def parse_shape_types_with_amount_of_occurence(file_path:str):
