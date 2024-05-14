@@ -4,7 +4,7 @@ def normalize(points: list[dict]) -> list[dict]:
     points = resample(points)
     
     return points
-    # eventuell noch translate???
+    # eventuell noch translate und scale???
     
 
 # def pixels_to_himetrics(pixels, dpi):

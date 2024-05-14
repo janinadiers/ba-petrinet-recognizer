@@ -20,7 +20,7 @@ def get_neighbors(matrix:np.ndarray, candidate_shape:list[int], neighbors:list[i
     """ Returns the indices of the neighbors of the given stroke_index which not already belong to a recognized shape"""
     new_neighbors = list(neighbors)
     for stroke_index in candidate_shape:
-        neighbors_of_stroke = np.where((matrix[stroke_index] == 1) & (matrix[stroke_index][stroke_index] != 1))[0]
+        neighbors_of_stroke = np.where((matrix[stroke_index] > 0) & (matrix[stroke_index][stroke_index] != 1))[0]
         for neighbor in neighbors_of_stroke:
             if neighbor not in new_neighbors and neighbor not in candidate_shape:
                 new_neighbors.append(neighbor)
@@ -79,7 +79,7 @@ def shape_candidate_has_only_strokes_in_temporal_order_with_only_one_exception(c
 def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:Callable, expected_shapes:list[dict]) -> dict:
     global average_time_for_initialization
     MAX_STROKE_LIMIT:int = 11
-    current_stroke_limit:int = 5 
+    current_stroke_limit:int = 5
     recognized_shapes:list[dict] = []
     checked_subsets:list[list[int]] = []
     start_time = time.time()  # Startzeit speichern
@@ -136,10 +136,8 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                     break
                 next_neighbour:int = neighbors[next_neighbor_index]
                 next_neighbor_index += 1 
-                if shape_candidate_has_only_strokes_in_temporal_order_with_only_one_exception(candidate_shape):
-                    candidate_shape.append(next_neighbour)    
-                else:
-                    print(',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, ELSE') 
+                candidate_shape.append(next_neighbour)   
+                
                 
         current_stroke_limit += 1      
     unrecognized_strokes = get_unrecognized_strokes(matrix, strokes)

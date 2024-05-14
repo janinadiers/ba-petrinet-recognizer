@@ -53,7 +53,8 @@ def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> No
         for root, dirs, files in os.walk(path):
             for file in files:
                 file_path = os.path.join(root, file)
-                if(file_path.endswith('FC_Test.txt') or file_path.endswith('FA_Train.txt')):
+                if(file_path.endswith('Fake_Test.txt')):
+                # if(file_path.endswith('FC_Test.txt') or file_path.endswith('FA_Test.txt')):
                     runtimes = []
                     with open(file_path) as f:
                         content = f.readlines()
@@ -77,5 +78,5 @@ def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> No
                         amount_valid_shapes += get_amount_valid_shapes(expected_shapes)
                         amount_correctly_recognized_shapes += get_amount_correctly_recognized_shapes(grouped_strokes['recognized shapes'], expected_shapes)
                         print(amount_correctly_recognized_shapes, ' / ', amount_valid_shapes, 'richtig erkannt')
-                    print('average run time: ', get_average_run_time(elapsed_time))
+                    print('average run time: ', get_average_run_time(runtimes))
   
