@@ -47,7 +47,7 @@ def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> No
         for root, dirs, files in os.walk(path):
             for file in files:
                 file_path = os.path.join(root, file)
-                if(file_path.endswith('FC_Test.txt')):
+                if(file_path.endswith('FC_Test.txt') or file_path.endswith('FA_Train.txt')):
                     with open(file_path) as f:
                         content = f.readlines()
 
@@ -61,7 +61,7 @@ def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> No
                         strokes:list[dict] = parse_strokes_from_inkml_file(test_file)
                         strokes = normalize_all_strokes(strokes)
                         start_time = time.time()  # Startzeit speichern
-                        grouped_strokes:dict = group(strokes, is_a_shape, initialize_adjacency_matrix3, expected_shapes)
+                        grouped_strokes:dict = group(strokes, is_a_shape, initialize_adjacency_matrix, expected_shapes)
                         end_time = time.time()  # Endzeit speichern
                         elapsed_time = end_time - start_time  # Differenz berechnen
                         print(f"Laufzeit: {elapsed_time} Sekunden")

@@ -59,11 +59,26 @@ def get_average_time_for_initialization():
     global average_time_for_initialization
     return average_time_for_initialization
 
+def is_direct_successor(num1, num2):
+    return num2 == num1 + 1
+
+def shape_candidate_has_only_strokes_in_temporal_order_with_only_one_exception(candidate_shape:list[int]) -> dict:
+    """Checks if the strokes in the candidate shape are temporally concurrent with only one exception"""
+    exception_exists = False
+    for index in candidate_shape:
+        if is_direct_successor(index, index + 1):
+            continue
+        else:
+            if exception_exists:
+                return False
+            exception_exists = True
+    return True
+
 
 
 def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:Callable, expected_shapes:list[dict]) -> dict:
     global average_time_for_initialization
-    MAX_STROKE_LIMIT:int = 8
+    MAX_STROKE_LIMIT:int = 11
     current_stroke_limit:int = 5 
     recognized_shapes:list[dict] = []
     checked_subsets:list[list[int]] = []
@@ -121,7 +136,10 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                     break
                 next_neighbour:int = neighbors[next_neighbor_index]
                 next_neighbor_index += 1 
-                candidate_shape.append(next_neighbour)     
+                if shape_candidate_has_only_strokes_in_temporal_order_with_only_one_exception(candidate_shape):
+                    candidate_shape.append(next_neighbour)    
+                else:
+                    print(',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,, ELSE') 
                 
         current_stroke_limit += 1      
     unrecognized_strokes = get_unrecognized_strokes(matrix, strokes)

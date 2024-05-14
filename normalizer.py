@@ -2,8 +2,30 @@ import math
 
 def normalize(points: list[dict]) -> list[dict]:
     points = resample(points)
+    
     return points
-    # eventuell noch scale und translate???
+    # eventuell noch translate???
+    
+
+# def pixels_to_himetrics(pixels, dpi):
+#     himetrics_per_inch = 2540
+#     return pixels * (himetrics_per_inch / dpi)
+    
+# Die Skalierung ist notwendig, um die Punkte auf eine einheitliche Größe zu bringen, sodass die Punkte in einem einheitlichen Koordinatensystem liegen
+def scale(points: list[dict]) -> list[dict]:
+    for point in points:
+        xmin = min(points, key=lambda x: x['x'])['x']
+        ymin = min(points, key=lambda x: x['y'])['y']
+        xmax = max(points, key=lambda x: x['x'])['x']
+        ymax = max(points, key=lambda x: x['y'])['y']
+    scale = max(xmax - xmin, ymax - ymin)
+    if(scale == 0):
+        return points
+    for point in points:
+        point['x'] = (point['x'] - xmin) / scale
+        point['y'] = (point['y'] - ymin) / scale
+    return points
+    
 
  
 def resample(points:list[dict]):
