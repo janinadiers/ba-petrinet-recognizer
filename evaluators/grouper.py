@@ -26,6 +26,12 @@ def get_amount_correctly_recognized_shapes(recognized_shapes:list[dict], expecte
                 amount += 1
     return amount
 
+def get_average_run_time(runtimes:list) -> time:
+    sum = 0
+    for runtime in runtimes:
+        sum += runtime
+    return sum / len(runtimes)
+
 
 def normalize_all_strokes(strokes:list[dict]) -> list[dict]:
     normalized_strokes = []
@@ -48,6 +54,7 @@ def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> No
             for file in files:
                 file_path = os.path.join(root, file)
                 if(file_path.endswith('FC_Test.txt') or file_path.endswith('FA_Train.txt')):
+                    runtimes = []
                     with open(file_path) as f:
                         content = f.readlines()
 
@@ -64,10 +71,11 @@ def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> No
                         grouped_strokes:dict = group(strokes, is_a_shape, initialize_adjacency_matrix, expected_shapes)
                         end_time = time.time()  # Endzeit speichern
                         elapsed_time = end_time - start_time  # Differenz berechnen
+                        runtimes.append(elapsed_time)
                         print(f"Laufzeit: {elapsed_time} Sekunden")
                         print('recognizer count: ', get_count())
                         amount_valid_shapes += get_amount_valid_shapes(expected_shapes)
                         amount_correctly_recognized_shapes += get_amount_correctly_recognized_shapes(grouped_strokes['recognized shapes'], expected_shapes)
                         print(amount_correctly_recognized_shapes, ' / ', amount_valid_shapes, 'richtig erkannt')
-                    print('average time for initialization: ', get_average_time_for_initialization() / len(content))
+                    print('average run time: ', get_average_run_time(elapsed_time))
   
