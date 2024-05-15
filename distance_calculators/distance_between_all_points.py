@@ -54,14 +54,17 @@ def initialize_adjacency_matrix(strokes:list[dict]) -> np.ndarray:
     """Initialize the adjacency matrix A based on the spatial proximity of strokes."""
     num_strokes:int = len(strokes)
     matrix:np.ndarray = np.zeros((num_strokes, num_strokes), dtype=float)
-    max_dist:int= 600
+    max_dist:int= 500
     # Iterate over all pairs of strokes and determine if they are neighbors
     for i in range(num_strokes):
         for j in range(i + 1, num_strokes):
             
             distance:float = get_min_distance(strokes[i], strokes[j])
+            
             # If distance is less than or equal to threshold, mark them as neighbors
             if distance <= max_dist:
+                if(i == 47 and j == 51):
+                    print('distance', distance)
                 matrix[i, j] = distance
                 matrix[j, i] = distance
                 

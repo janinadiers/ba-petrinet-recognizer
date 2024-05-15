@@ -62,11 +62,14 @@ def normalize_all_strokes(strokes:list[dict]) -> list[dict]:
 def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> None:
     amount_valid_shapes:int = 0
     amount_correctly_recognized_shapes:int = 0
+    amount_counter:int = 0
     if dataset_type == 'FA' or dataset_type == 'FC':
         for root, dirs, files in os.walk(path):
             for file in files:
                 file_path = os.path.join(root, file)
-                if(file_path.endswith('FC_Test.txt') or file_path.endswith('FA_Test.txt')):
+                if(file_path.endswith('FC_Train.txt') or file_path.endswith('FA_Train.txt')):
+                # if(file_path.endswith('Fake_Test.txt') or file_path.endswith('Fake_Test.txt')):
+
                     runtimes = []
                     with open(file_path) as f:
                         content = f.readlines()
@@ -76,19 +79,22 @@ def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> No
                         if not line.endswith('.inkml'):
                             continue
                         test_file:str = os.path.dirname(file_path) + '/' + line.strip()
+                        print('Testfile: ', test_file)
                         expected_shapes:list[dict] = parse_ground_truth(test_file)
                         strokes:list[dict] = parse_strokes_from_inkml_file(test_file)
-                        strokes:list[dict] = exclude_text_strokes(strokes, expected_shapes)
+                        # strokes:list[dict] = exclude_text_strokes(strokes, expected_shapes)
                         # strokes = normalize_all_strokes(strokes)
                         start_time = time.time()  # Startzeit speichern
                         grouped_strokes:dict = group(strokes, is_a_shape, initialize_adjacency_matrix, expected_shapes)
                         end_time = time.time()  # Endzeit speichern
                         elapsed_time = end_time - start_time  # Differenz berechnen
                         runtimes.append(elapsed_time)
+                        amount_counter += grouped_strokes['counter']
                         print(f"Laufzeit: {elapsed_time} Sekunden")
                         print('recognizer count: ', get_count())
                         amount_valid_shapes += get_amount_valid_shapes(expected_shapes)
                         amount_correctly_recognized_shapes += get_amount_correctly_recognized_shapes(grouped_strokes['recognized shapes'], expected_shapes)
                         print(amount_correctly_recognized_shapes, ' / ', amount_valid_shapes, 'richtig erkannt')
+                    print('Tatsächliche Aufrufe des recognizers: ', amount_counter)
                     print('average run time: ', get_average_run_time(runtimes))
   
