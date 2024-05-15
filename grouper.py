@@ -56,19 +56,15 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
     counter = 0
     while (current_stroke_limit < MAX_STROKE_LIMIT) and (current_stroke_limit <= len(strokes)):
         # every stroke in strokes should be a primary stroke at least once
-        for stroke in strokes: 
-            primary_stroke = stroke
-            # strokes are stored with their index in the matrix, so we need to get the index of the primary stroke
-            index_of_primary_stroke = strokes.index(primary_stroke)
+        for index,stroke in enumerate(strokes): 
             # Wir wollen keien stroke in shape candidate haben, der bereits erkannt wurde, also soll ein neuer primary stroke gewählt werden
-            if matrix[index_of_primary_stroke, index_of_primary_stroke] == float('inf'):
+            if matrix[index, index] == float('inf'):
                 continue
-            
-            candidate_shape:list[int] = [index_of_primary_stroke]
-           
+            candidate_shape:list[int] = [index]
             found_shape = False
             neighbors:list[int] = []
             next_neighbor_index:int = 0
+            
             # Die dritte bedingung wurde weggelassen, da ein stroke alleine ja auch eine gültige shape sein kann
             while (len(candidate_shape) <= current_stroke_limit) and (not found_shape):
                 # Hier sollen alle neuen neighbors hinzugefügt werden, die nicht bereits in neighbors sind
@@ -78,6 +74,7 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                     if not candidate_shape_already_created(frozenset(candidate_shape), created_candidate_shapes):
                         counter += 1
                         try:
+                            # Zuerst wird geprüft, ob die shape bereits im cache ist, ansonsten kommen wir in die exception
                             is_shape = recognizer_cache[frozenset(candidate_shape)]
                         except KeyError:
                             is_shape = is_a_shape(candidate_shape, expected_shapes)
@@ -87,7 +84,6 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                                 matrix[candidate_shape[0], candidate_shape[0]] = float('inf')
                                 recognized_shapes.append(is_shape['valid'])
                                 found_shape = True 
-                     
                     break
                 
                 if next_neighbor_index > len(neighbors) -1:

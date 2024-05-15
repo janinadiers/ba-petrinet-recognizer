@@ -57,29 +57,74 @@ def normalize_all_strokes(strokes:list[dict]) -> list[dict]:
         normalized_strokes.append(stroke)
     # return the list of normalized strokes
     return normalized_strokes
+
+def get_filenames(modus:str, dataset_type:str) -> list[str]:
+    filenames = []
+    if modus == 'ALL' and dataset_type == 'BOTH':
+        filenames.append('FC_Test.txt')
+        filenames.append('FA_Test.txt')
+        filenames.append('FC_Train.txt')
+        filenames.append('FA_Train.txt')
+        # filenames.append('FC_Validation.txt')
+        # filenames.append('FA_Validation.txt')
+    if modus == 'TEST' and dataset_type == 'FA':
+        filenames.append('FA_Test.txt')
+    elif modus == 'TEST' and dataset_type == 'FC':
+        filenames.append('FC_Test.txt')
+    elif modus == 'TRAIN' and dataset_type == 'FA':
+        filenames.append('FA_Train.txt')
+    elif modus == 'TRAIN' and dataset_type == 'FC':
+        filenames.append('FC_Train.txt')
+    elif modus == 'V' and dataset_type == 'FA':
+        filenames.append('FA_Validation.txt')
+    elif modus == 'V' and dataset_type == 'FC':
+        filenames.append('FC_Validation.txt')
+    elif modus == 'ALL' and dataset_type == 'FA':
+        filenames.append('FA_Test.txt')
+        filenames.append('FA_Train.txt')
+        # filenames.append('FA_Validation.txt')
+    elif modus == 'ALL' and dataset_type == 'FC':
+        filenames.append('FC_Test.txt')
+        filenames.append('FC_Train.txt')
+        # filenames.append('FC_Validation.txt')
+    elif modus == 'TRAIN' and dataset_type == 'BOTH':
+        filenames.append('FC_Train.txt')
+        filenames.append('FA_Train.txt')
+    elif modus == 'TEST' and dataset_type == 'BOTH':
+        filenames.append('FC_Test.txt')
+        filenames.append('FA_Test.txt')
+    elif modus == 'V' and dataset_type == 'BOTH':
+        filenames.append('FC_Validation.txt')
+        filenames.append('FA_Validation.txt')
+    return filenames
+
+def file_path_endswith(file_path:str, filenames:str) -> bool:
+    for filename in filenames:
+        if file_path.endswith(filename):
+            return True
+    return False
     
 
-def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> None:
+def evaluate_grouper(paths:list, modus:str='ALL', dataset_type:str = 'BOTH') -> None:
     amount_valid_shapes:int = 0
     amount_correctly_recognized_shapes:int = 0
     amount_counter:int = 0
-    if dataset_type == 'FA' or dataset_type == 'FC':
+    
+    filenames = get_filenames(modus, dataset_type)
+    
+    for path in paths:
         for root, dirs, files in os.walk(path):
             for file in files:
                 file_path = os.path.join(root, file)
-                if(file_path.endswith('FC_Train.txt') or file_path.endswith('FA_Train.txt')):
-                # if(file_path.endswith('Fake_Test.txt') or file_path.endswith('Fake_Test.txt')):
-
+                if file_path_endswith(file_path, filenames):
                     runtimes = []
                     with open(file_path) as f:
                         content = f.readlines()
-
                     for line in content:
                         line = line.strip()
                         if not line.endswith('.inkml'):
                             continue
                         test_file:str = os.path.dirname(file_path) + '/' + line.strip()
-                        print('Testfile: ', test_file)
                         expected_shapes:list[dict] = parse_ground_truth(test_file)
                         strokes:list[dict] = parse_strokes_from_inkml_file(test_file)
                         # strokes:list[dict] = exclude_text_strokes(strokes, expected_shapes)
@@ -95,6 +140,6 @@ def evaluate_grouper(path:str, modus:str='ALL', dataset_type:str = 'BOTH') -> No
                         amount_valid_shapes += get_amount_valid_shapes(expected_shapes)
                         amount_correctly_recognized_shapes += get_amount_correctly_recognized_shapes(grouped_strokes['recognized shapes'], expected_shapes)
                         print(amount_correctly_recognized_shapes, ' / ', amount_valid_shapes, 'richtig erkannt')
-                    print('Tatsächliche Aufrufe des recognizers: ', amount_counter)
+                    print('Aufrufe des recognizers ohne memoization: ', amount_counter)
                     print('average run time: ', get_average_run_time(runtimes))
   

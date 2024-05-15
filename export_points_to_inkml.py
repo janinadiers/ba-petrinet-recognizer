@@ -1,6 +1,5 @@
 def export_points_to_inkml(strokes:list[dict], filename:str):
     """ Export the normalized points to an inkml file"""
-    print(len(strokes), filename)
     with open(filename, 'w') as file:
         file.write('<?xml version="1.0" encoding="UTF-8"?>\n')
         file.write('<ink>\n')
@@ -16,4 +15,3 @@ def export_points_to_inkml(strokes:list[dict], filename:str):
                 file.write(str(point['x']) + ' ' + str(point['y']) + ',')
             file.write('</trace>\n')
         file.write('</ink>\n')
-    print('exported points to inkml file')
