@@ -113,11 +113,11 @@ def evaluate_grouper(paths:list, modus:str='ALL', dataset_type:str = 'BOTH') -> 
                         if not line.endswith('.inkml'):
                             continue
                         test_file:str = os.path.dirname(file_path) + '/' + line.strip()
-                        # test_file_without_text = exclude_text_strokes(test_file)
-                        # expected_shapes:list[dict] = parse_ground_truth(test_file_without_text)
-                        expected_shapes:list[dict] = parse_ground_truth(test_file)
-                        # strokes:list[dict] = parse_strokes_from_inkml_file(test_file_without_text)
-                        strokes:list[dict] = parse_strokes_from_inkml_file(test_file)
+                        test_file_without_text = exclude_text_strokes(test_file)
+                        expected_shapes:list[dict] = parse_ground_truth(test_file_without_text)
+                        # expected_shapes:list[dict] = parse_ground_truth(test_file)
+                        strokes:list[dict] = parse_strokes_from_inkml_file(test_file_without_text)
+                        # strokes:list[dict] = parse_strokes_from_inkml_file(test_file)
                         start_time = time.time()  # Startzeit speichern
                         grouped_strokes:dict = group(strokes, is_a_shape, initialize_adjacency_matrix, expected_shapes)
                         end_time = time.time()  # Endzeit speichern

@@ -18,7 +18,7 @@ def parse_strokes_from_inkml_file(file_path: str)-> list[dict]:
             point = list(filter(None, point))
             trace_points.append({'x': int(point[0]), 'y': int(point[1]), 't': int(point[2])}) 
         traces.append(trace_points)
-
+    adjust_trace_ids(root)
     return traces
 
 
@@ -44,7 +44,31 @@ def parse_ground_truth(file_path: str)-> list[dict]:
                 shapes.append(new_entry)
     return shapes
 
-
+def adjust_trace_ids(root) -> str:
+    
+    namespaces = {'inkml': 'http://www.w3.org/2003/InkML'}
+    
+     # adjust trace ids and traceGroup ids to index
+    for symbol in root.findall('symbols', namespaces):
+        trace_groups = symbol.findall('traceGroup', namespaces)
+        for i, trace_group in enumerate(trace_groups):
+            trace_group.attrib['id'] = str(i)
+            for trace_view in trace_group.findall('traceView', namespaces):
+                for i, trace in enumerate(root.findall('trace', namespaces)):
+                    if trace.attrib['id'] == trace_view.attrib['traceDataRef']:
+                        
+                        trace_view.attrib['traceDataRef'] = str(i)
+                        for head in trace_group.findall('head', namespaces):
+                            for trace_view2 in head.findall('traceView', namespaces):
+                                if trace.attrib['id'] == trace_view2.attrib['traceDataRef']:
+                                    trace_view2.attrib['traceDataRef'] = str(i)
+                        for shaft in trace_group.findall('shaft', namespaces):
+                            for trace_view3 in shaft.findall('traceView', namespaces):
+                                if trace.attrib['id'] == trace_view3.attrib['traceDataRef']:
+                                    trace_view3.attrib['traceDataRef'] = str(i)
+                                    
+                        trace.attrib['id'] = str(i)   
+    
 def exclude_text_strokes(file_path: str) -> str:
     # Parse the XML file
     tree = ET.parse(file_path)
@@ -74,29 +98,8 @@ def exclude_text_strokes(file_path: str) -> str:
         if int(trace.attrib['id']) in traces_to_remove:
             root.remove(trace)
     
+    adjust_trace_ids(root)
             
-    # adjust trace ids and traceGroup ids to index
-    for symbol in root.findall('symbols', namespaces):
-        trace_groups = symbol.findall('traceGroup', namespaces)
-        for i, trace_group in enumerate(trace_groups):
-            trace_group.attrib['id'] = str(i)
-            for trace_view in trace_group.findall('traceView', namespaces):
-                for i, trace in enumerate(root.findall('trace', namespaces)):
-                    if trace.attrib['id'] == trace_view.attrib['traceDataRef']:
-                        
-                        trace_view.attrib['traceDataRef'] = str(i)
-                        for head in trace_group.findall('head', namespaces):
-                            for trace_view2 in head.findall('traceView', namespaces):
-                                if trace.attrib['id'] == trace_view2.attrib['traceDataRef']:
-                                    trace_view2.attrib['traceDataRef'] = str(i)
-                        for shaft in trace_group.findall('shaft', namespaces):
-                            for trace_view3 in shaft.findall('traceView', namespaces):
-                                if trace.attrib['id'] == trace_view3.attrib['traceDataRef']:
-                                    trace_view3.attrib['traceDataRef'] = str(i)
-                                    
-                        trace.attrib['id'] = str(i)      
-                            
-
     # Save the modified XML to a new file
     directory = os.path.dirname(file_path)
     base_name = os.path.basename(file_path).split('.')[0]

@@ -47,7 +47,7 @@ def candidate_shape_already_created(candidate_shape: frozenset, created_candidat
 
 
 def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:Callable, expected_shapes:list[dict]) -> dict:
-    MAX_STROKE_LIMIT:int = 12
+    MAX_STROKE_LIMIT:int = 11
     current_stroke_limit:int = 5
     recognized_shapes:list[dict] = []
     created_candidate_shapes = set()
