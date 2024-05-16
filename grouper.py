@@ -18,10 +18,12 @@ def get_neighbors(matrix, candidate_shape, neighbors):
     potential_neighbors = np.where((matrix[last_index] > 0) & (matrix[last_index] < np.inf))[0]
     row = matrix[last_index]
     distances = row[potential_neighbors]
+    # print('distances', distances, potential_neighbors)
     sorted_potential_neighbors = potential_neighbors[np.argsort(distances)]
     # a neighbor should be added only if it is not already in the candidate_shape and not already in the neighbors
     new_neighbors = [n for n in sorted_potential_neighbors if n not in candidate_shape and n not in neighbors and matrix[n, n] == 0]
     neighbors.extend(new_neighbors)
+    
     return neighbors
 
 
@@ -45,15 +47,21 @@ def get_new_subsets(candidate_shape: list[int], new_stroke: int) -> list[list[in
 def candidate_shape_already_created(candidate_shape: frozenset, created_candidate_shapes: set) -> bool:
     return candidate_shape in created_candidate_shapes
 
+def subset_already_created(subset: frozenset, created_subsets: set) -> bool:
+    # print('created_subsets', created_subsets, subset)
+    return subset in created_subsets
+
 
 def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:Callable, expected_shapes:list[dict]) -> dict:
     MAX_STROKE_LIMIT:int = 11
     current_stroke_limit:int = 5
     recognized_shapes:list[dict] = []
     created_candidate_shapes = set()
-    matrix:np.ndarray = initialize_adjacency_matrix(strokes)
-    recognizer_cache = {}
-    counter = 0
+    created_subsets = set()
+    matrix:np.ndarray = initialize_adjacency_matrix(strokes)  
+    recognizer_calls_without_memoization = 0
+    recognizer_calls_with_memoization = 0
+    
     while (current_stroke_limit < MAX_STROKE_LIMIT) and (current_stroke_limit <= len(strokes)):
         # every stroke in strokes should be a primary stroke at least once
         for index,stroke in enumerate(strokes): 
@@ -61,6 +69,7 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
             if matrix[index, index] == float('inf'):
                 continue
             candidate_shape:list[int] = [index]
+            
             found_shape = False
             neighbors:list[int] = []
             next_neighbor_index:int = 0
@@ -69,39 +78,44 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
             while (len(candidate_shape) <= current_stroke_limit) and (not found_shape):
                 # Hier sollen alle neuen neighbors hinzugefügt werden, die nicht bereits in neighbors sind
                 neighbors:list[int] = get_neighbors(matrix, candidate_shape, neighbors)
+                # print('candidate_shape', candidate_shape, candidate_shape_already_created(frozenset(candidate_shape), created_candidate_shapes))
                 # falls ein stroke keinen Nachbarn hat soll trotzdem geprüft werden, ob er alleine eine gültige shape ist
                 if(len(neighbors) == 0):
+                    recognizer_calls_without_memoization += 1
                     if not candidate_shape_already_created(frozenset(candidate_shape), created_candidate_shapes):
-                        counter += 1
-                        try:
-                            # Zuerst wird geprüft, ob die shape bereits im cache ist, ansonsten kommen wir in die exception
-                            is_shape = recognizer_cache[frozenset(candidate_shape)]
-                        except KeyError:
-                            is_shape = is_a_shape(candidate_shape, expected_shapes)
-                            recognizer_cache[frozenset(candidate_shape)] = is_shape
-                            if 'valid' in is_shape:
-                                # Update the diagonal entry to indicate recognition of the new shape
-                                matrix[candidate_shape[0], candidate_shape[0]] = float('inf')
-                                recognized_shapes.append(is_shape['valid'])
-                                found_shape = True 
+                        recognizer_calls_with_memoization += 1
+                        is_shape = is_a_shape(candidate_shape, expected_shapes)
+                        if 'valid' in is_shape:
+                            # Update the diagonal entry to indicate recognition of the new shape
+                            matrix[candidate_shape[0], candidate_shape[0]] = float('inf')
+                            recognized_shapes.append(is_shape['valid'])
+                            found_shape = True 
+                            # print('found_shape', is_shape['valid'])
+                    
                     break
                 
                 if next_neighbor_index > len(neighbors) -1:
                     break
                 
+                recognizer_calls_without_memoization += len(get_new_subsets(candidate_shape, candidate_shape[-1]))
+                
                 if not candidate_shape_already_created(frozenset(candidate_shape), created_candidate_shapes):
                     for subset in get_new_subsets(candidate_shape, candidate_shape[-1]):
-                        counter += 1
-                        try:
-                            is_shape = recognizer_cache[frozenset(subset)]
-                        except KeyError:
+                        
+                        
+                        if not subset_already_created(frozenset(subset), created_subsets):
+                            recognizer_calls_with_memoization += 1
                             is_shape = is_a_shape(subset, expected_shapes)
-                            recognizer_cache[frozenset(subset)] = is_shape
+                            created_subsets.add(frozenset(subset))
                             if 'valid' in is_shape:
                                 for stroke_index in list(subset):
                                     matrix[stroke_index, stroke_index] = float('inf')
                                 recognized_shapes.append(is_shape['valid'])
-                                found_shape = True  
+                                found_shape = True 
+                                # print('found_shape', is_shape['valid'])
+
+                
+                    
                 created_candidate_shapes.add(frozenset(candidate_shape))  
                 next_neighbour:int = neighbors[next_neighbor_index]
                 candidate_shape.append(next_neighbour)
@@ -110,4 +124,4 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
         current_stroke_limit += 1      
     unrecognized_strokes = get_unrecognized_strokes(matrix, strokes)
     
-    return {'recognized shapes': recognized_shapes, 'unrecognized strokes': unrecognized_strokes, 'counter': counter}
+    return {'recognized shapes': recognized_shapes, 'unrecognized strokes': unrecognized_strokes, 'recognizer calls without memoization': recognizer_calls_without_memoization, 'recognizer calls with memoization': recognizer_calls_with_memoization}

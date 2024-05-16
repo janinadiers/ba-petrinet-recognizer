@@ -7,6 +7,7 @@ def parse_strokes_from_inkml_file(file_path: str)-> list[dict]:
     root:ET.Element = tree.getroot()
     namespaces = {'inkml': 'http://www.w3.org/2003/InkML'}
     traces = []
+    adjust_trace_ids(root)
     for trace in root.findall('trace', namespaces):
         # Extract trace data
         trace_data:list = trace.text.strip().split(',')
@@ -17,8 +18,9 @@ def parse_strokes_from_inkml_file(file_path: str)-> list[dict]:
             point = list(point.split(' '))
             point = list(filter(None, point))
             trace_points.append({'x': int(point[0]), 'y': int(point[1]), 't': int(point[2])}) 
+            
         traces.append(trace_points)
-    adjust_trace_ids(root)
+    
     return traces
 
 
@@ -28,7 +30,7 @@ def parse_ground_truth(file_path: str)-> list[dict]:
     root:ET.Element = tree.getroot()
     namespaces = {'inkml': 'http://www.w3.org/2003/InkML'}
     shapes = []
-    
+    adjust_trace_ids(root)
     for symbol in root.findall('symbols', namespaces):
         traceGroups = symbol.findall('traceGroup', namespaces)
         for traceGroup in traceGroups:
