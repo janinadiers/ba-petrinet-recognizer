@@ -78,7 +78,7 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                             is_shape = recognizer_cache[frozenset(candidate_shape)]
                         except KeyError:
                             is_shape = is_a_shape(candidate_shape, expected_shapes)
-                            recognizer_cache[frozenset(subset)] = is_shape
+                            recognizer_cache[frozenset(candidate_shape)] = is_shape
                             if 'valid' in is_shape:
                                 # Update the diagonal entry to indicate recognition of the new shape
                                 matrix[candidate_shape[0], candidate_shape[0]] = float('inf')

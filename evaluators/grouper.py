@@ -1,7 +1,7 @@
 
 import os
 from grouper import group
-from parsers import parse_ground_truth, parse_strokes_from_inkml_file
+from parsers import parse_ground_truth, parse_strokes_from_inkml_file, exclude_text_strokes
 import time
 from distance_calculators.distance_between_all_points import initialize_adjacency_matrix as initialize_adjacency_matrix
 from distance_calculators.distance_with_bounding_box import initialize_adjacency_matrix as initialize_adjacency_matrix2
@@ -26,18 +26,6 @@ def get_amount_correctly_recognized_shapes(recognized_shapes:list[dict], expecte
                 amount += 1
     return amount
 
-def exclude_text_strokes(strokes:list[dict], expected_shapes) -> list[dict]:
-    result = list(strokes)
-    for shape in expected_shapes:
-        shape_name = next(iter(shape))
-        if shape_name == 'text':
-            text_stroke_ids = shape[shape_name]
-            for text_stroke_id in text_stroke_ids:
-                for stroke in result:
-                    if str(text_stroke_id) in stroke:
-                        result.remove(stroke)
-   
-    return result
     
 def get_average_run_time(runtimes:list) -> time:
     sum = 0
@@ -125,10 +113,11 @@ def evaluate_grouper(paths:list, modus:str='ALL', dataset_type:str = 'BOTH') -> 
                         if not line.endswith('.inkml'):
                             continue
                         test_file:str = os.path.dirname(file_path) + '/' + line.strip()
+                        # test_file_without_text = exclude_text_strokes(test_file)
+                        # expected_shapes:list[dict] = parse_ground_truth(test_file_without_text)
                         expected_shapes:list[dict] = parse_ground_truth(test_file)
+                        # strokes:list[dict] = parse_strokes_from_inkml_file(test_file_without_text)
                         strokes:list[dict] = parse_strokes_from_inkml_file(test_file)
-                        # strokes:list[dict] = exclude_text_strokes(strokes, expected_shapes)
-                        # strokes = normalize_all_strokes(strokes)
                         start_time = time.time()  # Startzeit speichern
                         grouped_strokes:dict = group(strokes, is_a_shape, initialize_adjacency_matrix, expected_shapes)
                         end_time = time.time()  # Endzeit speichern
