@@ -90,7 +90,7 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                             matrix[candidate_shape[0], candidate_shape[0]] = float('inf')
                             recognized_shapes.append(is_shape['valid'])
                             found_shape = True 
-                            # print('found_shape', is_shape['valid'])
+                            print('found_shape', is_shape['valid'])
                     
                     break
                 
@@ -112,7 +112,7 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
                                     matrix[stroke_index, stroke_index] = float('inf')
                                 recognized_shapes.append(is_shape['valid'])
                                 found_shape = True 
-                                # print('found_shape', is_shape['valid'])
+                                print('found_shape', is_shape['valid'])
 
                 
                     

@@ -44,6 +44,25 @@ def parse_ground_truth(file_path: str)-> list[dict]:
             elif annotations[0].text == 'process':
                 new_entry = {'rectangle' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
                 shapes.append(new_entry)
+            # elif annotations[0].text == 'final state':
+            #     new_entry = {'circle in circle' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
+            #     shapes.append(new_entry)
+            # elif annotations[0].text == 'data':
+            #     new_entry = {'parallelogram' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
+            #     shapes.append(new_entry)
+            # elif annotations[0].text == 'decision':
+            #     new_entry = {'diamond' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
+            #     shapes.append(new_entry)
+            # elif annotations[0].text == 'terminator':
+            #     new_entry = {'ellipse' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
+            #     shapes.append(new_entry)
+            # elif annotations[0].text == 'arrow':
+            #     new_entry = {'line' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
+            #     shapes.append(new_entry)
+            # elif annotations[0].text == 'label' or annotations[0].text == 'text':
+            #     new_entry = {'text' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
+            #     shapes.append(new_entry)
+                
     return shapes
 
 def adjust_trace_ids(root) -> str:
@@ -104,8 +123,14 @@ def exclude_text_strokes(file_path: str) -> str:
             
     # Save the modified XML to a new file
     directory = os.path.dirname(file_path)
+    # create subdirectory if it does not exist
+    if not os.path.exists(os.path.join(directory, 'no_text')):
+        os.makedirs(os.path.join(directory, 'no_text'))
+    
     base_name = os.path.basename(file_path).split('.')[0]
-    new_file_path = os.path.join(directory, f"{base_name}_no_text.inkml")
+    # save file in subdirectory
+    new_file_path = os.path.join(directory, 'no_text', f"{base_name}_no_text.inkml")
+    # new_file_path = os.path.join(directory, f"{base_name}_no_text.inkml")
     tree.write(new_file_path)
     return new_file_path
 
