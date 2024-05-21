@@ -1,8 +1,56 @@
 import unittest
-from grouper import get_new_subsets, get_neighbors, get_unrecognized_strokes, candidate_shape_already_created
+from grouper import get_new_subsets, generate_shape_candidates, get_neighbors, get_unrecognized_strokes, candidate_shape_already_created
 import numpy as np
 
 class TestGrouperMethods(unittest.TestCase):
+    
+    def test_olist(self):
+        # generate a matrix of 6 by 6 with 0 an 1
+        matrix = np.zeros((6, 6), dtype=int)
+        matrix[0, 0] = 0
+        matrix[0, 1] = 1
+        matrix[0, 2] = 0
+        matrix[0, 3] = 0
+        matrix[0, 4] = 1
+        matrix[0, 5] = 0
+        
+        matrix[1, 0] = 1
+        matrix[1, 1] = 0
+        matrix[1, 2] = 1
+        matrix[1, 3] = 0
+        matrix[1, 4] = 1
+        matrix[1, 5] = 0
+        
+        matrix[2, 0] = 0
+        matrix[2, 1] = 1
+        matrix[2, 2] = 0
+        matrix[2, 3] = 0
+        matrix[2, 4] = 1
+        matrix[2, 5] = 0
+        
+        matrix[3, 0] = 0
+        matrix[3, 1] = 0
+        matrix[3, 2] = 0
+        matrix[3, 3] = 0
+        matrix[3, 4] = 1
+        matrix[3, 5] = 0
+        
+        matrix[4, 0] = 1
+        matrix[4, 1] = 1
+        matrix[4, 2] = 1
+        matrix[4, 3] = 1
+        matrix[4, 4] = 0
+        matrix[4, 5] = 0
+        
+        matrix[5, 0] = 0
+        matrix[5, 1] = 0
+        matrix[5, 2] = 0
+        matrix[5, 3] = 0
+        matrix[5, 4] = 0
+        matrix[5, 5] = 0
+        
+        print(generate_shape_candidates(matrix))
+        
 
     def test_get_new_subsets(self):
         self.assertEqual(get_new_subsets([1, 2, 3], 3), [[3],[3,1], [3, 2], [3, 1, 2]])
