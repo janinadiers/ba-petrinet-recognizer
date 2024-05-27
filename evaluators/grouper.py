@@ -1,5 +1,6 @@
 
 import os
+from optimized_grouper import group as group_optimized
 from grouper import group
 from parsers import parse_ground_truth, parse_strokes_from_inkml_file, exclude_text_strokes
 import time
@@ -25,6 +26,7 @@ def get_amount_correctly_recognized_shapes(recognized_shapes:list[dict], expecte
         for shape2 in expected_shapes:
             if(shape1 == shape2):
                 amount += 1
+    print('amount: ', amount)
     return amount
 
     
@@ -58,18 +60,12 @@ def get_filenames(modus:str, dataset_type:str) -> list[str]:
         filenames.append('FA_Validation.txt')
     if modus == 'TEST' and dataset_type == 'FA':
         filenames.append('FA_Test.txt')
-        filenames.append('FA_Train.txt')
-        # filenames.append('FA_fake_Test.txt')
     elif modus == 'TEST' and dataset_type == 'FC':
         filenames.append('FC_Test.txt')
-        filenames.append('FC_Train.txt')
     elif modus == 'TRAIN' and dataset_type == 'FA':
-        # filenames.append('FA_fake_Test.txt')
         filenames.append('FA_Train.txt')
-        # filenames.append('FA_Validation.txt')
     elif modus == 'TRAIN' and dataset_type == 'FC':
         filenames.append('FC_Train.txt')
-        # filenames.append('FC_Validation.txt')
     elif modus == 'V' and dataset_type == 'FA':
         filenames.append('FA_Validation.txt')
     elif modus == 'V' and dataset_type == 'FC':
@@ -103,8 +99,7 @@ def file_path_endswith(file_path:str, filenames:str) -> bool:
 def evaluate_grouper(paths:list, modus:str='ALL', dataset_type:str = 'BOTH') -> None:
     amount_valid_shapes:int = 0
     amount_correctly_recognized_shapes:int = 0
-    amount_recognizer_calls_without_memoization:int = 0
-    amount_recognizer_calls_with_memoization:int = 0
+    amount_recognizer_calls:int = 0
     stroke_amount:int = 0
     filenames = get_filenames(modus, dataset_type)
     
@@ -129,24 +124,19 @@ def evaluate_grouper(paths:list, modus:str='ALL', dataset_type:str = 'BOTH') -> 
                         # expected_shapes:list[dict] = parse_ground_truth(test_file)
                         strokes:list[dict] = parse_strokes_from_inkml_file(test_file_without_text)
                         # strokes:list[dict] = parse_strokes_from_inkml_file(test_file)  
-                        print('stroke amount: ', len(strokes))
                         stroke_amount += len(strokes)                      
                         start_time = time.time()  # Startzeit speichern
-                        grouped_strokes:dict = group(strokes, is_a_shape, initialize_adjacency_matrix, expected_shapes)
+                        grouped_strokes:dict = group_optimized(strokes, is_a_shape, initialize_adjacency_matrix, expected_shapes)
                         end_time = time.time()  # Endzeit speichern
                         elapsed_time = end_time - start_time  # Differenz berechnen
                         runtimes.append(elapsed_time)
-                        amount_recognizer_calls_with_memoization += grouped_strokes['recognizer calls with memoization']
-                        amount_recognizer_calls_without_memoization += grouped_strokes['recognizer calls without memoization']
-                        # amount_counter += grouped_strokes['counter']
+                        amount_recognizer_calls += grouped_strokes['recognizer calls']
                         print(f"Laufzeit: {elapsed_time} Sekunden")
-                        # print('recognizer count: ', get_count())
                         amount_valid_shapes += get_amount_valid_shapes(expected_shapes)
-                        print(amount_valid_shapes, 'valid shapes')
                         amount_correctly_recognized_shapes += get_amount_correctly_recognized_shapes(grouped_strokes['recognized shapes'], expected_shapes)
+
                         print(amount_correctly_recognized_shapes, ' / ', amount_valid_shapes, 'richtig erkannt')
-                    print('Aufrufe des recognizers mit memoization: ', amount_recognizer_calls_with_memoization)
-                    print('Aufrufe des recognizers ohne memoization: ', amount_recognizer_calls_without_memoization)
+                    print('Aufrufe des recognizers: ', amount_recognizer_calls)
                     print('average run time: ', get_average_run_time(runtimes))
                     print('amount strokes overall: ', stroke_amount)
   

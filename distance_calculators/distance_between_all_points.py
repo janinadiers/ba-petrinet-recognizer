@@ -15,6 +15,7 @@ def get_min_distance(stroke1:dict, stroke2:dict) -> float:
     # points_stroke2:list[dict] = next(iter(stroke2.values()))
     s1 = convert_dict_to_nparray(stroke1)
     s2 = convert_dict_to_nparray(stroke2)
+    
     return distance.cdist(s1,s2).min(axis=1).min()
 
 def euclidean_distance(point1: dict, point2:dict) -> float:
@@ -50,22 +51,39 @@ def get_max_dist(normalized_strokes:dict) -> float:
     return median(diagonals)
     
     
-def initialize_adjacency_matrix(strokes:list[dict]) -> np.ndarray:
+def initialize_adjacency_matrix_with_distance(strokes:list[dict]) -> np.ndarray:
     """Initialize the adjacency matrix A based on the spatial proximity of strokes."""
     num_strokes:int = len(strokes)
     matrix:np.ndarray = np.zeros((num_strokes, num_strokes), dtype=float)
-    max_dist:int= 600
+    max_dist:int= 800
     # Iterate over all pairs of strokes and determine if they are neighbors
     for i in range(num_strokes):
         for j in range(i + 1, num_strokes):
             
             distance:float = get_min_distance(strokes[i], strokes[j])
-            
             # If distance is less than or equal to threshold, mark them as neighbors
             if distance <= max_dist:
-                if(i == 47 and j == 51):
-                    print('distance', distance)
+                
                 matrix[i, j] = distance
                 matrix[j, i] = distance
+                
+    return matrix
+
+
+def initialize_adjacency_matrix(strokes:list[dict]) -> np.ndarray:
+    """Initialize the adjacency matrix A based on the spatial proximity of strokes."""
+    num_strokes:int = len(strokes)
+    matrix:np.ndarray = np.zeros((num_strokes, num_strokes), dtype=float)
+    max_dist:int= 800
+    # Iterate over all pairs of strokes and determine if they are neighbors
+    for i in range(num_strokes):
+        for j in range(i + 1, num_strokes):
+            
+            distance:float = get_min_distance(strokes[i], strokes[j])
+            # If distance is less than or equal to threshold, mark them as neighbors
+            if distance <= max_dist:
+
+                matrix[i, j] = 1
+                matrix[j, i] = 1
                 
     return matrix

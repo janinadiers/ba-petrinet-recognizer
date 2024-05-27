@@ -1,10 +1,11 @@
 import unittest
-from grouper import get_new_subsets, generate_shape_candidates, get_neighbors, get_unrecognized_strokes, candidate_shape_already_created
+from optimized_grouper import get_all_simple_cycles
+from grouper import get_new_subsets, candidate_shape_already_created, get_neighbors, get_unrecognized_strokes
 import numpy as np
 
 class TestGrouperMethods(unittest.TestCase):
     
-    def test_olist(self):
+    def test_get_all_simple_cycles(self):
         # generate a matrix of 6 by 6 with 0 an 1
         matrix = np.zeros((6, 6), dtype=int)
         matrix[0, 0] = 0
@@ -49,7 +50,10 @@ class TestGrouperMethods(unittest.TestCase):
         matrix[5, 4] = 0
         matrix[5, 5] = 0
         
-        print(generate_shape_candidates(matrix))
+       
+       
+        simple_cycles = get_all_simple_cycles(matrix)
+        self.assertEqual(simple_cycles, [[0,1], [0,1,2,4], [0,1,4], [0,4], [1,2], [1,2,4], [1,4], [2,4], [3,4]])
         
 
     def test_get_new_subsets(self):

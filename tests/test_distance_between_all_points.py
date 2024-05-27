@@ -1,7 +1,6 @@
 import unittest
-from distance_calculators.distance_between_all_points import get_min_distance, initialize_adjacency_matrix, get_max_dist, median
+from distance_calculators.distance_between_all_points import get_min_distance, initialize_adjacency_matrix_with_distance, get_max_dist, median
 import numpy as np
-import math
 
 
 class TestDistanceBetweenAllPointsMethods(unittest.TestCase):
@@ -27,28 +26,12 @@ class TestDistanceBetweenAllPointsMethods(unittest.TestCase):
         self.assertEqual(median(lst), 3.5)
         
     
-    # def test_get_max_dist(self):
-    #     strokes = [[{'x': 0, 'y': 0, 't': 0}, {'x': 3, 'y': 4, 't': 1}, {'x': 6, 'y': 8, 't': 2}], 
-    #                [{'x': 0, 'y': 0, 't': 0}, {'x': 3, 'y': 4, 't': 1}, {'x': 8, 'y': 10, 't': 2}],
-    #                [{'x': 6, 'y': 0, 't': 0}, {'x': 9, 'y': 4, 't': 1}, {'x': 20, 'y': 8, 't': 2}],
-    #                [{'x': 0, 'y': 4, 't': 0}, {'x': 3, 'y': 8, 't': 1}, {'x': 6, 'y': 12, 't': 2}]]
-    #     boundingBox1 = {'width': 6, 'height': 8}
-    #     boundingBox2 = {'width': 8, 'height': 10}
-    #     boundingBox3 = {'width': 14, 'height': 8}
-    #     boundingBox4 = {'width': 6, 'height': 8}
-    #     diagonal1 = math.sqrt(boundingBox1['width']**2 + boundingBox1['height']**2)
-    #     diagonal2 = math.sqrt(boundingBox2['width']**2 + boundingBox2['height']**2)
-    #     diagonal3 = math.sqrt(boundingBox3['width']**2 + boundingBox3['height']**2)
-    #     diagonal4 = math.sqrt(boundingBox4['width']**2 + boundingBox4['height']**2)
-    #     median_diagonal = median([diagonal1, diagonal2, diagonal3, diagonal4])
-    #     self.assertEqual(float("{:.2f}".format(get_max_dist(strokes))), float("{:.2f}".format(median_diagonal)))
-    
     def test_initialize_adjacency_matrix(self):
         strokes = [[{'x': 0, 'y': 0, 't': 0}, {'x': 3, 'y': 4, 't': 1}, {'x': 6, 'y': 8, 't': 2}], 
                    [{'x': 0, 'y': 0, 't': 0}, {'x': 3, 'y': 4, 't': 1}, {'x': 8, 'y': 10, 't': 2}],
                    [{'x': 6, 'y': 0, 't': 0}, {'x': 9, 'y': 4, 't': 1}, {'x': 20, 'y': 8, 't': 2}],
                    [{'x': 3000, 'y': 4000, 't': 0}, {'x': 3400, 'y': 8000, 't': 1}, {'x': 6000, 'y': 1200, 't': 2}]]
-        matrix = initialize_adjacency_matrix(strokes)
+        matrix = initialize_adjacency_matrix_with_distance(strokes)
         expected_matrix = np.zeros((4, 4), dtype=int)
         expected_matrix[0, 0] = 0
         expected_matrix[0, 1] = get_min_distance(strokes[0], strokes[1]) if get_min_distance(strokes[0], strokes[1]) <= 600 else 0
