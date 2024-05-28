@@ -1,45 +1,21 @@
 import sys
-from evaluators.grouper import evaluate_grouper
+from grouper import group
+from optimized_grouper import group as group_optimized
+from parsers import parse_ground_truth, parse_strokes_from_inkml_file, exclude_text_strokes
+from recognizer.perfect_mock_recognizer import is_a_shape
+from distance_calculators.distance_between_all_points import initialize_adjacency_matrix
 
-# get input from command line: -fa or -fc or both
+# get input from command line with the path to the inkml file
 
-if len(sys.argv) < 2:
-    path = ["datasets/FC_1.0", "datasets/FA_1.1"] 
-    evaluate_grouper(path)
-elif(len(sys.argv) == 2):
-    if(sys.argv[1] == '-fa'):
-        path = ["datasets/FA_1.1"]
-        evaluate_grouper(path, 'ALL', 'FA')
-    elif(sys.argv[1] == '-fc'):
-        path = ["datasets/FC_1.0"]
-        evaluate_grouper(path, 'ALL', 'FC')
-    elif(sys.argv[1] == '-test'):
-        path = ["datasets/FC_1.0", "datasets/FA_1.1"] 
-        evaluate_grouper(path, 'TEST')
-    elif(sys.argv[1] == '-train'):
-        path = ["datasets/FC_1.0", "datasets/FA_1.1"] 
-        evaluate_grouper(path, 'TRAIN')
-    elif(sys.argv[1] == '-v'):
-        path = ["datasets/FC_1.0", "datasets/FA_1.1"]
-        evaluate_grouper(path, 'V')
-elif(len(sys.argv) == 3):
-    if(sys.argv[1] == '-fa' and sys.argv[2] == '-test'):
-        path = ["datasets/FA_1.1"]
-        evaluate_grouper(path, 'TEST', 'FA')
-    elif(sys.argv[1] == '-fa' and sys.argv[2] == '-train'):
-        path = ["datasets/FA_1.1"]
-        evaluate_grouper(path, 'TRAIN', 'FA')
-    elif(sys.argv[1] == '-fa' and sys.argv[2] == '-v'):
-        path = ["datasets/FA_1.1"]
-        evaluate_grouper(path, 'V', 'FA')
-    elif(sys.argv[1] == '-fc' and sys.argv[2] == '-test'):
-        path = ["datasets/FC_1.0"]
-        evaluate_grouper(path, 'TEST', 'FC')
-    elif(sys.argv[1] == '-fc' and sys.argv[2] == '-train'):
-        path = ["datasets/FC_1.0"]
-        evaluate_grouper(path, 'TRAIN', 'FC')
-    elif(sys.argv[1] == '-fc' and sys.argv[2] == '-v'):
-        path = ["datasets/FC_1.0"]
-        evaluate_grouper(path,'V', 'FC')
+if len(sys.argv) == 2:
+    path = sys.argv[1]
+    test_file_without_text = exclude_text_strokes(path)
+    expected_shapes:list[dict] = parse_ground_truth(test_file_without_text)
+    strokes:list[dict] = parse_strokes_from_inkml_file(test_file_without_text)
+    grouped_strokes:dict = group_optimized(strokes, is_a_shape, initialize_adjacency_matrix, expected_shapes)
+
+
+   
+    
 
     
