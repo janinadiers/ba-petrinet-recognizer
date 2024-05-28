@@ -77,6 +77,7 @@ def initialize_adjacency_matrix(strokes:list[dict]) -> np.ndarray:
     max_dist:int= 800
     # Iterate over all pairs of strokes and determine if they are neighbors
     for i in range(num_strokes):
+        matrix[i, i] = 1
         for j in range(i + 1, num_strokes):
             
             distance:float = get_min_distance(strokes[i], strokes[j])

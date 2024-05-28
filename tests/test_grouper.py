@@ -8,7 +8,7 @@ class TestGrouperMethods(unittest.TestCase):
     def test_get_all_simple_cycles(self):
         # generate a matrix of 6 by 6 with 0 an 1
         matrix = np.zeros((6, 6), dtype=int)
-        matrix[0, 0] = 0
+        matrix[0, 0] = 1
         matrix[0, 1] = 1
         matrix[0, 2] = 0
         matrix[0, 3] = 0
@@ -16,7 +16,7 @@ class TestGrouperMethods(unittest.TestCase):
         matrix[0, 5] = 0
         
         matrix[1, 0] = 1
-        matrix[1, 1] = 0
+        matrix[1, 1] = 1
         matrix[1, 2] = 1
         matrix[1, 3] = 0
         matrix[1, 4] = 1
@@ -24,7 +24,7 @@ class TestGrouperMethods(unittest.TestCase):
         
         matrix[2, 0] = 0
         matrix[2, 1] = 1
-        matrix[2, 2] = 0
+        matrix[2, 2] = 1
         matrix[2, 3] = 0
         matrix[2, 4] = 1
         matrix[2, 5] = 0
@@ -32,7 +32,7 @@ class TestGrouperMethods(unittest.TestCase):
         matrix[3, 0] = 0
         matrix[3, 1] = 0
         matrix[3, 2] = 0
-        matrix[3, 3] = 0
+        matrix[3, 3] = 1
         matrix[3, 4] = 1
         matrix[3, 5] = 0
         
@@ -40,7 +40,7 @@ class TestGrouperMethods(unittest.TestCase):
         matrix[4, 1] = 1
         matrix[4, 2] = 1
         matrix[4, 3] = 1
-        matrix[4, 4] = 0
+        matrix[4, 4] = 1
         matrix[4, 5] = 0
         
         matrix[5, 0] = 0
@@ -48,12 +48,13 @@ class TestGrouperMethods(unittest.TestCase):
         matrix[5, 2] = 0
         matrix[5, 3] = 0
         matrix[5, 4] = 0
-        matrix[5, 5] = 0
+        matrix[5, 5] = 1
         
        
        
         simple_cycles = get_all_simple_cycles(matrix)
-        self.assertEqual(simple_cycles, [[0,1], [0,1,2,4], [0,1,4], [0,4], [1,2], [1,2,4], [1,4], [2,4], [3,4]])
+        print('hiiier: ', simple_cycles)
+        self.assertEqual(simple_cycles, [[0], [1], [4], [2], [3], [5], [0,1], [0,1,2,4], [0,1,4], [0,4], [1,2], [1,2,4], [1,4], [2,4], [3,4]])
         
 
     def test_get_new_subsets(self):

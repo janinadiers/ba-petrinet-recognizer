@@ -16,7 +16,7 @@ def get_all_simple_cycles(adj_matrix):
 
     # Benachbarte Strokes hinzufügen
     for i in range(len(adj_matrix)):
-        for j in range(i + 1, len(adj_matrix[i])):
+        for j in range(i , len(adj_matrix[i])):
             if adj_matrix[i][j] == 1:
                 G.add_edge(i, j)
                 
@@ -42,9 +42,7 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
     recognized_shapes:list[dict] = []
     matrix:np.ndarray = initialize_adjacency_matrix(strokes)  
     recognizer_calls = 0
-    singles = [[i] for i in range(len(matrix))]
     cycles = get_all_simple_cycles(matrix)
-    cycles = singles + cycles
             
     for cycle in cycles:
         recognizer_calls += 1
