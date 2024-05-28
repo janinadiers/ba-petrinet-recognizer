@@ -1,10 +1,14 @@
 import math
 
 def normalize(points: list[dict]) -> list[dict]:
+    print('resample')
     points = resample(points)
+    # print('translate')
+    # translate_to_origin(points)
+    # print('scale')
+    # scale(points)
     
     return points
-    # eventuell noch translate und scale???
     
 
 # def pixels_to_himetrics(pixels, dpi):
@@ -13,24 +17,27 @@ def normalize(points: list[dict]) -> list[dict]:
     
 # Die Skalierung ist notwendig, um die Punkte auf eine einheitliche Größe zu bringen, sodass die Punkte in einem einheitlichen Koordinatensystem liegen
 def scale(points: list[dict]) -> list[dict]:
-    for point in points:
-        xmin = min(points, key=lambda x: x['x'])['x']
-        ymin = min(points, key=lambda x: x['y'])['y']
-        xmax = max(points, key=lambda x: x['x'])['x']
-        ymax = max(points, key=lambda x: x['y'])['y']
+    
+    xmin = min(point['x'] for point in points)
+    xmax = max(point['x'] for point in points)
+    ymin = min(point['y'] for point in points)
+    ymax = max(point['y'] for point in points)
+
     scale = max(xmax - xmin, ymax - ymin)
+    print(f"xmin: {xmin}, xmax: {xmax}, ymin: {ymin}, ymax: {ymax}, scale: {scale}")
     if(scale == 0):
-        return points
+        return
     for point in points:
+        
+        # Those lines ensure, that the points are in the range of 0 and 1
         point['x'] = (point['x'] - xmin) / scale
         point['y'] = (point['y'] - ymin) / scale
-    return points
+       
     
-
+    print(points)
  
 def resample(points:list[dict]):
     pixel_distance = 32
-    
     # Wenn die path_length(points) / 32 < 2 ist, dann wollen wir aber trotzdem zwei Punkte setzen, das kann passieren, wenn der Pfad sehr kurz ist, sodass wir den Abstand von 32 Pixeln nicht einhalten können 
     if((path_length(points) / pixel_distance) < 2):
         amount_new_points = 2
@@ -66,6 +73,16 @@ def resample(points:list[dict]):
     
      
     return new_points
+
+def translate_to_origin(points:list[dict]) -> list[dict]:
+      # Calculate the centroid
+    origin_x = sum(point['x'] for point in points) / len(points)
+    origin_y = sum(point['y'] for point in points) / len(points)
+    print(f"Original centroid: ({origin_x}, {origin_y})")
+    # Translate points to have the centroid at the origin
+    for point in points:
+        point['x'] -= origin_x
+        point['y'] -= origin_y
 
 
     
