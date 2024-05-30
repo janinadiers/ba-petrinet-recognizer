@@ -3,6 +3,8 @@ import numpy as np
 
 
 def is_a_shape(grouped_ids:list[int], expected_shapes:list[dict], strokes:list[dict]) -> dict:
+ 
+    strokes = remove_outliers(strokes) 
     perfect_circle = get_perfect_mock_shape(grouped_ids, strokes)['circle']
     perfect_rect = get_perfect_mock_shape(grouped_ids, strokes)['rectangle']
     average_distance_circle = calculate_average_min_distance(perfect_circle, combine_strokes(grouped_ids, strokes))
@@ -14,11 +16,13 @@ def is_a_shape(grouped_ids:list[int], expected_shapes:list[dict], strokes:list[d
                 if average_distance_circle < average_distance_rect:
                     print('als Kreis erkannt')
                     if not shape_name == 'circle':
+                        print(grouped_ids[0])
                         print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!aber falsch erkannt')
                     return {'valid': {'circle': grouped_ids}}
                 else:
                     print('als Rechteck erkannt')
                     if not shape_name == 'rectangle':
+                        print(grouped_ids[0])
                         print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!aber falsch erkannt')
                     return {'valid': {'rectangle': grouped_ids}}
                      
@@ -55,8 +59,9 @@ def get_bounding_box(grouped_ids:list[int], strokes:list[dict]):
     max_y = float('-inf')
     for stroke_id in grouped_ids:
         stroke = strokes[stroke_id]
+
         for point in stroke:
-            # print('point: ', point)
+           
             x = point['x']
             y = point['y']
             if x < min_x:
@@ -74,13 +79,12 @@ def combine_strokes(grouped_ids:list[int], strokes:list[dict]):
     for stroke_id in grouped_ids:
         stroke = strokes[stroke_id]
         combined_strokes += stroke
-    
-    return combined_strokes  
+    return combined_strokes
+     
 
 
 def get_perfect_mock_shape(grouped_ids:list[int], strokes:list[dict]) -> dict:
     bounding_box = get_bounding_box(grouped_ids, strokes)
-    
     # get the bounding box of the grouped strokes
     min_x, max_x, min_y, max_y = bounding_box
     # create the perfect mock shape
@@ -109,8 +113,28 @@ def get_perfect_mock_shape(grouped_ids:list[int], strokes:list[dict]) -> dict:
 
     return {'rectangle': perfect_mock_rect, 'circle': perfect_cyclic_mock_shape, 'strokes': recognized_strokes}
     
+
+def remove_outliers(strokes: list[list[dict]]):
+    new_strokes = []
+    for index, points in enumerate(strokes):
+        sorted_points = list(points)
+        # # Calculate the number of points to retain
+        retain_count = round(0.9 * len(points))
+        remove_count = len(points) - retain_count
+        if remove_count < 2:
+            continue
      
-   
+        remove_each_end = int(remove_count / 2)  # Use integer division for slicing
+        # # Sort and slice based on 'x'
+        sorted_points.sort(key=lambda point: point['x'])
+        sorted_points = sorted_points[remove_each_end:-remove_each_end]
+        # # Sort and slice based on 'y'
+        sorted_points.sort(key=lambda point: point['y'])
+        sorted_points = sorted_points[remove_each_end:-remove_each_end]
+        
+        # # Filter the original points list to only include those that remain in sorted_points
+        new_strokes.append([point for point in points if point in sorted_points])
+    return new_strokes
 
 def get_circle_with_points(cx, cy, radius, num_points):
     
@@ -123,7 +147,6 @@ def get_circle_with_points(cx, cy, radius, num_points):
 
 def get_rectangle_with_points(bounding_box, num_points):
     min_x, max_x, min_y, max_y = bounding_box
-    
     width = abs(max_x - min_x)
     height = abs(max_y - min_y)
     # Total perimeter
@@ -143,7 +166,6 @@ def get_rectangle_with_points(bounding_box, num_points):
     right_points = [{'x': max_x, 'y': min_y + i * height / (right_points_count )} for i in range(right_points_count)]
     bottom_points = [{'x': max_x - i * width / (bottom_points_count), 'y': max_y} for i in range(bottom_points_count)]
     left_points = [{'x': min_x, 'y': max_y - i * height / (left_points_count)} for i in range(left_points_count)]
-    
      # Return the list of points. Remove last point of each side to avoid duplications at the corners
     points = top_points + right_points + bottom_points + left_points
     

@@ -36,6 +36,7 @@ def scale(points: list[dict]) -> list[dict]:
  
 def resample(points:list[dict]) -> list[dict]:
     pixel_distance = 32
+    # pixel_distance = 100
     # Wenn die path_length(points) / 32 < 2 ist, dann wollen wir aber trotzdem zwei Punkte setzen, das kann passieren, wenn der Pfad sehr kurz ist, sodass wir den Abstand von 32 Pixeln nicht einhalten können 
     if((path_length(points) / pixel_distance) < 2):
         amount_new_points = 2
