@@ -2,7 +2,8 @@ import sys
 from grouper import group
 from optimized_grouper import group as group_optimized
 from parsers import parse_ground_truth, parse_strokes_from_inkml_file, exclude_text_strokes
-from recognizer.perfect_mock_recognizer import is_a_shape
+from recognizer.recognizer import is_a_shape
+from recognizer.random_recognizer import is_a_shape as random_is_a_shape
 from distance_calculators.distance_between_all_points import initialize_adjacency_matrix
 from normalizer import normalize
 from export_strokes_to_inkml import export_strokes_to_inkml
@@ -21,11 +22,10 @@ if len(sys.argv) == 2:
         
         # print('nachher: ',len(stroke))
 
-    export_strokes_to_inkml(strokes, 'normalized_strokes.inkml')
-    # export_points_to_inkml(normalized_strokes, 'normalized_strokes.inkml')
+    # export_strokes_to_inkml(strokes, 'normalized_strokes.inkml')
     # save the normalized strokes in a new inkml file
-    
-    # grouped_strokes:dict = group_optimized(strokes, is_a_shape, initialize_adjacency_matrix, expected_shapes)
+    print('expected shapes: ', expected_shapes)
+    grouped_strokes:dict = group_optimized(strokes, is_a_shape, initialize_adjacency_matrix, expected_shapes)
     
 
 

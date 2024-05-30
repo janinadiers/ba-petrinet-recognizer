@@ -1,7 +1,6 @@
 import math
 
 def normalize(points: list[dict]) -> list[dict]:
-    print('resample')
     points = resample(points)
     # print('translate')
     # translate_to_origin(points)
@@ -24,7 +23,6 @@ def scale(points: list[dict]) -> list[dict]:
     ymax = max(point['y'] for point in points)
 
     scale = max(xmax - xmin, ymax - ymin)
-    print(f"xmin: {xmin}, xmax: {xmax}, ymin: {ymin}, ymax: {ymax}, scale: {scale}")
     if(scale == 0):
         return
     for point in points:
@@ -34,16 +32,16 @@ def scale(points: list[dict]) -> list[dict]:
         point['y'] = (point['y'] - ymin) / scale
        
     
-    print(points)
+   
  
-def resample(points:list[dict]):
+def resample(points:list[dict]) -> list[dict]:
     pixel_distance = 32
     # Wenn die path_length(points) / 32 < 2 ist, dann wollen wir aber trotzdem zwei Punkte setzen, das kann passieren, wenn der Pfad sehr kurz ist, sodass wir den Abstand von 32 Pixeln nicht einhalten können 
     if((path_length(points) / pixel_distance) < 2):
         amount_new_points = 2
     else:
         amount_new_points = path_length(points) / pixel_distance # Anzahl der neuen Punkte, die hinzugefügt werden sollen: Die Anzahl setzt sich aus der Länge des Pfades zusammen, wo wir jeweils nach 32 Pixeln einen neuen Punkt setzen wollen
-    
+       
     I = path_length(points) / (amount_new_points - 1) # beschreibt die Länge der Abstände zwischen den Punkten, die -1 ist deshalb nötig, weil der letzte Punkt keien Verbindung zu einem weiteren Punkt hat
     # I ist null, wenn es nur Punkte mit den gleichen Koordinaten gibt
     if(I == 0):
@@ -78,7 +76,6 @@ def translate_to_origin(points:list[dict]) -> list[dict]:
       # Calculate the centroid
     origin_x = sum(point['x'] for point in points) / len(points)
     origin_y = sum(point['y'] for point in points) / len(points)
-    print(f"Original centroid: ({origin_x}, {origin_y})")
     # Translate points to have the centroid at the origin
     for point in points:
         point['x'] -= origin_x

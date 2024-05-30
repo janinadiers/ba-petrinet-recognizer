@@ -46,7 +46,7 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
             
     for cycle in cycles:
         recognizer_calls += 1
-        is_shape = is_a_shape(cycle, expected_shapes)
+        is_shape = is_a_shape(cycle, expected_shapes, strokes)
         if 'valid' in is_shape:
             recognized_shapes.append(is_shape['valid'])
           
