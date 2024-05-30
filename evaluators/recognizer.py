@@ -9,7 +9,7 @@ from distance_calculators.distance_with_bounding_box import initialize_adjacency
 from distance_calculators.distance_with_average_of_all_points import initialize_adjacency_matrix as initialize_adjacency_matrix3
 # from recognizer.perfect_mock_recognizer import is_a_shape
 from recognizer.random_recognizer import is_a_shape as random_is_a_shape
-from recognizer.recognizer import is_a_shape, get_amount_wrongly_grouped_strokes, get_amount_correctly_rejected_strokes
+from recognizer.recognizer import is_a_shape
 from normalizer import normalize
 from collections import Counter
 
@@ -133,9 +133,7 @@ def file_path_endswith(file_path:str, filenames:str) -> bool:
 
 def evaluate_recognizer(paths:list, modus:str='ALL', dataset_type:str = 'BOTH') -> None:
     amount_valid_shapes:int = 0
-    amount_invalid_shapes:int = 0
     amount_correctly_recognized_shapes:int = 0
-    amount_correctly_not_recognized_shapes:int = 0
     amount_recognizer_calls:int = 0
     stroke_amount:int = 0
     filenames = get_filenames(modus, dataset_type)
@@ -174,7 +172,6 @@ def evaluate_recognizer(paths:list, modus:str='ALL', dataset_type:str = 'BOTH') 
                         amount_correctly_recognized_shapes += get_amount_correctly_recognized_shapes(grouped_strokes['recognized shapes'], expected_shapes)
                         print(test_file)
                         print(amount_correctly_recognized_shapes, ' / ', amount_valid_shapes, 'richtig erkannt')
-                        print(get_amount_correctly_rejected_strokes(), ' / ', get_amount_wrongly_grouped_strokes(), 'richtig nicht erkannt')
                     # print('Aufrufe des recognizers: ', amount_recognizer_calls)
                     print('average run time: ', get_average_run_time(runtimes))
   

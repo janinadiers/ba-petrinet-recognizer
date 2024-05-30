@@ -21,8 +21,7 @@ def is_a_shape(grouped_ids:list[int], expected_shapes:list[dict], strokes:list[d
                     if not shape_name == 'rectangle':
                         print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!aber falsch erkannt')
                     return {'valid': {'rectangle': grouped_ids}}
-            else:
-                amount_wrongly_grouped_strokes += 1      
+                     
     return {'invalid': grouped_ids}     
     
  
