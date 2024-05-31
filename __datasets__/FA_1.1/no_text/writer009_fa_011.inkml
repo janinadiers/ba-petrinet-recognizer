@@ -1,0 +1,288 @@
+<ink>
+  <traceFormat>
+    <channel name="X" type="decimal" />
+    <channel name="Y" type="decimal" />
+    <channel name="T" type="decimal" />
+    <channel name="P" type="decimal" />
+  </traceFormat>
+  <annotation type="userID">9</annotation>
+  <annotation type="gender">male</annotation>
+  <annotation type="age">29</annotation>
+  <annotation type="dominantHand">left</annotation>
+  <annotation type="writingHand">right</annotation>
+  <annotation type="nationality">Vietnamese</annotation>
+  <trace id="0" timeStamp="0">
+209 3189 0 21, 162 3203 16 50, 108 3209 16 80, 68 3217 31 111, 34 3228 31 116, 7 3233 31 120, 0 3245 47 124, 0 3245 47 129, 23 3266 62 133, 56 3276 78 138, 108 3289 78 142, 170 3303 78 145, 251 3320 94 148, 343 3335 109 150, 450 3351 109 152, 571 3365 109 153, 698 3380 125 154, 832 3393 125 155, 966 3406 140 156, 1100 3417 140 156, 1229 3428 156 156, 1353 3436 156 156, 1468 3442 172 155, 1566 3450 172 152, 1650 3452 187 147, 1722 3461 187 138, 1773 3459 203 126, 1818 3468 203 111, 1840 3463 218 92, 1857 3464 218 66, 1857 3464 234 40, 1855 3452 234 15
+</trace>
+  <trace id="1" timeStamp="234">
+1715 3328 0 19, 1698 3311 0 42, 1682 3297 16 63, 1668 3281 16 81, 1668 3281 32 96, 1653 3263 32 108, 1653 3263 32 118, 1653 3263 47 126, 1681 3253 47 132, 1703 3251 63 137, 1735 3256 63 140, 1770 3262 78 143, 1812 3274 78 145, 1853 3288 94 148, 1896 3312 94 149, 1927 3341 110 151, 1951 3379 110 152, 1958 3424 125 151, 1947 3474 125 146, 1926 3528 141 115, 1882 3587 141 81, 1817 3638 141 48, 1743 3687 156 14
+</trace>
+  <trace id="2" timeStamp="920">
+2947 2978 0 24, 2933 2959 0 51, 2902 2930 16 78, 2863 2904 16 90, 2822 2887 31 100, 2765 2871 31 109, 2705 2872 47 118, 2630 2879 47 125, 2555 2908 47 132, 2467 2951 63 138, 2388 3016 78 143, 2302 3093 78 148, 2228 3189 94 153, 2162 3295 94 157, 2118 3414 94 162, 2089 3533 109 166, 2084 3657 125 171, 2101 3774 125 174, 2140 3890 141 178, 2199 3990 141 181, 2278 4082 141 183, 2365 4153 156 185, 2464 4209 156 187, 2567 4242 172 188, 2676 4256 172 189, 2782 4248 187 190, 2890 4219 187 191, 2992 4171 203 191, 3088 4103 203 192, 3174 4015 219 191, 3246 3908 219 191, 3306 3790 234 191, 3349 3666 234 191, 3375 3541 234 190, 3380 3422 250 189, 3361 3310 250 188, 3322 3209 265 185, 3268 3128 281 182, 3194 3063 281 175, 3112 3027 281 159, 3011 2998 297 122, 2905 2981 297 86, 2793 2972 312 47, 2684 2970 328 11
+</trace>
+  <trace id="3" timeStamp="1248">
+3181 3016 0 17, 3159 3023 16 44, 3145 3033 16 72, 3130 3043 16 89, 3110 3048 31 101, 3100 3059 31 112, 3087 3059 47 120, 3087 3059 47 129, 3087 3059 62 136, 3111 3040 62 141, 3139 3016 78 146, 3185 2983 78 148, 3239 2935 94 151, 3312 2877 94 153, 3400 2803 109 155, 3505 2717 109 156, 3627 2618 125 156, 3759 2510 125 157, 3898 2392 125 157, 4047 2269 140 158, 4202 2143 156 159, 4363 2016 156 159, 4521 1891 156 158, 4676 1774 172 158, 4818 1662 172 159, 4957 1554 187 159, 5085 1455 187 159, 5205 1367 203 159, 5316 1288 203 159, 5415 1219 218 159, 5501 1160 218 159, 5573 1110 234 158, 5636 1072 234 156, 5681 1041 250 150, 5719 1030 250 138, 5734 1022 265 106, 5734 1022 265 70, 5734 1022 281 36, 5734 1022 281 1
+</trace>
+  <trace id="4" timeStamp="1529">
+5421 1039 0 14, 5402 1033 0 46, 5402 1033 16 79, 5380 1027 16 112, 5373 1014 31 122, 5373 1014 31 131, 5382 1001 47 139, 5398 997 47 144, 5414 989 62 148, 5438 984 62 150, 5465 978 78 152, 5497 974 78 153, 5527 969 78 155, 5560 968 94 156, 5588 968 94 157, 5613 974 109 158, 5631 988 109 159, 5642 1013 125 160, 5640 1049 125 161, 5626 1100 140 162, 5603 1167 140 158, 5565 1237 156 133, 5525 1322 156 98, 5483 1407 172 62, 5435 1482 172 25
+</trace>
+  <trace id="5" timeStamp="2387">
+6642 69 0 7, 6613 51 0 34, 6569 30 16 62, 6511 11 31 75, 6453 6 31 89, 6382 0 31 100, 6315 12 47 110, 6236 28 47 119, 6165 65 62 127, 6088 111 62 133, 6025 183 78 139, 5960 269 78 143, 5907 373 94 148, 5859 486 94 153, 5826 615 109 157, 5806 746 109 161, 5804 885 125 165, 5819 1015 125 168, 5853 1138 140 172, 5906 1242 140 175, 5980 1335 156 177, 6070 1406 156 179, 6172 1459 172 180, 6286 1487 172 181, 6404 1492 187 181, 6522 1470 187 182, 6640 1425 203 182, 6755 1361 203 184, 6859 1281 218 184, 6945 1184 218 183, 7017 1072 234 183, 7066 947 234 183, 7095 815 250 182, 7103 682 250 182, 7092 556 265 181, 7062 438 265 179, 7017 328 265 177, 6963 238 281 173, 6898 160 281 166, 6836 119 296 153, 6761 94 296 117, 6691 88 312 79, 6619 96 312 42, 6547 116 328 4
+</trace>
+  <trace id="6" timeStamp="2715">
+6352 1490 0 3, 6352 1490 0 31, 6356 1475 16 62, 6356 1475 16 93, 6356 1475 16 107, 6349 1494 31 119, 6350 1525 47 128, 6341 1563 47 136, 6344 1623 63 143, 6339 1693 63 151, 6344 1787 78 158, 6340 1888 78 164, 6345 2006 94 171, 6342 2125 94 176, 6344 2255 94 181, 6338 2386 109 184, 6334 2521 109 187, 6326 2648 125 189, 6318 2773 125 189, 6311 2889 141 192, 6304 2996 141 193, 6298 3095 156 194, 6293 3181 156 194, 6291 3252 172 193, 6287 3305 172 188, 6293 3354 187 176, 6289 3383 187 138, 6293 3397 203 99, 6293 3397 203 59, 6299 3381 219 20
+</trace>
+  <trace id="7" timeStamp="2934">
+6189 3092 0 38, 6183 3105 0 71, 6175 3117 15 108, 6175 3135 15 131, 6182 3163 31 141, 6181 3183 31 151, 6194 3222 47 159, 6198 3254 47 166, 6209 3300 62 172, 6215 3339 62 177, 6227 3382 78 180, 6233 3420 78 183, 6244 3456 93 185, 6251 3483 93 187, 6264 3504 109 189, 6277 3512 109 190, 6299 3511 125 191, 6323 3494 125 192, 6352 3462 140 192, 6385 3418 140 188, 6416 3351 140 178, 6457 3274 156 139, 6494 3183 171 100, 6534 3084 171 60, 6570 2987 171 21
+</trace>
+  <trace id="8" timeStamp="3823">
+6392 3854 0 8, 6375 3843 16 34, 6346 3825 16 63, 6321 3805 32 80, 6289 3793 32 95, 6245 3778 47 106, 6204 3774 47 115, 6147 3770 47 123, 6095 3783 63 131, 6031 3799 63 137, 5975 3833 78 142, 5914 3874 78 147, 5867 3936 94 152, 5823 4004 94 157, 5794 4089 110 161, 5777 4176 110 164, 5778 4270 125 167, 5794 4356 125 168, 5826 4446 141 172, 5870 4523 141 175, 5928 4590 156 176, 5995 4641 156 178, 6072 4677 172 179, 6151 4697 172 180, 6233 4698 188 180, 6312 4684 188 181, 6388 4654 203 181, 6462 4606 203 180, 6527 4541 219 181, 6579 4464 219 179, 6617 4377 234 179, 6640 4287 234 179, 6649 4196 250 178, 6640 4111 250 176, 6617 4027 266 173, 6582 3963 266 165, 6525 3903 281 149, 6464 3867 281 113, 6399 3843 281 76, 6333 3828 297 40, 6269 3824 297 3
+</trace>
+  <trace id="9" timeStamp="4120">
+6409 3691 0 23, 6402 3670 0 48, 6375 3640 16 66, 6346 3613 32 77, 6318 3592 32 88, 6276 3573 32 97, 6235 3567 47 105, 6181 3565 47 112, 6127 3580 63 119, 6059 3599 63 125, 5998 3638 78 131, 5928 3684 78 137, 5867 3749 94 143, 5805 3821 94 149, 5756 3912 110 154, 5712 4009 110 159, 5687 4121 125 164, 5670 4235 125 168, 5676 4355 141 173, 5694 4467 141 177, 5734 4577 141 179, 5785 4674 156 182, 5855 4758 156 183, 5936 4821 172 185, 6030 4869 188 186, 6130 4894 188 188, 6232 4900 188 188, 6334 4886 203 189, 6433 4851 203 189, 6526 4795 219 188, 6610 4722 234 189, 6680 4629 234 188, 6734 4520 234 188, 6772 4401 250 186, 6791 4276 250 186, 6793 4150 266 184, 6773 4029 266 181, 6738 3920 281 178, 6681 3818 281 168, 6619 3750 297 148, 6533 3697 297 112, 6437 3664 312 74, 6334 3654 312 37, 6224 3657 328 1
+</trace>
+  <trace id="10" timeStamp="4448">
+6205 4918 0 26, 6205 4918 16 55, 6205 4918 31 85, 6205 4918 31 103, 6205 4918 31 115, 6209 4930 47 125, 6211 4957 47 132, 6207 4987 62 137, 6211 5033 62 143, 6207 5081 78 149, 6212 5147 78 156, 6207 5219 94 162, 6210 5307 94 168, 6205 5400 109 174, 6204 5507 109 179, 6197 5614 125 183, 6192 5726 125 187, 6180 5838 140 190, 6172 5951 140 193, 6165 6053 156 195, 6159 6151 156 197, 6153 6236 172 199, 6151 6309 172 200, 6152 6371 187 199, 6151 6421 187 196, 6159 6465 187 187, 6152 6491 203 163, 6152 6514 218 124, 6151 6526 218 86, 6151 6526 218 47, 6151 6526 234 9
+</trace>
+  <trace id="11" timeStamp="4682">
+6049 5175 0 23, 6036 5186 16 56, 6036 5186 16 90, 6036 5186 31 121, 6024 5179 31 132, 6024 5179 47 142, 6035 5164 47 149, 6049 5154 47 154, 6062 5133 63 158, 6077 5115 78 160, 6093 5090 78 162, 6113 5067 78 164, 6130 5041 94 167, 6147 5021 109 170, 6157 5003 109 172, 6170 4991 125 174, 6170 4991 125 177, 6188 4994 141 179, 6197 5012 141 180, 6210 5040 141 181, 6224 5078 156 178, 6238 5113 156 163, 6258 5158 172 127, 6276 5208 172 91, 6289 5252 187 53, 6301 5301 187 16
+</trace>
+  <trace id="12" timeStamp="5664">
+6385 6722 0 4, 6355 6687 0 33, 6329 6660 0 62, 6294 6627 15 93, 6258 6596 15 108, 6223 6581 31 123, 6175 6564 31 134, 6131 6572 46 144, 6074 6582 46 152, 6018 6615 62 159, 5952 6658 62 165, 5888 6721 78 170, 5816 6798 78 176, 5752 6893 93 181, 5688 6996 93 186, 5640 7109 109 190, 5603 7223 109 194, 5591 7342 109 198, 5595 7455 124 201, 5624 7566 124 204, 5672 7663 140 205, 5737 7748 156 207, 5820 7817 156 208, 5917 7870 171 209, 6021 7903 171 208, 6128 7915 171 209, 6239 7906 187 210, 6345 7877 187 209, 6445 7827 202 210, 6541 7756 202 210, 6621 7663 218 211, 6685 7554 218 210, 6730 7431 234 210, 6754 7300 234 208, 6760 7166 249 206, 6745 7036 249 205, 6714 6916 265 201, 6661 6811 265 196, 6599 6737 280 186, 6511 6670 280 158, 6426 6637 280 121, 6334 6621 296 82, 6240 6625 296 45
+</trace>
+  <trace id="13" timeStamp="5960">
+3016 4118 0 16, 3016 4118 0 45, 3016 4118 15 74, 3027 4118 15 105, 3041 4125 31 112, 3041 4125 46 119, 3069 4153 46 125, 3083 4172 46 130, 3104 4202 62 134, 3126 4237 62 137, 3151 4281 78 140, 3177 4328 78 141, 3206 4381 93 143, 3235 4436 93 144, 3267 4496 109 146, 3300 4558 109 147, 3341 4623 124 148, 3384 4687 124 150, 3433 4754 140 152, 3482 4822 140 154, 3540 4893 156 156, 3603 4962 156 158, 3672 5033 171 158, 3745 5104 171 159, 3824 5175 171 160, 3901 5248 187 161, 3980 5321 187 163, 4061 5393 202 164, 4143 5467 218 164, 4222 5542 218 165, 4298 5619 234 166, 4371 5696 234 167, 4440 5776 249 168, 4512 5852 249 168, 4582 5926 249 171, 4651 6001 265 172, 4720 6075 265 174, 4783 6146 280 175, 4850 6216 280 176, 4914 6285 296 178, 4979 6354 296 179, 5039 6423 312 180, 5098 6494 312 182, 5157 6561 327 182, 5213 6626 327 183, 5266 6687 343 183, 5319 6744 343 183, 5366 6793 343 184, 5412 6839 358 184, 5450 6877 358 184, 5489 6908 374 185, 5518 6933 374 187, 5544 6955 390 187, 5567 6973 390 189, 5584 6983 405 188, 5597 6996 405 183, 5597 6996 421 164, 5597 6996 421 129, 5591 6985 436 92, 5591 6985 436 54, 5573 6967 452 17
+</trace>
+  <trace id="14" timeStamp="6412">
+5485 6667 0 35, 5474 6655 0 68, 5474 6655 16 103, 5474 6655 16 136, 5460 6647 31 147, 5466 6658 31 157, 5466 6658 47 163, 5478 6685 47 168, 5486 6704 47 173, 5504 6733 63 176, 5520 6761 63 179, 5542 6797 78 182, 5560 6831 78 184, 5582 6866 94 186, 5597 6898 94 188, 5612 6933 109 189, 5620 6963 109 192, 5621 6991 125 192, 5614 7015 141 194, 5596 7035 141 195, 5568 7051 156 197, 5530 7061 156 194, 5486 7071 156 189, 5429 7065 172 164, 5373 7055 172 127, 5318 7038 187 89, 5266 7013 187 50
+</trace>
+  <trace id="15" timeStamp="6786">
+6710 3978 0 15, 6690 3972 16 44, 6690 3972 16 76, 6669 3965 31 94, 6662 3951 31 109, 6662 3951 47 121, 6676 3925 47 129, 6701 3909 63 136, 6731 3883 63 141, 6780 3856 78 145, 6842 3822 78 148, 6924 3790 94 150, 7015 3755 94 152, 7123 3725 109 154, 7240 3697 109 155, 7366 3676 125 156, 7498 3663 125 156, 7631 3658 141 157, 7764 3663 141 158, 7894 3675 156 158, 8020 3692 156 159, 8146 3715 172 161, 8266 3742 172 163, 8383 3772 187 164, 8489 3801 187 166, 8591 3831 187 167, 8683 3856 203 170, 8766 3881 219 171, 8840 3901 219 172, 8899 3918 234 170, 8949 3932 234 165, 8982 3938 250 151, 9004 3945 250 115, 9004 3945 250 78, 8999 3956 265 41, 8972 3965 265 4
+</trace>
+  <trace id="16" timeStamp="7051">
+6746 3731 0 20, 6766 3723 16 50, 6766 3723 16 81, 6784 3708 32 100, 6784 3708 32 114, 6784 3708 47 124, 6795 3721 47 131, 6785 3732 63 136, 6774 3752 63 139, 6752 3775 78 142, 6730 3805 78 145, 6698 3834 94 148, 6669 3868 94 151, 6637 3897 94 155, 6613 3927 110 158, 6590 3950 110 161, 6578 3974 125 165, 6572 3988 125 168, 6584 4001 141 172, 6604 4009 141 173, 6638 4015 156 175, 6680 4018 172 176, 6731 4020 172 176, 6793 4027 172 168, 6849 4032 188 133, 6915 4036 188 97, 6979 4042 203 59, 7036 4044 203 22
+</trace>
+  <trace id="17" timeStamp="7753">
+6822 4574 0 11, 6798 4576 0 44, 6798 4576 0 76, 6779 4588 15 112, 6779 4588 15 127, 6779 4621 31 139, 6779 4640 47 150, 6797 4675 47 157, 6821 4706 47 164, 6862 4747 62 168, 6914 4786 62 174, 6980 4828 78 177, 7062 4864 78 180, 7160 4897 93 181, 7272 4922 93 182, 7401 4941 109 183, 7545 4955 109 184, 7699 4961 125 184, 7863 4958 125 185, 8037 4950 140 185, 8209 4932 140 185, 8381 4911 140 186, 8543 4888 156 185, 8688 4863 156 184, 8812 4839 171 182, 8910 4811 171 176, 8988 4793 187 167, 9034 4763 203 153, 9070 4752 203 132, 9077 4739 218 94, 9072 4725 218 56, 9059 4711 218 19
+</trace>
+  <trace id="18" timeStamp="7971">
+8960 4725 0 3, 8960 4725 16 37, 8960 4725 16 73, 8948 4722 31 110, 8948 4722 31 128, 8948 4722 47 145, 8948 4722 47 156, 8948 4722 63 165, 8948 4722 63 171, 8948 4722 78 175, 8971 4738 78 176, 8983 4744 94 178, 9001 4751 94 180, 9020 4758 109 181, 9045 4765 109 182, 9069 4771 125 183, 9095 4779 125 184, 9118 4785 141 185, 9140 4794 141 186, 9153 4804 156 187, 9159 4820 156 188, 9153 4839 172 188, 9133 4863 172 188, 9100 4893 172 185, 9045 4924 187 147, 8983 4958 187 110, 8908 4993 203 70, 8819 5024 219 31
+</trace>
+  <trace id="19" timeStamp="9296">
+10009 4045 0 11, 9988 4021 0 39, 9950 3997 16 55, 9912 3968 16 70, 9873 3948 31 85, 9819 3924 31 99, 9769 3912 47 110, 9702 3896 47 121, 9633 3896 62 130, 9551 3897 62 137, 9471 3914 78 143, 9380 3937 78 149, 9295 3979 94 155, 9209 4030 94 159, 9131 4100 94 164, 9063 4178 109 168, 9016 4271 109 173, 8983 4370 125 177, 8972 4477 125 180, 8979 4582 140 184, 9011 4687 156 187, 9060 4782 156 190, 9131 4870 172 192, 9217 4941 172 195, 9315 4999 187 195, 9421 5035 187 196, 9531 5053 203 197, 9641 5052 203 198, 9754 5033 203 199, 9858 4996 218 199, 9951 4944 218 200, 10030 4876 234 199, 10092 4797 234 199, 10139 4704 250 197, 10170 4605 250 196, 10182 4505 265 195, 10176 4404 265 193, 10151 4311 281 189, 10109 4224 281 183, 10059 4159 296 174, 9983 4103 296 140, 9906 4070 312 102, 9819 4051 312 62, 9725 4047 312 23
+</trace>
+  <symbols>
+    <annotation type="truth">Annotation Tool 1.0</annotation>
+    <traceGroup id="0">
+      <annotation type="truth">arrow</annotation>
+      <annotation type="connectionPointFrom">0 6</annotation>
+      <annotation type="connectionPointTo">1 17</annotation>
+      <traceView traceDataRef="0" />
+      <traceView traceDataRef="1" />
+      <head>
+        <traceView traceDataRef="1" />
+      </head>
+      <shaft>
+        <traceView traceDataRef="0" />
+      </shaft>
+    </traceGroup>
+    <traceGroup id="1">
+      <annotation type="truth">arrow</annotation>
+      <annotation type="connectionPointFrom">0 6</annotation>
+      <annotation type="connectionPointTo">0 35</annotation>
+      <traceView traceDataRef="3" />
+      <traceView traceDataRef="4" />
+      <head>
+        <traceView traceDataRef="4" />
+      </head>
+      <shaft>
+        <traceView traceDataRef="3" />
+      </shaft>
+    </traceGroup>
+    <traceGroup id="2">
+      <annotation type="truth">arrow</annotation>
+      <annotation type="connectionPointFrom">0 2</annotation>
+      <annotation type="connectionPointTo">1 15</annotation>
+      <traceView traceDataRef="6" />
+      <traceView traceDataRef="7" />
+      <head>
+        <traceView traceDataRef="7" />
+      </head>
+      <shaft>
+        <traceView traceDataRef="6" />
+      </shaft>
+    </traceGroup>
+    <traceGroup id="3">
+      <annotation type="truth">arrow</annotation>
+      <annotation type="connectionPointFrom">0 28</annotation>
+      <annotation type="connectionPointTo">0 0</annotation>
+      <traceView traceDataRef="10" />
+      <traceView traceDataRef="11" />
+      <head>
+        <traceView traceDataRef="11" />
+      </head>
+      <shaft>
+        <traceView traceDataRef="10" />
+      </shaft>
+    </traceGroup>
+    <traceGroup id="4">
+      <annotation type="truth">arrow</annotation>
+      <annotation type="connectionPointFrom">0 0</annotation>
+      <annotation type="connectionPointTo">1 18</annotation>
+      <traceView traceDataRef="13" />
+      <traceView traceDataRef="14" />
+      <head>
+        <traceView traceDataRef="14" />
+      </head>
+      <shaft>
+        <traceView traceDataRef="13" />
+      </shaft>
+    </traceGroup>
+    <traceGroup id="5">
+      <annotation type="truth">arrow</annotation>
+      <annotation type="connectionPointFrom">0 3</annotation>
+      <annotation type="connectionPointTo">1 20</annotation>
+      <traceView traceDataRef="17" />
+      <traceView traceDataRef="18" />
+      <head>
+        <traceView traceDataRef="18" />
+      </head>
+      <shaft>
+        <traceView traceDataRef="17" />
+      </shaft>
+    </traceGroup>
+    <traceGroup id="6">
+      <annotation type="truth">arrow</annotation>
+      <annotation type="connectionPointFrom">0 32</annotation>
+      <annotation type="connectionPointTo">1 17</annotation>
+      <traceView traceDataRef="15" />
+      <traceView traceDataRef="16" />
+      <head>
+        <traceView traceDataRef="16" />
+      </head>
+      <shaft>
+        <traceView traceDataRef="15" />
+      </shaft>
+    </traceGroup>
+    <traceGroup id="7">
+      <annotation type="truth">state</annotation>
+      <traceView traceDataRef="2" />
+    </traceGroup>
+    <traceGroup id="8">
+      <annotation type="truth">state</annotation>
+      <traceView traceDataRef="5" />
+    </traceGroup>
+    <traceGroup id="9">
+      <annotation type="truth">state</annotation>
+      <traceView traceDataRef="19" />
+    </traceGroup>
+    <traceGroup id="10">
+      <annotation type="truth">state</annotation>
+      <traceView traceDataRef="12" />
+    </traceGroup>
+    <traceGroup id="11">
+      <annotation type="truth">final state</annotation>
+      <traceView traceDataRef="8" />
+      <traceView traceDataRef="9" />
+    </traceGroup>
+  </symbols>
+  <relations>
+    <annotation type="truth">Annotation Tool 1.0</annotation>
+    <symbolGroup id="0" arity="2">
+      <annotation type="truth">arrow_in</annotation>
+      <symbolView symbolDataRef="11" />
+      <symbolView symbolDataRef="18" connectionPoint="unspecified" />
+    </symbolGroup>
+    <symbolGroup id="1" arity="3">
+      <annotation type="truth">arrow_connection</annotation>
+      <symbolView symbolDataRef="12" />
+      <symbolView symbolDataRef="18" connectionPoint="unspecified" />
+      <symbolView symbolDataRef="19" connectionPoint="unspecified" />
+    </symbolGroup>
+    <symbolGroup id="2" arity="3">
+      <annotation type="truth">arrow_connection</annotation>
+      <symbolView symbolDataRef="13" />
+      <symbolView symbolDataRef="19" connectionPoint="unspecified" />
+      <symbolView symbolDataRef="22" connectionPoint="unspecified" />
+    </symbolGroup>
+    <symbolGroup id="3" arity="3">
+      <annotation type="truth">arrow_connection</annotation>
+      <symbolView symbolDataRef="14" />
+      <symbolView symbolDataRef="21" connectionPoint="unspecified" />
+      <symbolView symbolDataRef="22" connectionPoint="unspecified" />
+    </symbolGroup>
+    <symbolGroup id="4" arity="3">
+      <annotation type="truth">arrow_connection</annotation>
+      <symbolView symbolDataRef="15" />
+      <symbolView symbolDataRef="18" connectionPoint="unspecified" />
+      <symbolView symbolDataRef="21" connectionPoint="unspecified" />
+    </symbolGroup>
+    <symbolGroup id="5" arity="3">
+      <annotation type="truth">arrow_connection</annotation>
+      <symbolView symbolDataRef="16" />
+      <symbolView symbolDataRef="22" connectionPoint="unspecified" />
+      <symbolView symbolDataRef="20" connectionPoint="unspecified" />
+    </symbolGroup>
+    <symbolGroup id="6" arity="3">
+      <annotation type="truth">arrow_connection</annotation>
+      <symbolView symbolDataRef="17" />
+      <symbolView symbolDataRef="20" connectionPoint="unspecified" />
+      <symbolView symbolDataRef="22" connectionPoint="unspecified" />
+    </symbolGroup>
+    <symbolGroup id="7" arity="2">
+      <annotation type="truth">text_inside</annotation>
+      <symbolView symbolDataRef="0" />
+      <symbolView symbolDataRef="18" />
+    </symbolGroup>
+    <symbolGroup id="8" arity="2">
+      <annotation type="truth">text_inside</annotation>
+      <symbolView symbolDataRef="1" />
+      <symbolView symbolDataRef="19" />
+    </symbolGroup>
+    <symbolGroup id="9" arity="2">
+      <annotation type="truth">text_inside</annotation>
+      <symbolView symbolDataRef="2" />
+      <symbolView symbolDataRef="22" />
+    </symbolGroup>
+    <symbolGroup id="10" arity="2">
+      <annotation type="truth">text_inside</annotation>
+      <symbolView symbolDataRef="3" />
+      <symbolView symbolDataRef="21" />
+    </symbolGroup>
+    <symbolGroup id="11" arity="2">
+      <annotation type="truth">text_inside</annotation>
+      <symbolView symbolDataRef="4" />
+      <symbolView symbolDataRef="20" />
+    </symbolGroup>
+    <symbolGroup id="12" arity="2">
+      <annotation type="truth">arrow_label</annotation>
+      <symbolView symbolDataRef="5" />
+      <symbolView symbolDataRef="13" />
+    </symbolGroup>
+    <symbolGroup id="13" arity="2">
+      <annotation type="truth">arrow_label</annotation>
+      <symbolView symbolDataRef="6" />
+      <symbolView symbolDataRef="12" />
+    </symbolGroup>
+    <symbolGroup id="14" arity="2">
+      <annotation type="truth">arrow_label</annotation>
+      <symbolView symbolDataRef="7" />
+      <symbolView symbolDataRef="14" />
+    </symbolGroup>
+    <symbolGroup id="15" arity="2">
+      <annotation type="truth">arrow_label</annotation>
+      <symbolView symbolDataRef="8" />
+      <symbolView symbolDataRef="15" />
+    </symbolGroup>
+    <symbolGroup id="16" arity="2">
+      <annotation type="truth">arrow_label</annotation>
+      <symbolView symbolDataRef="9" />
+      <symbolView symbolDataRef="16" />
+    </symbolGroup>
+    <symbolGroup id="17" arity="2">
+      <annotation type="truth">arrow_label</annotation>
+      <symbolView symbolDataRef="10" />
+      <symbolView symbolDataRef="17" />
+    </symbolGroup>
+  </relations>
+</ink>
