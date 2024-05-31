@@ -1,15 +1,18 @@
 import math
+import copy
 
 def normalize(strokes: list[dict]) -> list[dict]:
-    for i in range(len(strokes)):
-        strokes[i] = resample(strokes[i])
+    _strokes = copy.deepcopy(strokes)
+    normalized_strokes = []
+    for stroke in _strokes:
+        normalized_strokes.append(resample(stroke))
     
     # print('translate')
     # translate_to_origin(points)
     # print('scale')
     # scale(points)
     
-    return strokes
+    return normalized_strokes
     
 
 # def pixels_to_himetrics(pixels, dpi):

@@ -1,7 +1,6 @@
 __pycache__
 .DS_STORE
 venv
-datasets
 # datasets/FA_1.1/*_no_text.inkml
 # datasets/FC_1.1/Fake_Test.txt
 # datasets/FC_1.0/*_no_text.inkml

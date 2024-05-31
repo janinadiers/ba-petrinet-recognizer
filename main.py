@@ -67,9 +67,11 @@ for path in file_paths:
     evaluationWrapper.setCurrentFilePath(path) if not args.production else None
     content = parse_strokes_from_inkml_file(path)
     candidates = grouper(content)
+    normalized_content = normalize(content)
+    
     results = []
     for candidate in candidates:
-        results.append(recognizer(candidate, normalize(content)))
+        results.append(recognizer(candidate, normalized_content))
 if not args.production:
     print(evaluationWrapper)
 

@@ -5,6 +5,16 @@ class EvaluationWrapper:
     def __init__(self, is_a_shape:callable):
         self._is_a_shape = is_a_shape
         self.truth = None
+      
+    #               circle          rect    no_shape
+    # circle          20 (0.8)     5 (0.2)    0           TOTAL: 25
+    # rect            0            1 (1.0)    0       
+    # diamond
+    # ellipse
+    # no_shape
+    
+    
+    # 
 
 
     def __str__(self):
