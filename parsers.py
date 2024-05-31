@@ -44,21 +44,21 @@ def parse_ground_truth(file_path: str)-> list[dict]:
             elif annotations[0].text == 'process':
                 new_entry = {'rectangle' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
                 shapes.append(new_entry)
-            # elif annotations[0].text == 'final state':
-            #     new_entry = {'circle in circle' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
-            #     shapes.append(new_entry)
-            # elif annotations[0].text == 'data':
-            #     new_entry = {'parallelogram' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
-            #     shapes.append(new_entry)
-            # elif annotations[0].text == 'decision':
-            #     new_entry = {'diamond' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
-            #     shapes.append(new_entry)
-            # elif annotations[0].text == 'terminator':
-            #     new_entry = {'ellipse' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
-            #     shapes.append(new_entry)
-            # elif annotations[0].text == 'arrow':
-            #     new_entry = {'line' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
-            #     shapes.append(new_entry)
+            elif annotations[0].text == 'final state':
+                new_entry = {'circle in circle' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
+                shapes.append(new_entry)
+            elif annotations[0].text == 'data':
+                new_entry = {'parallelogram' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
+                shapes.append(new_entry)
+            elif annotations[0].text == 'decision':
+                new_entry = {'diamond' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
+                shapes.append(new_entry)
+            elif annotations[0].text == 'terminator':
+                new_entry = {'ellipse' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
+                shapes.append(new_entry)
+            elif annotations[0].text == 'arrow':
+                new_entry = {'line' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
+                shapes.append(new_entry)
             # elif annotations[0].text == 'label' or annotations[0].text == 'text':
             #     new_entry = {'text' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
             #     shapes.append(new_entry)

@@ -1,41 +1,91 @@
 from export_strokes_to_inkml import export_strokes_to_inkml
 import numpy as np
+from Recognition_Result import RecognitionResult
 
 
-def is_a_shape(grouped_ids:list[int], expected_shapes:list[dict], strokes:list[dict]) -> dict:
+def is_a_shape(grouped_ids:list[int], recognition_result:RecognitionResult, strokes:list[dict]) -> dict:
+    recognition_result.recognizer_calls += 1
+    is_valid_guess = False
+    is_valid = False
+    result = {'invalid': grouped_ids}
+    
     stroke = combine_strokes(grouped_ids, strokes)
-    stroke = remove_outliers(stroke) 
-    
-    perfect_circle = get_perfect_mock_shape(stroke)['circle']
-    perfect_rect = get_perfect_mock_shape(stroke)['rectangle']
-    
+    # Anwendung Heuristik: Wenn weniger als 10 Punkte, dann keine gültige Shape
+    if len(stroke) < 20:
+        return result
+    # stroke = remove_outliers(stroke) 
+    perfect_mock_shape = get_perfect_mock_shape(stroke)
+    perfect_circle = perfect_mock_shape['circle']
+    perfect_rect = perfect_mock_shape['rectangle']
+    if perfect_mock_shape['bounding_box']['width'] / perfect_mock_shape['bounding_box']['height'] > 2.5 or perfect_mock_shape['bounding_box']['height'] / perfect_mock_shape['bounding_box']['width'] > 2.5:
+        return result
+        
     average_distance_circle = calculate_average_min_distance(perfect_circle, stroke)
     average_distance_rect = calculate_average_min_distance(perfect_rect, stroke)
-    for dictionary in expected_shapes:
+    
+    if average_distance_circle <= 500 or average_distance_rect <= 500:
+        if average_distance_circle < average_distance_rect:
+            is_valid_guess = True
+            result = {'valid': {'circle': grouped_ids}}
+        else:
+            is_valid_guess = True
+            result = {'valid': {'rectangle': grouped_ids}}
+    for dictionary in recognition_result.get_shapes():
+        
         for shape_name, trace_ids in dictionary.items():
-            if set(trace_ids) == set(grouped_ids) and (shape_name == 'circle' or shape_name == 'rectangle'):
-                export_to_inkml(stroke, perfect_rect, perfect_circle, grouped_ids[0])
-                if average_distance_circle < average_distance_rect:
-                    print('als Kreis erkannt')
-                    if not shape_name == 'circle':
-                        print(grouped_ids[0])
-                        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!aber falsch erkannt')
-                    return {'valid': {'circle': grouped_ids}}
-                else:
-                    print('als Rechteck erkannt')
-                    if not shape_name == 'rectangle':
-                        print(grouped_ids[0])
-                        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!aber falsch erkannt')
-                    return {'valid': {'rectangle': grouped_ids}}
-                     
-    return {'invalid': grouped_ids}     
+            
+            if set(trace_ids) == set(grouped_ids) and shape_name in ['circle', 'rectangle']:
+               
+                is_valid = True
+                recognition_result.amount_valid_shapes += 1
+                if is_valid_guess:
+                    result_shape_name = next(iter(result['valid']))
+                    if shape_name == result_shape_name:
+                        recognition_result.correctly_recognized += 1
+                    elif shape_name == 'circle' and result_shape_name == 'rectangle':
+                        recognition_result.confuse_circle_with_rectangle += 1
+                    elif shape_name == 'rectangle' and result_shape_name == 'circle':
+                        recognition_result.confuse_rectangle_with_circle += 1
+            elif set(trace_ids) == set(grouped_ids):
+                result_shape_name = None
+                if is_valid_guess:
+                    result_shape_name = next(iter(result['valid']))
+                if is_valid_guess and result_shape_name == 'circle' and shape_name == 'ellipse':
+                    recognition_result.confuse_circle_with_ellipse += 1
+                elif is_valid_guess and result_shape_name == 'circle' and shape_name == 'line':
+                    recognition_result.confuse_circle_with_line += 1
+                elif is_valid_guess and result_shape_name == 'circle' and shape_name == 'diamond':
+                    recognition_result.confuse_circle_with_diamond += 1
+                elif is_valid_guess and result_shape_name == 'circle' and shape_name == 'parallelogram':
+                    recognition_result.confuse_circle_with_parallelogram += 1
+                elif is_valid_guess and result_shape_name == 'circle' and shape_name == 'circle_in_circle':
+                    recognition_result.confuse_circle_with_circle_in_circle += 1
+                elif is_valid_guess and result_shape_name == 'rectangle' and shape_name == 'ellipse':
+                    recognition_result.confuse_rectangle_with_ellipse += 1
+                elif is_valid_guess and result_shape_name == 'rectangle' and shape_name == 'line':
+                    recognition_result.confuse_rectangle_with_line += 1
+                elif is_valid_guess and result_shape_name == 'rectangle' and shape_name == 'diamond':
+                    recognition_result.confuse_rectangle_with_diamond += 1
+                elif is_valid_guess and result_shape_name == 'rectangle' and shape_name == 'parallelogram':
+                    recognition_result.confuse_rectangle_with_parallelogram += 1
+                elif is_valid_guess and result_shape_name == 'rectangle' and shape_name == 'circle_in_circle':
+                    recognition_result.confuse_rectangle_with_circle_in_circle += 1
+                              
+            
+    if not is_valid and not is_valid_guess:
+        recognition_result.correctly_rejected += 1
+    elif not is_valid and is_valid_guess:
+        recognition_result.incorrectly_not_rejected += 1
+    
+            
+    return result    
     
  
-def export_to_inkml(stroke, perfect_rect, perfect_circle, id):
-    export_strokes_to_inkml([perfect_rect, perfect_circle, stroke], str(id) + '_perfect_mock_shape.inkml')
+def export_to_inkml(grouped_ids, strokes, perfect_rect, perfect_circle):
+    recognized_strokes = [strokes[trace_id] for trace_id in grouped_ids]
+    export_strokes_to_inkml([perfect_rect, perfect_circle] + recognized_strokes, str(grouped_ids[0]) + '_perfect_mock_shape.inkml')
 
 def calculate_average_min_distance(ideal_shape, candidate):
-    # print('candidate: ', candidate)
     # Convert lists of dictionaries to NumPy arrays for faster operations
     ideal_shape_arr = np.array([[point['x'], point['y']] for point in ideal_shape])
     candidate_arr = np.array([[point['x'], point['y']] for point in candidate])
@@ -43,7 +93,6 @@ def calculate_average_min_distance(ideal_shape, candidate):
     # Calculate pairwise distances between all points in ideal_shape and candidate
     # np.newaxis increases the dimension where applied, making the array broadcasting possible
     distances = np.sqrt(((ideal_shape_arr[:, np.newaxis] - candidate_arr) ** 2).sum(axis=2))
-    print('distances: ', distances)
     # Find the minimum distance for each point in ideal_shape to any point in candidate
     min_distances = np.min(distances, axis=1)
     
@@ -59,7 +108,6 @@ def get_bounding_box(stroke:list[dict]):
     max_x = float('-inf')
     min_y = float('inf')
     max_y = float('-inf')
-    print('stroke: ', stroke)
     for point in stroke:
         
         x = point['x']
@@ -84,6 +132,7 @@ def combine_strokes(grouped_ids:list[int], strokes:list[dict]):
 
 
 def get_perfect_mock_shape(stroke:list[dict]) -> dict:
+    
     bounding_box = get_bounding_box(stroke)
     # get the bounding box of the grouped strokes
     min_x, max_x, min_y, max_y = bounding_box
@@ -110,7 +159,7 @@ def get_perfect_mock_shape(stroke:list[dict]) -> dict:
     perfect_cyclic_mock_shape = get_circle_with_points(center_of_mass_x, center_of_mass_y, radius, 32)
     
 
-    return {'rectangle': perfect_mock_rect, 'circle': perfect_cyclic_mock_shape}
+    return {'rectangle': perfect_mock_rect, 'circle': perfect_cyclic_mock_shape, 'bounding_box': {'min_x':min_x, 'min_y': min_y, 'width': max_x - min_x, 'height': max_y - min_y}}
     
 
 def remove_outliers(stroke:list[dict]):
@@ -122,6 +171,8 @@ def remove_outliers(stroke:list[dict]):
     remove_count = len(stroke) - retain_count
         
     remove_each_end = int(remove_count / 2)  # Use integer division for slicing
+    if remove_each_end == 0:
+        return stroke
     # # Sort and slice based on 'x'
     sorted_points.sort(key=lambda point: point['x'])
     sorted_points = sorted_points[remove_each_end:-remove_each_end]
@@ -130,6 +181,9 @@ def remove_outliers(stroke:list[dict]):
     sorted_points = sorted_points[remove_each_end:-remove_each_end]
     # # Filter the original points list to only include those that remain in sorted_points
     new_stroke.append([point for point in stroke if point in sorted_points])
+    if len(new_stroke[0]) == 0:
+        print('remove_each_end: ', remove_each_end, remove_count, retain_count)
+
     return new_stroke[0]
 
 def get_circle_with_points(cx, cy, radius, num_points):
@@ -151,7 +205,6 @@ def get_rectangle_with_points(bounding_box, num_points):
     if perimeter == 0:
         perimeter = 1
         
-    
     # Use rounding to allocate points more accurately
     top_points_count = max(round((width / perimeter) * num_points),1)
     bottom_points_count = top_points_count

@@ -26,7 +26,6 @@ def get_amount_correctly_recognized_shapes(recognized_shapes:list[dict], expecte
         for shape2 in expected_shapes:
             if(shape1 == shape2):
                 amount += 1
-    print('amount: ', amount)
     return amount
 
     

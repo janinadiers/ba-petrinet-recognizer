@@ -1,6 +1,7 @@
 import numpy as np
 from typing import Callable
 import networkx as nx
+from Recognition_Result import RecognitionResult
     
 def get_unrecognized_strokes(matrix:np.ndarray, strokes:list[dict]) -> list[dict]: 
     """ Returns the strokes that have an entry of 0 in the diagonal of the adjacency matrix"""
@@ -38,7 +39,7 @@ def get_all_simple_cycles(adj_matrix):
     
 
   
-def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:Callable, expected_shapes:list[dict]) -> dict:
+def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:Callable, recognition_result:RecognitionResult) -> dict:
     recognized_shapes:list[dict] = []
     matrix:np.ndarray = initialize_adjacency_matrix(strokes)  
     recognizer_calls = 0
@@ -46,7 +47,7 @@ def group(strokes:list[dict], is_a_shape:Callable, initialize_adjacency_matrix:C
             
     for cycle in cycles:
         recognizer_calls += 1
-        is_shape = is_a_shape(cycle, expected_shapes, strokes)
+        is_shape = is_a_shape(cycle, recognition_result, strokes)
         if 'valid' in is_shape:
             recognized_shapes.append(is_shape['valid'])
           
