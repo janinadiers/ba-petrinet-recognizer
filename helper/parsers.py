@@ -45,7 +45,7 @@ def parse_ground_truth(file_path: str)-> list[dict]:
                 new_entry = {'rectangle' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
                 shapes.append(new_entry)
             elif annotations[0].text == 'final state':
-                new_entry = {'circle in circle' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
+                new_entry = {'double circle' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
                 shapes.append(new_entry)
             elif annotations[0].text == 'data':
                 new_entry = {'parallelogram' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
@@ -108,7 +108,7 @@ def parse_shape_types_with_amount_of_occurence(file_path:str):
                 amount_ellipse += 1
             else:
                 print('Unknown shape type: ', annotations[0].text, 'please add it to the parser')
-    return {'circle': amount_circle, 'rectangle': amount_rectangle, 'line': amount_line, 'text': amount_text, 'circle in circle': amount_circle_in_circle, 'parallelogram': amount_parallelogram, 'diamond': amount_diamond, 'ellipse': amount_ellipse, 'terminator': amount_terminator}
+    return {'circle': amount_circle, 'rectangle': amount_rectangle, 'line': amount_line, 'text': amount_text, 'double circle': amount_circle_in_circle, 'parallelogram': amount_parallelogram, 'diamond': amount_diamond, 'ellipse': amount_ellipse, 'terminator': amount_terminator}
 
 
 

@@ -72,7 +72,11 @@ for path in file_paths:
     results = []
     for candidate in candidates:
         results.append(recognizer(candidate, normalized_content))
+        
 if not args.production:
+    evaluationWrapper.set_total()
+    evaluationWrapper.set_accuracy()
     print(evaluationWrapper)
+   
 
 
