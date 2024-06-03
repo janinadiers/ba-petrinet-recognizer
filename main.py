@@ -9,6 +9,8 @@ from helper.EvaluationWrapper import EvaluationWrapper
 from helper.parsers import parse_strokes_from_inkml_file
 from helper.normalizer import normalize
 import os
+from helper.print_progress_bar import printProgressBar
+import datetime
 
 
 GROUPERS = {
@@ -29,7 +31,7 @@ def _toGlobalPath(path: str):
 parser = argparse.ArgumentParser(description='Petrinet recognizer 0.1.')
 
 parser.add_argument('--files', dest='files', type=_toGlobalPath, nargs='?',action='store',
-                    help='glob to textfile(s) containing inkml file names', default='./__datasets__/FA_1.1/no_text/FA_Test.txt')
+                    help='glob to textfile(s) containing inkml file names', default='./__datasets__/FA_1.1/no_text/FA_Train.txt')
 parser.add_argument('--inkml', dest='inkml', type=_toGlobalPath, nargs='?', action='store', default='',
                     help='glob to inkml file(s)')
 parser.add_argument('--grouper', dest='grouper', type=str, nargs='?', action='store', default='optimized_grouper',
@@ -38,7 +40,8 @@ parser.add_argument('--recognizer', dest='recognizer', type=str, nargs='?', acti
                     help='select a recognition algorithm, random_mock_recognizer, perfect_mock_recognizer or template_matching_recognizer')
 parser.add_argument('--production', dest='production', type=bool, nargs='?', action='store', default=False,
                     help='determines if we run with evaluation logic or not')
-
+parser.add_argument('--save', dest='save', type=str, nargs='?', action='store', default='n',
+                    help='determines if we save the results to a file or not')
 
 args = parser.parse_args()
 
@@ -47,7 +50,6 @@ recognizer = RECOGNIZERS[args.recognizer] if args.production else evaluationWrap
 grouper = GROUPERS[args.grouper]
 
 file_paths = []
-
 if args.inkml:
     file_paths = args.inkml
 elif args.files:
@@ -61,22 +63,37 @@ elif args.files:
 else:
     print('No files specified. Exiting...')
     exit()
+ 
+items = list(range(0, len(file_paths)))
+l = len(items)
+# printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)   
     
-    
-for path in file_paths:
+for i, path in enumerate(file_paths):
+   
     evaluationWrapper.setCurrentFilePath(path) if not args.production else None
     content = parse_strokes_from_inkml_file(path)
+    
     candidates = grouper(content)
     normalized_content = normalize(content)
-    
     results = []
     for candidate in candidates:
         results.append(recognizer(candidate, normalized_content))
+    # printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
         
 if not args.production:
     evaluationWrapper.set_total()
     evaluationWrapper.set_accuracy()
     print(evaluationWrapper)
-   
+
+if args.save == 'y':
+    print('Saving results to file...')
+    file_name = 'evaluation_results/results' + str(datetime.datetime.now()) +'.csv'
+    evaluationWrapper.matrix.to_csv(file_name)
+    with open(file_name, 'a') as f:
+        f.write('# dataset: ' + str(args.files) + '\n')
+        f.write('# grouper: ' + str(args.grouper) + '\n')
+        f.write('# recognizer: ' + str(args.recognizer) + '\n')
+        f.write('# stroke_min: ' + str(evaluationWrapper.stroke_min) + '\n')
+        f.write('# diagonal_to_stroke_length: ' + str(evaluationWrapper.diagonal_to_stroke_length) + '\n')
 
 

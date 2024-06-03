@@ -2,19 +2,26 @@ from helper.export_strokes_to_inkml import export_strokes_to_inkml
 import numpy as np
 
 
-def is_a_shape(grouped_ids:list[int], strokes:list[dict]) -> dict:
+def is_a_shape(grouped_ids:list[int], strokes:list[dict], stroke_min:int, diagonal_to_stroke_length:int) -> dict:
     
     stroke = combine_strokes(grouped_ids, strokes)
     
-    if len(stroke) < 20:
+    if len(stroke) < stroke_min:
         return {'invalid': grouped_ids}
     # stroke = remove_outliers(stroke) 
     perfect_mock_shape = get_perfect_mock_shape(stroke)
     perfect_circle = perfect_mock_shape['circle']
     perfect_rect = perfect_mock_shape['rectangle']
-    if perfect_mock_shape['bounding_box']['width'] / perfect_mock_shape['bounding_box']['height'] > 2.5 or perfect_mock_shape['bounding_box']['height'] / perfect_mock_shape['bounding_box']['width'] > 2.5:
+    if perfect_mock_shape['bounding_box']['width'] / perfect_mock_shape['bounding_box']['height'] > diagonal_to_stroke_length or perfect_mock_shape['bounding_box']['height'] / perfect_mock_shape['bounding_box']['width'] > diagonal_to_stroke_length:
         return {'invalid': grouped_ids}
-        
+    
+    density = calculate_total_stroke_length(stroke) / calculate_diagonal_length(get_bounding_box(stroke))
+    if  density < 2 or density > 5:
+        return {'invalid': grouped_ids}
+    
+    
+    
+    
     average_distance_circle = calculate_average_min_distance(perfect_circle, stroke)
     average_distance_rect = calculate_average_min_distance(perfect_rect, stroke)
     
@@ -22,6 +29,9 @@ def is_a_shape(grouped_ids:list[int], strokes:list[dict]) -> dict:
         if average_distance_circle < average_distance_rect:
             return {'valid': {'circle': grouped_ids}}
         else:
+            strokes = [strokes[trace_id] for trace_id in grouped_ids]
+            corners = detect_corners(strokes)
+            print('corners: ', corners)
             return {'valid': {'rectangle': grouped_ids}}
     else:
         return {'invalid': grouped_ids}
@@ -47,8 +57,71 @@ def calculate_average_min_distance(ideal_shape, candidate):
     average_min_distance = np.mean(min_distances)
     
     return average_min_distance
+
+def calculate_total_stroke_length(stroke):
+    total_length = 0
+    for i in range(1, len(stroke)):
+        total_length += np.sqrt((stroke[i]['x'] - stroke[i-1]['x'])**2 + (stroke[i]['y'] - stroke[i-1]['y'])**2)
+    return total_length
+
+def calculate_diagonal_length(bounding_box):
+    min_x, max_x, min_y, max_y = bounding_box
+    return np.sqrt((max_x - min_x)**2 + (max_y - min_y)**2)
+
+
+def calculate_vector(p1, p2):
+    """ Calculate the directional vector from point p1 to p2 """
     
-    
+    return np.array([p2['x'] - p1['x'], p2['y'] - p1['y']])
+
+def normalize_vector(v):
+    """ Normalize a vector to unit length """
+    norm = np.linalg.norm(v)
+    if norm == 0:
+       return v
+    return v / norm
+
+def angle_between(v1, v2):
+    """ Calculate the angle in degrees between vectors 'v1' and 'v2' """
+    v1_u = normalize_vector(v1)
+    v2_u = normalize_vector(v2)
+    angle = np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
+    return np.degrees(angle)
+
+def detect_corners_within_stroke(points):
+    """ Detect corners in a list of points """
+    vectors = []
+    corner_amount = 0
+
+    for i in range(1, len(points)):
+        v = calculate_vector(points[i-1], points[i])
+        vectors.append(normalize_vector(v))
+
+    for i in range(1, len(vectors)):
+        angle = angle_between(vectors[i-1], vectors[i])
+        if angle > 80 and angle < 100:
+            corner_amount += 1
+
+    return corner_amount
+
+def detect_corners(strokes):
+    """ Detect corners between strokes """
+    vectors = []
+    corner_amount = 0
+
+    for stroke in strokes:
+        corner_amount += detect_corners_within_stroke(stroke)
+        v = calculate_vector(stroke[0], stroke[-1])
+        vectors.append(normalize_vector(v))
+
+    for i in range(1, len(vectors)):
+        angle = angle_between(vectors[i-1], vectors[i])
+        if angle > 80 and angle < 100:
+            corner_amount += 1
+
+    return corner_amount
+
+ 
 def get_bounding_box(stroke:list[dict]):
     # get the bounding box of the grouped strokes
     min_x = float('inf')
