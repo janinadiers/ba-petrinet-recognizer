@@ -42,12 +42,17 @@ parser.add_argument('--production', dest='production', type=bool, nargs='?', act
                     help='determines if we run with evaluation logic or not')
 parser.add_argument('--save', dest='save', type=str, nargs='?', action='store', default='n',
                     help='determines if we save the results to a file or not')
+parser.add_argument('--params', dest='params', type=str, nargs='?', action='store', default='50,6,110, 54')
 
 args = parser.parse_args()
 
 evaluationWrapper = None if args.production else EvaluationWrapper(RECOGNIZERS[args.recognizer])
 recognizer = RECOGNIZERS[args.recognizer] if args.production else evaluationWrapper.is_a_shape
 grouper = GROUPERS[args.grouper]
+
+if args.params:
+    # set params if any
+    evaluationWrapper.set_params(*args.params.split(','))
 
 file_paths = []
 if args.inkml:
@@ -66,7 +71,7 @@ else:
  
 items = list(range(0, len(file_paths)))
 l = len(items)
-# printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)   
+printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)   
     
 for i, path in enumerate(file_paths):
    
@@ -78,7 +83,7 @@ for i, path in enumerate(file_paths):
     results = []
     for candidate in candidates:
         results.append(recognizer(candidate, normalized_content))
-    # printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
+    printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
         
 if not args.production:
     evaluationWrapper.set_total()
@@ -95,5 +100,3 @@ if args.save == 'y':
         f.write('# recognizer: ' + str(args.recognizer) + '\n')
         f.write('# stroke_min: ' + str(evaluationWrapper.stroke_min) + '\n')
         f.write('# diagonal_to_stroke_length: ' + str(evaluationWrapper.diagonal_to_stroke_length) + '\n')
-
-

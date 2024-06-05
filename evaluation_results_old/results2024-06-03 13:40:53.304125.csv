@@ -1,0 +1,13 @@
+#dataset: ['./__datasets__/FC_1.0/no_text/FC_Validation.txt']
+#grouper: optimized_grouper
+#recognizer: template_matching_recognizer
+               circle  rectangle  no_shape  total accuracy
+circle            110          2         0    112      98%
+rectangle           6        356        16    378      94%
+diamond           209          0        15    224       6%
+ellipse            19        244         1    264       0%
+parallelogram      96        231        29    356       8%
+line              303          7       964   1274      75%
+double circle       0          0         0      0        -
+no_shape         4480       1049     19228  24757      77%
+total            5223       1889     20253  54730        0

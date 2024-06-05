@@ -1,0 +1,15 @@
+,circle,rectangle,no_shape,total,accuracy
+circle,98,14,0,112,87%
+rectangle,39,339,0,378,89%
+diamond,13,187,24,224,10%
+ellipse,207,57,0,264,78%
+parallelogram,30,310,16,356,91%
+line,18,177,1079,1274,84%
+double circle,0,0,0,0,-
+no_shape,380,6221,18156,24757,73%
+total,785,7305,19275,54730,0
+# dataset: ['./__datasets__/FC_1.0/no_text/FC_Validation.txt']
+# grouper: optimized_grouper
+# recognizer: template_matching_recognizer
+# stroke_min: 6
+# diagonal_to_stroke_length: 50
