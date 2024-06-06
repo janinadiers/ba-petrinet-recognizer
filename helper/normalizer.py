@@ -5,12 +5,9 @@ def normalize(strokes: list[dict]) -> list[dict]:
     _strokes = copy.deepcopy(strokes)
     normalized_strokes = []
     for stroke in _strokes:
-        normalized_strokes.append(resample(stroke))
-    
-    # print('translate')
-    # translate_to_origin(points)
-    # print('scale')
-    # scale(points)
+        resampled_stroke = resample(stroke)
+        translate_to_origin(resampled_stroke)
+        normalized_strokes.append(resampled_stroke)
     
     return normalized_strokes
     

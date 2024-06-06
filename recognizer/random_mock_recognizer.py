@@ -3,7 +3,7 @@
 import random
 
         
-def is_a_shape(grouped_ids:list[int], expected_shapes:list[dict]) -> dict:
+def is_a_shape(grouped_ids:list[int]) -> dict:
     # randomly decide if group is valid or invalid
     is_valid = random.choice([True, False])
     shape_name = random.choice(['circle', 'rectangle'])

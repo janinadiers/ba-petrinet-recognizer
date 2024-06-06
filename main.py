@@ -5,7 +5,7 @@ from grouper.optimized_grouper import group as optimized_grouper
 from recognizer.random_mock_recognizer import is_a_shape as random_mock_recognizer
 from recognizer.perfect_mock_recognizer import is_a_shape as perfect_mock_recognizer
 from recognizer.template_matching_recognizer import is_a_shape as template_matching_recognizer
-import recognizer.linear_svm_recognizer as linear_svm_recognizer
+from recognizer.linear_svm_recognizer import is_a_shape as linear_svm_recognizer
 from helper.EvaluationWrapper import EvaluationWrapper
 from helper.TrainWrapper import TrainWrapper
 from helper.parsers import parse_strokes_from_inkml_file

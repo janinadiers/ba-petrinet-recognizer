@@ -23,9 +23,6 @@ class EvaluationWrapper:
     
     def set_total(self):
         for row in self.rows:
-            # print('row', row)
-            # print('matrix', self.matrix)
-            # print('jdflsk', self.matrix[row])
             self.matrix.at[row, 'total'] = self.matrix.loc[row].sum()
         for column in self.columns:
             self.matrix.at['total', column] = self.matrix[column].sum()
@@ -63,8 +60,7 @@ class EvaluationWrapper:
         
     def is_a_shape(self, candidate, content):
        
-        recognizer_result = self._is_a_shape(candidate, content, self.get_params())
-      
+        recognizer_result = self._is_a_shape(candidate, content)
         truth_contains_candidate = False
         for dictionary in self.truth:
             for shape_name, trace_ids in dictionary.items():

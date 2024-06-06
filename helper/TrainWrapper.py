@@ -1,5 +1,4 @@
 from helper.parsers import parse_ground_truth, parse_strokes_from_inkml_file
-import pandas as pd
 import os
 
 class TrainWrapper:
@@ -28,7 +27,6 @@ class TrainWrapper:
         label_mapping = {'rectangle': 0, 'circle': 1, 'line': 2, 'double circle': 2}
         for item in self.truth:
             for key, value in item.items():
-               
                 values.append(value)  # Add values to the list
                 labels.append(label_mapping[key])
         return values, labels

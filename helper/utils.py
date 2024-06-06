@@ -1,7 +1,5 @@
 import numpy as np
-from helper.parsers import parse_ground_truth
-from glob import glob  
-import os
+import copy
 
 def combine_strokes(grouped_ids:list[int], strokes:list[dict]):
     combined_strokes = []  
@@ -12,12 +10,13 @@ def combine_strokes(grouped_ids:list[int], strokes:list[dict]):
 
 
 def get_bounding_box(stroke:list[dict]):
+    _stroke = copy.deepcopy(stroke)
     # get the bounding box of the grouped strokes
     min_x = float('inf')
     max_x = float('-inf')
     min_y = float('inf')
     max_y = float('-inf')
-    for point in stroke:
+    for point in _stroke:
         
         x = point['x']
         y = point['y']
@@ -37,15 +36,16 @@ def calculate_diagonal_length(bounding_box):
     return np.sqrt((max_x - min_x)**2 + (max_y - min_y)**2)
     
 def calculate_total_stroke_length(stroke):
+    _stroke = copy.deepcopy(stroke)
     total_length = 0
-    for i in range(1, len(stroke)):
-        total_length += np.sqrt((stroke[i]['x'] - stroke[i-1]['x'])**2 + (stroke[i]['y'] - stroke[i-1]['y'])**2)
+    for i in range(1, len(_stroke)):
+        total_length += np.sqrt((_stroke[i]['x'] - _stroke[i-1]['x'])**2 + (_stroke[i]['y'] - _stroke[i-1]['y'])**2)
     return total_length
 
 
 def get_perfect_mock_shape(stroke:list[dict]) -> dict:
-    
-    bounding_box = get_bounding_box(stroke)
+    _stroke = copy.deepcopy(stroke)
+    bounding_box = get_bounding_box(_stroke)
     # get the bounding box of the grouped strokes
     min_x, max_x, min_y, max_y = bounding_box
     # create the perfect mock shape
@@ -109,10 +109,28 @@ def get_rectangle_with_points(bounding_box, num_points):
     return points + [points[0]]
 
 
-    
+# def remove_outliers(stroke:list[dict]):
+#     new_stroke = []
 
+#     sorted_points = list(stroke)
+#     # # Calculate the number of points to retain
+#     retain_count = round(0.9 * len(stroke))
+#     remove_count = len(stroke) - retain_count
+        
+#     remove_each_end = int(remove_count / 2)  # Use integer division for slicing
+#     if remove_each_end == 0:
+#         return stroke
+#     # # Sort and slice based on 'x'
+#     sorted_points.sort(key=lambda point: point['x'])
+#     sorted_points = sorted_points[remove_each_end:-remove_each_end]
+#     # # Sort and slice based on 'y'
+#     sorted_points.sort(key=lambda point: point['y'])
+#     sorted_points = sorted_points[remove_each_end:-remove_each_end]
+#     # # Filter the original points list to only include those that remain in sorted_points
+#     new_stroke.append([point for point in stroke if point in sorted_points])
+#     if len(new_stroke[0]) == 0:
+#         pass
 
-            
-    
-    
-    
+#     return new_stroke[0]
+
+  

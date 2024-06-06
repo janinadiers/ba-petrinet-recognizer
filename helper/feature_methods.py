@@ -1,16 +1,18 @@
 
 from scipy.spatial import ConvexHull
 from helper.utils import get_bounding_box, calculate_diagonal_length, calculate_total_stroke_length
+from helper.corner_detection import detect_corners
 import numpy as np
+import copy
 # compactness ratio: 
 # Circles: For a perfect circle, the ratio of area to perimeter (compactness) is maximized, because circles have the highest area for a given perimeter compared to other shapes. This makes the compactness ratio close to that of a circle.
 # Rectangles and Other Polygons: Shapes like rectangles, especially elongated ones, have a lower compactness ratio compared to circles. This is because they have more perimeter for the same area compared to a circle.
 def compute_convex_hull_perimeter_to_area_ratio(points):
-    points = [(point['x'], point['y']) for point in points]
+    _points = [(point['x'], point['y']) for point in points]
     if len(points) < 3:
         return 0  # Not enough points to form a convex hull
 
-    hull = ConvexHull(points)
+    hull = ConvexHull(_points)
     hull_area = hull.volume  # For 2D, volume is the area
     hull_perimeter = hull.area  # For 2D, area is the perimeter
 
@@ -22,11 +24,11 @@ def compute_convex_hull_perimeter_to_area_ratio(points):
 
 
 def compute_convex_hull_area_to_perimeter_ratio(points):
-    points = [(point['x'], point['y']) for point in points]
-    if len(points) < 3:
+    _points = [(point['x'], point['y']) for point in points]
+    if len(_points) < 3:
         return 0  # Not enough points to form a convex hull
 
-    hull = ConvexHull(points)
+    hull = ConvexHull(_points)
     hull_area = hull.volume  # For 2D, volume is the area
     hull_perimeter = hull.area  # For 2D, area is the perimeter
 
@@ -37,14 +39,9 @@ def compute_convex_hull_area_to_perimeter_ratio(points):
 
 
 def compute_total_stroke_length_to_diagonal_length(stroke):
-    return calculate_total_stroke_length(stroke) / calculate_diagonal_length(get_bounding_box(stroke))
+    _stroke = copy.deepcopy(stroke)
+    return calculate_total_stroke_length(_stroke) / calculate_diagonal_length(get_bounding_box(_stroke))
 
-
-def get_stroke_amount(strokes):
-    return len(strokes)
-
-def get_points_amount(strokes):
-    return sum([len(stroke) for stroke in strokes])
 
 def calculate_average_min_distance(ideal_shape, candidate):
     # Convert lists of dictionaries to NumPy arrays for faster operations
@@ -61,4 +58,7 @@ def calculate_average_min_distance(ideal_shape, candidate):
     average_min_distance = np.mean(min_distances)
     
     return average_min_distance
+
+def detect_corners(strokes):
+    detect_corners(strokes)
     

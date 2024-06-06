@@ -14,3 +14,5 @@ def export_strokes_to_inkml(strokes:list[dict], filename:str):
                 file.write(str(point['x']) + ' ' + str(point['y']) + ',')
             file.write('</trace>\n')
         file.write('</ink>\n')
+        
+        
