@@ -5,7 +5,9 @@ from grouper.optimized_grouper import group as optimized_grouper
 from recognizer.random_mock_recognizer import is_a_shape as random_mock_recognizer
 from recognizer.perfect_mock_recognizer import is_a_shape as perfect_mock_recognizer
 from recognizer.template_matching_recognizer import is_a_shape as template_matching_recognizer
+import recognizer.linear_svm_recognizer as linear_svm_recognizer
 from helper.EvaluationWrapper import EvaluationWrapper
+from helper.TrainWrapper import TrainWrapper
 from helper.parsers import parse_strokes_from_inkml_file
 from helper.normalizer import normalize
 import os
@@ -21,7 +23,8 @@ GROUPERS = {
 RECOGNIZERS = {
     'random_mock_recognizer' : random_mock_recognizer,
     'perfect_mock_recognizer' : perfect_mock_recognizer,
-    'template_matching_recognizer' : template_matching_recognizer
+    'template_matching_recognizer' : template_matching_recognizer,
+    'linear_svm_recognizer' : linear_svm_recognizer
 }
     
 
@@ -30,8 +33,8 @@ def _toGlobalPath(path: str):
 
 parser = argparse.ArgumentParser(description='Petrinet recognizer 0.1.')
 
-parser.add_argument('--files', dest='files', type=_toGlobalPath, nargs='?',action='store',
-                    help='glob to textfile(s) containing inkml file names', default='./__datasets__/FA_1.1/no_text/FA_Train.txt')
+parser.add_argument('--files', dest='files', nargs='+',
+                    help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FA_1.1/no_text/FA_Train.txt'])
 parser.add_argument('--inkml', dest='inkml', type=_toGlobalPath, nargs='?', action='store', default='',
                     help='glob to inkml file(s)')
 parser.add_argument('--grouper', dest='grouper', type=str, nargs='?', action='store', default='optimized_grouper',
@@ -42,11 +45,18 @@ parser.add_argument('--production', dest='production', type=bool, nargs='?', act
                     help='determines if we run with evaluation logic or not')
 parser.add_argument('--save', dest='save', type=str, nargs='?', action='store', default='n',
                     help='determines if we save the results to a file or not')
-parser.add_argument('--params', dest='params', type=str, nargs='?', action='store', default='50,6,110, 54')
+parser.add_argument('--params', dest='params', type=str, nargs='?', action='store', default=None)
+parser.add_argument('--train', dest='train', action='store_true')
 
 args = parser.parse_args()
 
+if args.train:
+    trainWrapper = None if not args.train else TrainWrapper(args.files, RECOGNIZERS[args.recognizer])
+    trainWrapper.train_recognizer()
+    exit()
+    
 evaluationWrapper = None if args.production else EvaluationWrapper(RECOGNIZERS[args.recognizer])
+
 recognizer = RECOGNIZERS[args.recognizer] if args.production else evaluationWrapper.is_a_shape
 grouper = GROUPERS[args.grouper]
 
@@ -68,13 +78,12 @@ elif args.files:
 else:
     print('No files specified. Exiting...')
     exit()
- 
+
 items = list(range(0, len(file_paths)))
 l = len(items)
 printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)   
-    
+
 for i, path in enumerate(file_paths):
-   
     evaluationWrapper.setCurrentFilePath(path) if not args.production else None
     content = parse_strokes_from_inkml_file(path)
     
