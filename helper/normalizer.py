@@ -1,15 +1,30 @@
 import math
 import copy
+from helper.export_strokes_to_inkml import export_strokes_to_inkml
 
 def normalize(strokes: list[dict]) -> list[dict]:
     _strokes = copy.deepcopy(strokes)
+    resampled_strokes = []
+    translated_strokes = []
     normalized_strokes = []
     for stroke in _strokes:
-        resampled_stroke = resample(stroke)
-        translate_to_origin(resampled_stroke)
-        normalized_strokes.append(resampled_stroke)
-    
-    return normalized_strokes
+        resampled_strokes.append(resample(stroke))
+    export_strokes_to_inkml(resampled_strokes, 'resampled_points.inkml')
+    exit()
+    combined_strokes = [point for stroke in resampled_strokes for point in stroke]
+    translated_points = translate_to_origin(combined_strokes)
+
+    start_index = 0
+    for stroke in resampled_strokes:
+        amount_points = len(stroke)
+        translated_strokes.append(translated_points[start_index:start_index+ amount_points])
+        start_index += amount_points
+      
+   
+    export_strokes_to_inkml(translated_strokes, 'translated_points.inkml')
+    exit()
+    # return normalized_strokes
+    return resampled_strokes
     
 
 # def pixels_to_himetrics(pixels, dpi):
@@ -77,14 +92,19 @@ def resample(points:list[dict]) -> list[dict]:
      
     return new_points
 
+# translate the points from all strokes to have the centroid at the origin
 def translate_to_origin(points:list[dict]) -> list[dict]:
-      # Calculate the centroid
-    origin_x = sum(point['x'] for point in points) / len(points)
-    origin_y = sum(point['y'] for point in points) / len(points)
+    _points = copy.deepcopy(points)
+    centroid = [0,0]
     # Translate points to have the centroid at the origin
-    for point in points:
-        point['x'] -= origin_x
-        point['y'] -= origin_y
+    for point in _points:
+        centroid = [centroid[0] + point['x'], centroid[1] + point['y']]
+      
+    centroid = [centroid[0] / len(_points), centroid[1] / len(_points)]
+    for point in _points:
+        point['x'] -= centroid[0]
+        point['y'] -= centroid[1]
+    return _points
 
 
     

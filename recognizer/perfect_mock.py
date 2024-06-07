@@ -1,4 +1,4 @@
-def is_a_shape(grouped_ids:list[int], expected_shapes:list[dict]) -> dict:
+def recognize(grouped_ids:list[int], expected_shapes:list[dict]) -> dict:
     # global count
     # count += 1
     # print('grouped_ids', grouped_ids)

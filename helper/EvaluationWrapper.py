@@ -2,8 +2,8 @@ from helper.parsers import parse_ground_truth
 import pandas as pd
 
 class EvaluationWrapper:
-    def __init__(self, is_a_shape:callable):
-        self._is_a_shape = is_a_shape
+    def __init__(self, recognize:callable):
+        self._recognize = recognize
         self.truth = None
         self.columns = ['circle', 'rectangle','no_shape', 'total', 'accuracy']
         self.rows = ['circle', 'rectangle', 'diamond', 'ellipse', 'parallelogram', 'line', 'double circle', 'no_shape', 'total']
@@ -58,9 +58,9 @@ class EvaluationWrapper:
         self.upper_bound_angle = upper_bound_angle
         self.lower_bound_angle = lower_bound_angle
         
-    def is_a_shape(self, candidate, content):
+    def recognize(self, candidate, content):
        
-        recognizer_result = self._is_a_shape(candidate, content)
+        recognizer_result = self._recognize(candidate, content)
         truth_contains_candidate = False
         for dictionary in self.truth:
             for shape_name, trace_ids in dictionary.items():

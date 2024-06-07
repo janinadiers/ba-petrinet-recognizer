@@ -2,12 +2,13 @@ import argparse
 from glob import glob  
 from grouper.thesis_grouper import group as thesis_grouper
 from grouper.optimized_grouper import group as optimized_grouper
-from recognizer.random_mock_recognizer import is_a_shape as random_mock_recognizer
-from recognizer.perfect_mock_recognizer import is_a_shape as perfect_mock_recognizer
-from recognizer.template_matching_recognizer import is_a_shape as template_matching_recognizer
-from recognizer.linear_svm_recognizer import is_a_shape as linear_svm_recognizer
+from recognizer.random_mock import recognize as random_mock
+from recognizer.perfect_mock import recognize as perfect_mock
+from recognizer.shape_recognizer import recognize as shape_recognizer
+from classifier.template_matching import use as template_matching
+from classifier.linear_svm import use as linear_svm
+from rejector.hellinger_plus_correlation import is_valid_shape as hellinger_plus_correlation
 from helper.EvaluationWrapper import EvaluationWrapper
-from helper.TrainWrapper import TrainWrapper
 from helper.parsers import parse_strokes_from_inkml_file
 from helper.normalizer import normalize
 import os
@@ -21,10 +22,19 @@ GROUPERS = {
 }
 
 RECOGNIZERS = {
-    'random_mock_recognizer' : random_mock_recognizer,
-    'perfect_mock_recognizer' : perfect_mock_recognizer,
-    'template_matching_recognizer' : template_matching_recognizer,
-    'linear_svm_recognizer' : linear_svm_recognizer
+    'random_mock' : random_mock,
+    'perfect_mock' : perfect_mock,
+    'shape_recognizer' : shape_recognizer
+   
+}
+
+CLASSIFIERS = {
+    'template_matching' : template_matching,
+    'linear_svm' : linear_svm
+}
+
+REJECTORS = {
+    'hellinger_plus_correlation' : hellinger_plus_correlation
 }
     
 
@@ -39,30 +49,46 @@ parser.add_argument('--inkml', dest='inkml', type=_toGlobalPath, nargs='?', acti
                     help='glob to inkml file(s)')
 parser.add_argument('--grouper', dest='grouper', type=str, nargs='?', action='store', default='optimized_grouper',
                     help='select a grouping algorithm, thesis_grouper or optimized_grouper')
-parser.add_argument('--recognizer', dest='recognizer', type=str, nargs='?', action='store', default='template_matching_recognizer',
-                    help='select a recognition algorithm, random_mock_recognizer, perfect_mock_recognizer or template_matching_recognizer')
+parser.add_argument('--recognizer', dest='recognizer', type=str, nargs='?', action='store', default='shape_recognizer',
+                    help='select a recognizer, random_mock_recognizer, perfect_mock_recognizer or shape_recognizer')
+parser.add_argument('--classifier', dest='classifier', type=str, nargs='?', action='store', default='template_matching',
+                    help='select a classifier, template_matching or linear_svm')
+parser.add_argument('--rejector', dest='rejector', type=str, nargs='?', action='store', default='hellinger_plus_correlation',
+                    help='select a rejector, like hellinger_plus_correlation')
 parser.add_argument('--production', dest='production', type=bool, nargs='?', action='store', default=False,
                     help='determines if we run with evaluation logic or not')
 parser.add_argument('--save', dest='save', type=str, nargs='?', action='store', default='n',
                     help='determines if we save the results to a file or not')
-parser.add_argument('--params', dest='params', type=str, nargs='?', action='store', default=None)
-parser.add_argument('--train', dest='train', action='store_true')
+
 
 args = parser.parse_args()
 
-if args.train:
-    trainWrapper = None if not args.train else TrainWrapper(args.files, RECOGNIZERS[args.recognizer])
-    trainWrapper.train_recognizer()
-    exit()
+
+def validate_args(args):
+    if args.grouper not in GROUPERS:
+        print('Invalid grouper. Exiting...')
+        exit()
+    if args.recognizer not in RECOGNIZERS:
+        print('Invalid recognizer. Exiting...')
+        exit()
+    if args.classifier not in CLASSIFIERS:
+        print('Invalid classifier. Exiting...')
+        exit()
+    if args.rejector not in REJECTORS:
+        print('Invalid rejector. Exiting...')
+        exit()
+    if args.production and args.save == 'y':
+        print('Invalid combination of arguments. Cannot save results in production mode. Exiting...')
+        exit()
     
+validate_args(args)
+       
+ 
 evaluationWrapper = None if args.production else EvaluationWrapper(RECOGNIZERS[args.recognizer])
 
-recognizer = RECOGNIZERS[args.recognizer] if args.production else evaluationWrapper.is_a_shape
+recognizer = RECOGNIZERS[args.recognizer] if args.production else evaluationWrapper.recognize
 grouper = GROUPERS[args.grouper]
 
-if args.params:
-    # set params if any
-    evaluationWrapper.set_params(*args.params.split(','))
 
 file_paths = []
 if args.inkml:
@@ -106,6 +132,5 @@ if args.save == 'y':
     with open(file_name, 'a') as f:
         f.write('# dataset: ' + str(args.files) + '\n')
         f.write('# grouper: ' + str(args.grouper) + '\n')
-        f.write('# recognizer: ' + str(args.recognizer) + '\n')
-        f.write('# stroke_min: ' + str(evaluationWrapper.stroke_min) + '\n')
-        f.write('# diagonal_to_stroke_length: ' + str(evaluationWrapper.diagonal_to_stroke_length) + '\n')
+        f.write('# classifier: ' + str(args.classifier) + '\n')
+        f.write('# rejector: ' + str(args.rejector) + '\n')

@@ -1,7 +1,9 @@
-from helper.feature_methods import get_bounding_box, calculate_diagonal_length, calculate_total_stroke_length, calculate_average_min_distance
+from helper.features import get_bounding_box, calculate_diagonal_length, calculate_total_stroke_length, calculate_average_min_distance
 from helper.utils import calculate_total_stroke_length, calculate_diagonal_length, get_bounding_box, combine_strokes, get_perfect_mock_shape, get_circle_with_points, get_rectangle_with_points
 from helper.corner_detection import detect_corners
-def is_a_shape(grouped_ids:list[int], strokes:list[dict], params=None) -> dict:
+
+
+def use(grouped_ids:list[int], strokes:list[dict], params=None) -> dict:
     
     stroke = combine_strokes(grouped_ids, strokes)
     if params is None:

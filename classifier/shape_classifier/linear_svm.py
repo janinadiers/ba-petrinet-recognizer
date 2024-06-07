@@ -6,40 +6,50 @@ from sklearn import svm
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plt
-from helper.feature_methods import compute_convex_hull_perimeter_to_area_ratio, compute_convex_hull_area_to_perimeter_ratio,compute_total_stroke_length_to_diagonal_length, calculate_average_min_distance
+from helper.features import compute_convex_hull_perimeter_to_area_ratio, compute_convex_hull_area_to_perimeter_ratio,compute_total_stroke_length_to_diagonal_length, calculate_average_min_distance
 from helper.utils import combine_strokes, get_perfect_mock_shape
 import joblib
 import datetime
 from helper.generate_feature_grids import generate_feature_images
+from helper.features import get_feature_vector
+from helper.parsers import parse_ground_truth, parse_strokes_from_inkml_file
 
-# welche features sind sinnvoll?
-# 1. Anzahl der strokes
-# 2. Anzahl der points
-# 5. Anzahl der corners in einem stroke
-# 7. Start und Endpoints der candidates 
-# 8. The total length of the strokes in the group divided by the diagonal length
 
-def extract_features(points:list[dict]):
-    features = []
-    try:
-        convex_hull_perimeter_to_area_ratio = compute_convex_hull_perimeter_to_area_ratio(points)
-        convex_hull_area_to_perimeter_ratio = compute_convex_hull_area_to_perimeter_ratio(points)
-    except:
-        return []
-    total_stroke_length_to_diagonal_length = compute_total_stroke_length_to_diagonal_length(points)
-    perfect_mock_shape = get_perfect_mock_shape(points)
-    perfect_circle = perfect_mock_shape['circle']
-    perfect_rect = perfect_mock_shape['rectangle']
-    average_distance_circle = calculate_average_min_distance(perfect_circle, points)
-    average_distance_rect = calculate_average_min_distance(perfect_rect, points)
-    if perfect_mock_shape['bounding_box']['width'] == 0 or perfect_mock_shape['bounding_box']['height'] == 0:
-        return []
-    else:
-        width_to_height_ratio = perfect_mock_shape['bounding_box']['width'] / perfect_mock_shape['bounding_box']['height']
-        height_to_width_ratio = perfect_mock_shape['bounding_box']['height'] / perfect_mock_shape['bounding_box']['width']
-    features.extend([convex_hull_perimeter_to_area_ratio, convex_hull_area_to_perimeter_ratio, total_stroke_length_to_diagonal_length, average_distance_circle, average_distance_rect, width_to_height_ratio, height_to_width_ratio])
-    return features
-   
+def get_all_candidates_with_labels(self):
+    file_paths = []
+    truth = []
+    for name_file_path in self.files:
+        with open(name_file_path) as f:
+            content = f.readlines()
+            for line in content:
+                line = line.strip()
+                if line.endswith('.inkml'):
+                    file_paths.append(os.path.dirname(name_file_path) + '/' + line)
+    for path in file_paths:
+        self.strokes.extend(parse_strokes_from_inkml_file(path))
+        truth.append(parse_ground_truth(path))
+    self.map_shapes_to_labels(truth)
+    values = []
+    labels = []
+    label_mapping = {'rectangle': 0, 'circle': 1, 'line': 2, 'double circle': 2}
+    for item in self.truth:
+        for key, value in item.items():
+            values.append(value)  # Add values to the list
+            labels.append(label_mapping[key])
+    return values, labels
+            
+    
+def map_shapes_to_labels(self, truth):
+    
+    flattened_truth = [item for sublist in truth for item in sublist]
+
+    for entry in flattened_truth:
+        if 'parallelogram' in entry:
+            entry['rectangle'] = entry.pop('parallelogram')
+        if 'ellipse' in entry:
+            entry['circle'] = entry.pop('ellipse')
+    self.truth = flattened_truth
+    
 
 def train(candidates, labels, strokes):
     # Bildung der Feature Vectors aus den Candidates
@@ -47,7 +57,7 @@ def train(candidates, labels, strokes):
 
     for candidate in candidates:
         stroke = combine_strokes(candidate, strokes)
-        features = extract_features(stroke)
+        features = get_feature_vector(stroke)
         # add stroke amount and points amount
         features.append(len(candidate))
         features.append(len(stroke))
@@ -71,7 +81,7 @@ def train(candidates, labels, strokes):
     joblib.dump(clf, joblib_file)
 
 
-def is_a_shape(grouped_ids:list[int], strokes:list[dict])-> dict:
+def use(grouped_ids:list[int], strokes:list[dict])-> dict:
     generate_feature_images(grouped_ids, strokes)
     return {'valid': {'rectangle': grouped_ids}}
     # X = []  # Features
