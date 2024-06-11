@@ -5,24 +5,21 @@ from helper.export_strokes_to_inkml import export_strokes_to_inkml
 def normalize(strokes: list[dict]) -> list[dict]:
     _strokes = copy.deepcopy(strokes)
     resampled_strokes = []
-    translated_strokes = []
-    normalized_strokes = []
     for stroke in _strokes:
         resampled_strokes.append(resample(stroke))
-    export_strokes_to_inkml(resampled_strokes, 'resampled_points.inkml')
-    exit()
-    combined_strokes = [point for stroke in resampled_strokes for point in stroke]
-    translated_points = translate_to_origin(combined_strokes)
+    
+    # combined_strokes = [point for stroke in resampled_strokes for point in stroke]
+    # translated_points = translate_to_origin(combined_strokes)
 
-    start_index = 0
-    for stroke in resampled_strokes:
-        amount_points = len(stroke)
-        translated_strokes.append(translated_points[start_index:start_index+ amount_points])
-        start_index += amount_points
+    # start_index = 0
+    # for stroke in resampled_strokes:
+    #     amount_points = len(stroke)
+    #     translated_strokes.append(translated_points[start_index:start_index+ amount_points])
+    #     start_index += amount_points
       
    
-    export_strokes_to_inkml(translated_strokes, 'translated_points.inkml')
-    exit()
+    # export_strokes_to_inkml(translated_strokes, 'translated_points.inkml')
+    # exit()
     # return normalized_strokes
     return resampled_strokes
     
@@ -52,7 +49,7 @@ def scale(points: list[dict]) -> list[dict]:
    
  
 def resample(points:list[dict]) -> list[dict]:
-    pixel_distance = 32
+    pixel_distance = 50
     # pixel_distance = 100
     # Wenn die path_length(points) / 32 < 2 ist, dann wollen wir aber trotzdem zwei Punkte setzen, das kann passieren, wenn der Pfad sehr kurz ist, sodass wir den Abstand von 32 Pixeln nicht einhalten können 
     if((path_length(points) / pixel_distance) < 2):

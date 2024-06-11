@@ -1,12 +1,12 @@
 import argparse
 from glob import glob  
-from grouper.thesis_grouper import group as thesis_grouper
-from grouper.optimized_grouper import group as optimized_grouper
+from grouper.shape_grouper.thesis_grouper import group as thesis_grouper
+from grouper.shape_grouper.optimized_grouper import group as optimized_grouper
 from recognizer.random_mock import recognize as random_mock
 from recognizer.perfect_mock import recognize as perfect_mock
 from recognizer.shape_recognizer import recognize as shape_recognizer
-from classifier.template_matching import use as template_matching
-from classifier.linear_svm import use as linear_svm
+from classifier.shape_classifier.template_matching import use as template_matching
+from classifier.shape_classifier.linear_svm import use as linear_svm
 from rejector.hellinger_plus_correlation import is_valid_shape as hellinger_plus_correlation
 from helper.EvaluationWrapper import EvaluationWrapper
 from helper.parsers import parse_strokes_from_inkml_file
@@ -107,7 +107,7 @@ else:
 
 items = list(range(0, len(file_paths)))
 l = len(items)
-printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)   
+# printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)   
 
 for i, path in enumerate(file_paths):
     evaluationWrapper.setCurrentFilePath(path) if not args.production else None
@@ -117,8 +117,8 @@ for i, path in enumerate(file_paths):
     normalized_content = normalize(content)
     results = []
     for candidate in candidates:
-        results.append(recognizer(candidate, normalized_content))
-    printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
+        results.append(recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, normalized_content))
+    # printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
         
 if not args.production:
     evaluationWrapper.set_total()

@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Callable
 import networkx as nx
-from grouper.distance_calculators.distance_between_all_points import initialize_adjacency_matrix
+from grouper.shape_grouper.distance_calculators.distance_between_all_points import initialize_adjacency_matrix
 
     
 def get_all_simple_cycles(adj_matrix):

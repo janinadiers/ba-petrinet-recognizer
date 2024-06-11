@@ -1,4 +1,4 @@
-from helper.features import get_bounding_box, calculate_diagonal_length, calculate_total_stroke_length, calculate_average_min_distance
+from helper.features import get_bounding_box, calculate_diagonal_length, calculate_total_stroke_length, calculate_average_min_distance_to_template_shape
 from helper.utils import calculate_total_stroke_length, calculate_diagonal_length, get_bounding_box, combine_strokes, get_perfect_mock_shape, get_circle_with_points, get_rectangle_with_points
 from helper.corner_detection import detect_corners
 
@@ -27,8 +27,8 @@ def use(grouped_ids:list[int], strokes:list[dict], params=None) -> dict:
         return {'invalid': grouped_ids}
     
     
-    average_distance_circle = calculate_average_min_distance(perfect_circle, stroke)
-    average_distance_rect = calculate_average_min_distance(perfect_rect, stroke)
+    average_distance_circle = calculate_average_min_distance_to_template_shape(perfect_circle, stroke)
+    average_distance_rect = calculate_average_min_distance_to_template_shape(perfect_rect, stroke)
     
     if average_distance_circle <= 500 or average_distance_rect <= 500:
         strokes = [strokes[trace_id] for trace_id in grouped_ids]

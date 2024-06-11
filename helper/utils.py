@@ -1,5 +1,6 @@
 import numpy as np
 import copy
+from helper.normalizer import distance
 
 def combine_strokes(grouped_ids:list[int], strokes:list[dict]):
     combined_strokes = []  
@@ -28,11 +29,13 @@ def get_bounding_box(stroke:list[dict]):
             min_y = y
         if y > max_y:
             max_y = y
-    return min_x, max_x, min_y, max_y
+    width = max_x - min_x
+    height = max_y - min_y
+    return min_x, max_x, min_y, max_y, width, height
 
 
 def calculate_diagonal_length(bounding_box):
-    min_x, max_x, min_y, max_y = bounding_box
+    min_x, max_x, min_y, max_y, width, height = bounding_box
     return np.sqrt((max_x - min_x)**2 + (max_y - min_y)**2)
     
 def calculate_total_stroke_length(stroke):
@@ -47,7 +50,7 @@ def get_perfect_mock_shape(stroke:list[dict]) -> dict:
     _stroke = copy.deepcopy(stroke)
     bounding_box = get_bounding_box(_stroke)
     # get the bounding box of the grouped strokes
-    min_x, max_x, min_y, max_y = bounding_box
+    min_x, max_x, min_y, max_y, width, height = bounding_box
     # create the perfect mock shape
     perfect_mock_shape = []
     # add the top left point
@@ -83,7 +86,7 @@ def get_circle_with_points(cx, cy, radius, num_points):
     return points + [points[0]]
 
 def get_rectangle_with_points(bounding_box, num_points):
-    min_x, max_x, min_y, max_y = bounding_box
+    min_x, max_x, min_y, max_y, width, height = bounding_box
     width = abs(max_x - min_x)
     height = abs(max_y - min_y)
     # Total perimeter
@@ -107,6 +110,37 @@ def get_rectangle_with_points(bounding_box, num_points):
     
     
     return points + [points[0]]
+
+
+# Function to find the closest stroke to the given end point
+def find_closest_stroke(end_point, strokes):
+    min_distance = float('inf')
+    closest_stroke = None
+    closest_index = -1
+    for i, stroke in enumerate(strokes):
+        start_point = stroke[0]
+        dist = distance(end_point, start_point)
+        if dist < min_distance:
+            min_distance = dist
+            closest_stroke = stroke
+            closest_index = i
+    return closest_stroke, closest_index
+
+
+
+def order_strokes(strokes):
+    # _strokes = copy.deepcopy(strokes)
+    # if not _strokes:
+    #     return []
+
+    # ordered_strokes = [_strokes.pop(0)]  # Start with the first stroke
+    # while _strokes:
+    #     current_end_point = ordered_strokes[-1][-1]  # End point of the current stroke
+    #     closest_stroke, closest_index = find_closest_stroke(current_end_point, _strokes)
+    #     ordered_strokes.append(closest_stroke)
+    #     _strokes.pop(closest_index)
+    # return ordered_strokes
+    return strokes
 
 
 # def remove_outliers(stroke:list[dict]):

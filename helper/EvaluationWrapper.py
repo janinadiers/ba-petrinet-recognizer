@@ -1,5 +1,6 @@
 from helper.parsers import parse_ground_truth
 import pandas as pd
+from helper.features import get_feature_vector
 
 class EvaluationWrapper:
     def __init__(self, recognize:callable):
@@ -8,16 +9,13 @@ class EvaluationWrapper:
         self.columns = ['circle', 'rectangle','no_shape', 'total', 'accuracy']
         self.rows = ['circle', 'rectangle', 'diamond', 'ellipse', 'parallelogram', 'line', 'double circle', 'no_shape', 'total']
         self.matrix = pd.DataFrame(0, index=self.rows, columns=self.columns)
-        self.stroke_min = 50
-        self.diagonal_to_stroke_length = 6
-        self.upper_bound_angle = 110
-        self.lower_bound_angle = 54
 
 
     def __str__(self):
         return self.matrix.to_string()
 
     def setCurrentFilePath(self, file_path):
+        print('Setting current file path...')
         self.truth = parse_ground_truth(file_path)
         
     
@@ -46,25 +44,17 @@ class EvaluationWrapper:
                         self.matrix.at[row, 'accuracy'] = str(int((self.matrix.at[row, 'no_shape'] / self.matrix.at[row, 'total']) * 100)) + '%'
             else:
                 self.matrix.at[row, 'accuracy'] = '-'  
-                
-    def get_params(self):
-        return int(self.stroke_min), int(self.diagonal_to_stroke_length), int(self.lower_bound_angle), int(self.upper_bound_angle)
         
-            
-    def set_params(self, stroke_min, diagonal_to_stroke_length, lower_bound_angle, upper_bound_angle):
-        print('Setting params:', stroke_min, diagonal_to_stroke_length, lower_bound_angle, upper_bound_angle)
-        self.stroke_min = stroke_min
-        self.diagonal_to_stroke_length = diagonal_to_stroke_length
-        self.upper_bound_angle = upper_bound_angle
-        self.lower_bound_angle = lower_bound_angle
-        
-    def recognize(self, candidate, content):
-       
-        recognizer_result = self._recognize(candidate, content)
+    def recognize(self, rejector, classifier, candidate, strokes):
+        print('candidate:', candidate)
+        recognizer_result = self._recognize(rejector, classifier, candidate, strokes)
+        print(recognizer_result)
         truth_contains_candidate = False
         for dictionary in self.truth:
             for shape_name, trace_ids in dictionary.items():
+                
                 if set(trace_ids) == set(candidate):
+                    print(shape_name, get_feature_vector(candidate, strokes))
                     truth_contains_candidate = True
                     if 'valid' in recognizer_result:
                         shape_name_recognizer_result = next(iter(recognizer_result['valid']))
