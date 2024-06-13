@@ -1,0 +1,7 @@
+features: ['closed_shape']
+rejector: rbf_svm
+accuracy: 89.68129057643124%
+C: 3.0
+gamma: 0.5
+random_state: 42
+class_weight:balanced

@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import joblib
 import datetime
+import matplotlib.pyplot as plt
 
 
 def train(X, y, feature_names):
@@ -27,7 +28,7 @@ def train(X, y, feature_names):
     # Generate a unique filename with a timestamp
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     # Save the model
-    joblib_file = f"rejector/rbf_svm_models/rbf_svm_model_{timestamp}.joblib"
+    joblib_file = f"rejector/shape_rejector/rbf_svm_models/rbf_svm_model_{timestamp}.joblib"
     joblib.dump(clf, joblib_file)
     
     result = ['features: '+ str(feature_names), 'rejector: '+ 'rbf_svm', 'accuracy: '+ str(accuracy * 100) + '%', 'C: 3.0', 'gamma: 0.5', 'random_state: 42', f'class_weight:balanced']
@@ -39,10 +40,9 @@ def train(X, y, feature_names):
 
 
 def use(X, candidate)-> dict:
-    print('use rejector rbf_svm', X)
     X = np.array(X)
     
-    joblib_file = 'rejector/rbf_svm_models/rbf_svm_model_20240612_111931.joblib'
+    joblib_file = 'rejector/shape_rejector/rbf_svm_models/rbf_svm_model_20240613_165818.joblib'
     
     loaded_clf = joblib.load(joblib_file)
      # Ensure X is a 2D array
@@ -52,9 +52,28 @@ def use(X, candidate)-> dict:
     predicted_label = loaded_clf.predict(X)
     
     if predicted_label[0] == 0:
-        print('-----------------shape!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        return {'valid': {'circle': candidate}}
+        # print('-----------------shape!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        return {'valid': candidate}
     elif predicted_label[0] == 1:
-        print('-----------------no shape!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        return {'valid': {'rectangle': candidate}}
+        # print('-----------------no shape!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        return {'invalid': candidate}
+    
+    
+def plot_decision_boundary(clf, X):
+    decision_function_values = clf.decision_function(X)
+    
+    # Create a grid to plot the decision boundary
+    xx, yy = np.meshgrid(np.linspace(X[:, 0].min() - 1, X[:, 0].max() + 1, 500),
+                        np.linspace(X[:, 1].min() - 1, X[:, 1].max() + 1, 500))
+
+    # Get the decision function values for the grid
+    Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+
+    # Plot the decision boundary and margins
+    plt.contourf(xx, yy, Z, levels=np.linspace(Z.min(), 0, 7), cmap=plt.cm.PuBu)
+    plt.contourf(xx, yy, Z, levels=[0, Z.max()], colors='orange')
+    plt.scatter(X[:, 0], X[:, 1], c=y, edgecolors='k', linewidth=1, marker='o')
+    plt.contour(xx, yy, Z, levels=[0], linewidths=2, colors='k')
+    plt.show()
     

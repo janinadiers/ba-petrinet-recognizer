@@ -19,10 +19,7 @@ for name_file_path in files:
             if line.endswith('.inkml'):
                 file_paths.append(os.path.dirname(name_file_path) + '/' + line)
 
-items = list(range(0, len(file_paths)))
-l = len(items)
-printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)   
-print(file_paths)
+
 for i, path in enumerate(file_paths):
     strokes = parse_strokes_from_inkml_file(path)
     for stroke in strokes:
@@ -36,7 +33,6 @@ for i, path in enumerate(file_paths):
             if point['y'] < min_y:
                 min_y = point['y']
     
-    printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
 
 print('Max x:', max_x)
 print('Min x:', min_x)

@@ -1,0 +1,7 @@
+features: ['distance_between_stroke_edge_points']
+rejector: rbf_svm
+accuracy: 59.276018099547514%
+C: 3.0
+gamma: 0.5
+random_state: 42
+class_weight:balanced

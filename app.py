@@ -12,20 +12,21 @@ def post_data():
     
     input_data = request.json
     
-    inkml = input_data.get()
+    inkml = input_data.get('inkML')
+    canvas_size = input_data.get('canvasSize')
+
     response_data = {
         'received': input_data
     }
     time_stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     with open(f'inkml_requests/{time_stamp}.inkml', 'w') as f:
         f.write(str(inkml))
-    
+    print('inkml', inkml)
     # Command to execute the script
     command = [
         'python', 'main.py',
         '--inkml', f'inkml_requests/{time_stamp}.inkml',
-        '--classifier', 'rbf_svm',
-        '--other_ratio', 'True',
+        '--other_ratio', f'{canvas_size}',
         '--production', 'True'
     ]
     

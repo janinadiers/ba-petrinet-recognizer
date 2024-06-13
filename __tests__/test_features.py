@@ -1,28 +1,56 @@
 import unittest
 from helper.features import get_shape_no_shape_features, get_circle_rectangle_features
-import math
-
-
+from helper.parsers import parse_strokes_from_inkml_file
+from helper.normalizer import normalize_strokes, remove_junk_strokes
+from helper.utils import combine_strokes
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.spatial import ConvexHull
+from helper.utils import get_bounding_box, calculate_diagonal_length, calculate_total_stroke_length
 class TestFeatureMethods(unittest.TestCase):
 
     def test_get_shape_no_shape_features(self):
-        rect = [[{'x': 485, 'y': 223}, {'x': 484, 'y': 260}, {'x': 486, 'y': 287}, {'x': 522, 'y': 289}, {'x': 542, 'y': 273}, {'x': 543, 'y': 237}, {'x': 516, 'y': 226}, {'x': 487, 'y': 224}]]
-        circle = [[{'x': 573, 'y': 224}, {'x': 536, 'y': 227}, {'x': 514, 'y': 254}, {'x': 535, 'y': 281}, {'x': 572, 'y': 279}, {'x': 593, 'y': 253}, {'x': 574, 'y': 226}, {'x': 567, 'y': 224}]]
-        line = [[{'x': 329, 'y': 258}, {'x': 368, 'y': 258}, {'x': 407, 'y': 258}, {'x': 446, 'y': 258}, {'x': 485, 'y': 258}, {'x': 511, 'y': 258}]]
-        # rect_convex_hull_perimeter_to_area_ratio = int(10/6)
-        # rect_total_stroke_length_to_diagonal_length = int(10/math.sqrt(13))
-        # circle_convex_hull_perimeter_to_area_ratio = int(2/circle_radius)
-        # circle_total_stroke_length_to_diagonal_length = int(math.pi / math.sqrt(2))
-        rect_features = get_shape_no_shape_features([0], rect)
-        circle_features = get_shape_no_shape_features([0], circle)
-        line_features = get_shape_no_shape_features([0], line)
-        rect_features['features'] = [int(x) for x in rect_features['features']]
-        circle_features['features'] = [int(x) for x in circle_features['features']]
-        line_features['features'] = [int(x) for x in line_features['features']]
-        print(rect_features['features'], circle_features['features'], line_features['features'])
-        # self.assertEqual(rect_features['features'], [rect_convex_hull_perimeter_to_area_ratio, rect_total_stroke_length_to_diagonal_length])
-        # self.assertEqual(circle_features['features'], [circle_convex_hull_perimeter_to_area_ratio, circle_total_stroke_length_to_diagonal_length])
-        # self.assertTrue(rect_features['features'][0] < circle_features['features'][0])
+        rect_file = './inkml_requests/rectangle.inkml'
+        circle_file = './inkml_requests/circle.inkml'
+        ellipse_file = './inkml_requests/ellipse.inkml'
+        line_file = './inkml_requests/line.inkml'
+        
+        rect_strokes = parse_strokes_from_inkml_file(rect_file)
+        rect_strokes = remove_junk_strokes(rect_strokes)
+        rect_strokes = normalize_strokes(rect_strokes)
+        rect_stroke = combine_strokes([0], rect_strokes)
+        # visualize_points(rect_stroke)
+               
+        circle_strokes = parse_strokes_from_inkml_file(circle_file)
+        circle_strokes = remove_junk_strokes(circle_strokes)
+        circle_strokes = normalize_strokes(circle_strokes)
+        circle_stroke = combine_strokes([0], circle_strokes)
+        circle_bounding_box = get_bounding_box(circle_stroke)
+        # visualize_points(circle_stroke)
+        
+        ellipse_strokes = parse_strokes_from_inkml_file(ellipse_file)
+        ellipse_strokes = remove_junk_strokes(ellipse_strokes)
+        ellipse_strokes = normalize_strokes(ellipse_strokes)
+        ellipse_stroke = combine_strokes([0], ellipse_strokes)
+        ellipse_bounding_box = get_bounding_box(ellipse_stroke)
+        # visualize_points(ellipse_stroke)
+        
+        line_strokes = parse_strokes_from_inkml_file(line_file)
+        line_strokes = remove_junk_strokes(line_strokes)
+        line_strokes = normalize_strokes(line_strokes)
+        line_stroke = combine_strokes([0,1], line_strokes)
+        line_bounding_box = get_bounding_box(line_stroke)
+        # visualize_points(line_stroke)
+        
+        # Feature 0: Convex Hull Perimeter to Area Ratio, Feature 1: Total Stroke Length to Diagonal Length, Feature 2: aspect ratio, Feature 3: number_of_convex_hull_vertices, Feature 4: centroid_distance_variability
+        rect_features = get_shape_no_shape_features([0], rect_strokes)
+        circle_features = get_shape_no_shape_features([0], circle_strokes)
+        ellipse_features = get_shape_no_shape_features([0], ellipse_strokes)
+        line_features = get_shape_no_shape_features([0,1], line_strokes)
+          
+        print(rect_features['features'][0], circle_features['features'][0], ellipse_features['features'][0], line_features['features'][0])
+        
+        
        
     # def test_get_circle_rectangle_features(self):
     #     rect = [[{'x': 3, 'y': 1}, {'x': 2, 'y': 1}, {'x': 1, 'y': 1}, {'x': 1, 'y': 2}, {'x': 1, 'y': 3}, {'x': 1, 'y': 4},{'x': 2, 'y': 4}, {'x': 3, 'y': 4}, {'x': 3, 'y': 3}, {'x': 3, 'y': 2}, {'x': 3, 'y': 1}]]
@@ -34,6 +62,20 @@ class TestFeatureMethods(unittest.TestCase):
     #     print('----------------------------')
     #     circle_features = get_circle_rectangle_features([0], circle)
     #     print(rect_features['features'], rect_features['features'])
+
+# Visualisierung für manuelle Überprüfung (optional)
+def visualize_points(points):
+    coords = np.array([[p['x'], p['y']] for p in points])
+    bounding_box = get_bounding_box(points)
+    total_stroke_length = calculate_total_stroke_length(points)
+    print('Total Stroke Length:', total_stroke_length)
+    print('Bounding Box:', bounding_box)
+    plt.plot(coords[:, 0], coords[:, 1], 'o')
+    hull = ConvexHull(coords)
+    # visualize convex hull
+    for simplex in hull.simplices:
+        plt.plot(coords[simplex, 0], coords[simplex, 1], 'k-')
+    plt.show()
         
        
 if __name__ == '__main__':

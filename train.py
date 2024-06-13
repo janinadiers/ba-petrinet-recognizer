@@ -1,16 +1,15 @@
 from classifier.shape_classifier.template_matching import use as template_matching
 from classifier.shape_classifier.linear_svm import train as linear_svm
 from classifier.shape_classifier.rbf_svm import train as rbf_svm
-from rejector.hellinger_plus_correlation import is_valid_shape as hellinger_plus_correlation
-from rejector.linear_svm import train as linear_svm_rejector
-from rejector.rbf_svm import train as rbf_svm_rejector
+from rejector.shape_rejector.hellinger_plus_correlation import is_valid_shape as hellinger_plus_correlation
+from rejector.shape_rejector.linear_svm import train as linear_svm_rejector
+from rejector.shape_rejector.rbf_svm import train as rbf_svm_rejector
 import argparse 
 import os
 from helper.parsers import parse_strokes_from_inkml_file, parse_ground_truth
 from grouper.shape_grouper.optimized_grouper import group as grouper
 from helper.features import get_circle_rectangle_features, get_shape_no_shape_features
-from helper.normalizer import normalize, remove_junk_strokes
-
+from helper.normalizer import normalize
 CLASSIFIERS = {
     'template_matching' : template_matching,
     'linear_svm' : linear_svm,
@@ -35,9 +34,9 @@ parser.add_argument('--rejector', dest='rejector', type=str, nargs='?', action='
 feature_names = None
 
 def prepare_classifier_data(path):
+    print('prepare_classifier_data')
     global feature_names
     content = parse_strokes_from_inkml_file(path)
-    content = remove_junk_strokes(content)
     candidates = grouper(content) 
     normalized_content = normalize(content)
     truth = parse_ground_truth(path)
@@ -67,7 +66,6 @@ def prepare_classifier_data(path):
 def prepare_rejector_data(path):
     global feature_names
     content = parse_strokes_from_inkml_file(path)
-    content = remove_junk_strokes(content)
     candidates = grouper(content) 
     normalized_content = normalize(content)
     truth = parse_ground_truth(path)
@@ -77,23 +75,19 @@ def prepare_rejector_data(path):
     candidate_is_in_truth = False
     for candidate in candidates:
         result = get_shape_no_shape_features(candidate, normalized_content)
+        if result['features'] == None:
+            continue
         if not feature_names:
             feature_names = result['feature_names']
-        print(result['features'])
-
         features.append(result['features'])
         for dictionary in truth:
             for shape_name, trace_ids in dictionary.items():
                 if set(trace_ids) == set(candidate):
                     candidate_is_in_truth = True
-                    if shape_name == 'circle':
-                        shape_name = 'shape'
-                    elif shape_name == 'rectangle':
-                        shape_name = 'shape'
-                    elif shape_name == 'ellipse':
-                        shape_name = 'shape'
-                    else:
+                    if shape_name == 'line':
                         shape_name = 'no_shape'
+                    else:
+                        shape_name = 'shape'
                     labels.append(label_mapping[shape_name])
         if not candidate_is_in_truth:      
             labels.append(label_mapping['no_shape'])
@@ -123,7 +117,6 @@ for i, path in enumerate(file_paths):
     all_labels.extend(labels)
 
 if args.classifier:
-    
     if args.classifier not in CLASSIFIERS:
         print('Invalid classifier. Exiting...')
         exit()
@@ -138,5 +131,6 @@ if args.rejector:
         print('Invalid rejector. Exiting...')
         exit()
     else:
+        print('rejector selected', args.rejector)
         rejector = REJECTORS[args.rejector]
         rejector(all_features, all_labels, feature_names)

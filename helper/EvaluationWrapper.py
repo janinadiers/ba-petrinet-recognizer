@@ -14,9 +14,7 @@ class EvaluationWrapper:
         return self.matrix.to_string()
 
     def setCurrentFilePath(self, file_path):
-        print('Setting current file path...')
         self.truth = parse_ground_truth(file_path)
-        print('Current file path set.')
         
     
     def set_total(self):
@@ -52,13 +50,16 @@ class EvaluationWrapper:
         for dictionary in self.truth:
             for shape_name, trace_ids in dictionary.items():
                 
-                if set(trace_ids) == set(candidate):
-                        
+                if set(trace_ids) == set(candidate):  
+                    print('truth contains candidate', shape_name)
                     truth_contains_candidate = True
                     if 'valid' in recognizer_result:
                         shape_name_recognizer_result = next(iter(recognizer_result['valid']))
                         self.matrix.at[shape_name, shape_name_recognizer_result] += 1
                     else:
+                        # if shape_name == 'circle' or shape_name == 'rectangle' or shape_name == 'ellipse':
+                        #     print('wrong rejection!')
+                        #     exit()
                         self.matrix.at[shape_name, 'no_shape'] += 1
         if not truth_contains_candidate and not 'valid' in recognizer_result:
             self.matrix.at['no_shape', 'no_shape'] += 1

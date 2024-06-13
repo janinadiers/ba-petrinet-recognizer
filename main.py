@@ -8,16 +8,18 @@ from recognizer.shape_recognizer import recognize as shape_recognizer
 from classifier.shape_classifier.template_matching import use as template_matching
 from classifier.shape_classifier.linear_svm import use as linear_svm
 from classifier.shape_classifier.rbf_svm import use as rbf_svm
-from rejector.hellinger_plus_correlation import is_valid_shape as hellinger_plus_correlation
-from rejector.linear_svm import use as linear_svm_rejector
-from rejector.rbf_svm import use as rbf_svm_rejector
+from rejector.shape_rejector.hellinger_plus_correlation import is_valid_shape as hellinger_plus_correlation
+from rejector.shape_rejector.linear_svm import use as linear_svm_rejector
+from rejector.shape_rejector.rbf_svm import use as rbf_svm_rejector
+from rejector.shape_rejector.rejector_with_threshold import use as rejector_with_threshold
 from helper.EvaluationWrapper import EvaluationWrapper
 from helper.parsers import parse_strokes_from_inkml_file
 from helper.normalizer import resample_strokes
-from helper.normalizer import normalize_strokes, remove_junk_strokes
+from helper.normalizer import normalize_strokes
 import os
 from helper.print_progress_bar import printProgressBar
 import datetime
+from helper.export_strokes_to_inkml import export_strokes_to_inkml
 
 
 GROUPERS = {
@@ -41,7 +43,8 @@ CLASSIFIERS = {
 REJECTORS = {
     'hellinger_plus_correlation' : hellinger_plus_correlation,
     'linear_svm' : linear_svm_rejector,
-    'rbf_svm' : rbf_svm_rejector
+    'rbf_svm' : rbf_svm_rejector,
+    'rejector_with_threshold' : rejector_with_threshold
 }
     
 
@@ -62,7 +65,7 @@ parser.add_argument('--classifier', dest='classifier', type=str, nargs='?', acti
                     help='select a classifier, template_matching or linear_svm')
 parser.add_argument('--rejector', dest='rejector', type=str, nargs='?', action='store', default='rbf_svm',
                     help='select a rejector, like hellinger_plus_correlation')
-parser.add_argument('--other_ratio', dest='other_ratio', type=bool, nargs='?', action='store', default=False,
+parser.add_argument('--other_ratio', dest='other_ratio', type=str, nargs='?', action='store',
                     help='scales input to another dimension')
 parser.add_argument('--production', dest='production', type=bool, nargs='?', action='store', default=False,
                     help='determines if we run with evaluation logic or not')
@@ -118,13 +121,18 @@ l = len(items)
 printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)   
 
 for i, path in enumerate(file_paths):
+    print('Processing file:', path)
     evaluationWrapper.setCurrentFilePath(path) if not args.production else None
     content = parse_strokes_from_inkml_file(path)
-    content = remove_junk_strokes(content)
     candidates = grouper(content)
+    resampled_content = None
     if args.other_ratio:
-        content = normalize_strokes(content)
-    resampled_content = resample_strokes(content)
+        ratio = args.other_ratio.split('/')
+        normalized_strokes = normalize_strokes(content, int(ratio[0]), int(ratio[1]))
+        resampled_content = resample_strokes(normalized_strokes)
+        export_strokes_to_inkml(resampled_content, 'normalized_points.inkml')
+    else:
+        resampled_content = resample_strokes(content)
     results = []
     for candidate in candidates:
         results.append(recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content))
@@ -145,3 +153,10 @@ if args.save == 'y':
         f.write('# grouper: ' + str(args.grouper) + '\n')
         f.write('# classifier: ' + str(args.classifier) + '\n')
         f.write('# rejector: ' + str(args.rejector) + '\n')
+
+if args.production:
+    print('Saving inkml file...', results)
+    file_name = args.inkml[0].split('/')[-1].split('.')[0]
+   
+    with open(f'inkml_results/{file_name}.txt', 'w') as f:
+        f.write(str(results))

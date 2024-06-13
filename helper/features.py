@@ -3,9 +3,55 @@ from scipy.spatial import ConvexHull
 from helper.utils import get_bounding_box, calculate_diagonal_length, calculate_total_stroke_length
 import numpy as np
 import copy
-from helper.utils import combine_strokes, get_perfect_mock_shape, order_strokes
+from helper.utils import combine_strokes, get_perfect_mock_shape, order_strokes, distance
 
 
+def get_aspect_ratio(stroke):
+    bounding_box = get_bounding_box(stroke)
+    width = bounding_box[4]
+    height = bounding_box[5]
+    return width / height
+
+def get_number_of_convex_hull_vertices(stroke):
+    _stroke = copy.deepcopy(stroke)
+    points = [(point['x'], point['y']) for point in _stroke]
+    try:
+        hull = ConvexHull(points)
+        return len(hull.vertices)
+    except Exception as e:
+        raise Exception("Convex hull could not be computed.")
+    
+def get_centroid_distance_variability(points):
+    _points = [(point['x'], point['y']) for point in points]
+    try:
+        hull = ConvexHull(_points)
+        hull_points = hull.points[hull.vertices]
+        centroid = np.mean(hull_points, axis=0)
+        distances = []
+        for point in hull_points:
+            distances.append(distance({'x': centroid[0], 'y': centroid[1]}, {'x': point[0], 'y': point[1]}))
+
+        return np.var(distances)
+    except Exception as e:
+        raise Exception("Convex hull could not be computed.")
+
+def is_closed_shape(strokes):
+    _strokes = copy.deepcopy(strokes)
+    edge_points = []
+    for stroke in _strokes:
+        edge_points.append(stroke[0])
+        edge_points.append(stroke[-1])
+    min_distances = []
+    for point1 in edge_points:
+        distances = []
+        for point2 in edge_points:
+            if point1 == point2:
+                continue
+            distances.append(distance(point1, point2))
+        min_distances.append(min(distances))
+        
+            
+    return max(min_distances)
 
 def total_stroke_length_of_circle(radius):
     return 2 * np.pi * radius
@@ -24,7 +70,6 @@ def compute_convex_hull_perimeter_to_area_ratio(points):
         
     
 def compute_convex_hull_area_to_perimeter_ratio(points):
-    print('compute_convex_hull_area_to_perimeter_ratio')
     _points = [(point['x'], point['y']) for point in points]
     
     try:
@@ -76,7 +121,6 @@ def calculate_x_cluster_distribution(points):
     max_x = max(sorted_x_coords)
     min_x = min(sorted_x_coords)
     number_of_x_values = len(sorted_x_coords)
-    print('number_of_x_values', number_of_x_values)
     twenty_percent = int(number_of_x_values * 0.2)
     eighty_percent = int(number_of_x_values * 0.8)
     twenty_percent_x = sorted_x_coords[twenty_percent]
@@ -121,23 +165,35 @@ def get_cluster_amount(stroke):
         amount_cluster+=1
     return amount_cluster
 
+def stroke_has_only_duplicates(stroke):
+    for i in range(len(stroke) - 1):
+        if stroke[i] != stroke[i + 1]:
+            return False
+    return True
+
+def get_strokes_from_candidate(candidate, strokes):
+    _strokes = []
+    for index in candidate:
+        _strokes.append(strokes[index])
+    return _strokes
 
 def get_shape_no_shape_features(candidate, strokes):
     """ Extract feature vector from stroke """
-    ordered_strokes = order_strokes(strokes)
-    stroke = combine_strokes(candidate, ordered_strokes)
-    print('stroke', stroke)
-    try:
-        convex_hull_perimeter_to_area_ratio = compute_convex_hull_perimeter_to_area_ratio(stroke)
-        print('try', convex_hull_perimeter_to_area_ratio)
-    except:
-        print('except')
-        convex_hull_perimeter_to_area_ratio = 0
-        
+    
+    stroke = combine_strokes(candidate, strokes)
+    has_only_duplicates = stroke_has_only_duplicates(stroke)
+    
+    if (len(stroke) < 4 or has_only_duplicates):
+        return {'feature_names': ['distance_between_stroke_edge_points'], 'features': None}
+    
+    convex_hull_perimeter_to_area_ratio = compute_convex_hull_perimeter_to_area_ratio(stroke)
     total_stroke_length_to_diagonal_length = compute_total_stroke_length_to_diagonal_length(stroke)
-
-        
-    return {'feature_names': ['convex_hull_perimeter_to_area_ratio', 'total_stroke_length_to_diagonal_length'], 'features': [convex_hull_perimeter_to_area_ratio, total_stroke_length_to_diagonal_length]}
+    aspect_ratio = get_aspect_ratio(stroke)
+    number_of_convex_hull_vertices = get_number_of_convex_hull_vertices(stroke)
+    centroid_distance_variability = get_centroid_distance_variability(stroke)
+    strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
+    closed_shape = is_closed_shape(strokes_of_candidate)
+    return {'feature_names': ['closed_shape'], 'features': [closed_shape]}
 
 
 def get_circle_rectangle_features(candidate, strokes):
@@ -145,13 +201,15 @@ def get_circle_rectangle_features(candidate, strokes):
     
     ordered_strokes = order_strokes(strokes)
     stroke = combine_strokes(candidate, ordered_strokes)
-    print('stroke', stroke)
+    has_only_duplicates = stroke_has_only_duplicates(stroke)
+    if (len(stroke) < 4 or has_only_duplicates):
+        return {'feature_names': ['distance_between_stroke_edge_points'], 'features': None}
     amount_cluster = get_cluster_amount(stroke)
     total_stroke_length = calculate_total_stroke_length(stroke)
     radius = get_bounding_box(stroke)[4] / 2
     total_stroke_length_difference_to_total_stroke_length_of_circle = total_stroke_length_of_circle(radius) - total_stroke_length
-    
-    return {'feature_names': ['amount_cluster'], 'features': [amount_cluster]}
+    number_of_convex_hull_vertices = get_number_of_convex_hull_vertices(stroke)
+    return {'feature_names': ['number_of_convex_hull_vertices'], 'features': [number_of_convex_hull_vertices]}
 
 
 # def get_feature_vector(candidate:list[int], strokes:list[list[dict]])->list[int]:
