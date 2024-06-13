@@ -40,7 +40,6 @@ def prepare_classifier_data(path):
     content = remove_junk_strokes(content)
     candidates = grouper(content) 
     normalized_content = normalize(content)
-
     truth = parse_ground_truth(path)
     features = []
     labels = []
@@ -107,6 +106,7 @@ file_paths = []
 files = ['./__datasets__/FC_1.0/no_text/FC_Train.txt']
 all_features = []
 all_labels = []
+
 for name_file_path in files:
         with open(name_file_path) as f:
             content = f.readlines()
@@ -134,7 +134,6 @@ if args.classifier:
         
 
 if args.rejector:
-    print('rejector selected', args.rejector)
     if args.rejector not in REJECTORS:
         print('Invalid rejector. Exiting...')
         exit()

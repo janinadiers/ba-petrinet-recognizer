@@ -17,7 +17,6 @@ from helper.normalizer import resample_strokes
 from helper.normalizer import normalize_strokes, remove_junk_strokes
 import os
 from helper.print_progress_bar import printProgressBar
-from helper.export_strokes_to_inkml import export_strokes_to_inkml
 import datetime
 
 

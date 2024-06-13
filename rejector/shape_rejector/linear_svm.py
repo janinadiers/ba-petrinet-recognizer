@@ -15,7 +15,7 @@ def train(X, y, feature_names):
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     # besser großes C =3, da die punkte oft recht nah beieinander liegen und wir deshalb die margin klein halten wollen um Missklassifikationen zu vermeiden
-    clf = svm.SVC(kernel='rbf', class_weight='balanced', C=3.0, gamma=0.5)
+    clf = svm.SVC(kernel='linear', class_weight='balanced', C=3.0)
     print('Training the model...')
     
     clf.fit(X_train, y_train)
@@ -27,15 +27,22 @@ def train(X, y, feature_names):
     # Generate a unique filename with a timestamp
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     # Save the model
-    joblib_file = f"rejector/svm_models/rbf_svm_model_{timestamp}.joblib"
+    joblib_file = f"rejector/linear_svm_models/linear_svm_model_{timestamp}.joblib"
     joblib.dump(clf, joblib_file)
+    
+    result = ['features: '+ str(feature_names), 'rejector: '+ 'linear_svm', 'accuracy: '+ str(accuracy * 100) + '%', 'C: 3.0','random_state: 42', f'class_weight:balanced']
+
+    #save model configuration to logs
+    with open(f"rejector/shape_rejector/logs/linear_svm_model_{timestamp}.txt", 'w') as f:
+        for item in result:
+            f.write(item + '\n')
 
 
 def use(X, candidate)-> dict:
-    print('use rejector rbf_svm', X)
+    
     X = np.array(X)
     
-    joblib_file = 'rejector/svm_models/rbf_svm_model_20240612_111931.joblib'
+    joblib_file = 'rejector/linear_svm_models/linear_svm_model_20240610_202904.joblib'
     
     loaded_clf = joblib.load(joblib_file)
      # Ensure X is a 2D array
