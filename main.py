@@ -7,12 +7,17 @@ from recognizer.perfect_mock import recognize as perfect_mock
 from recognizer.shape_recognizer import recognize as shape_recognizer
 from classifier.shape_classifier.template_matching import use as template_matching
 from classifier.shape_classifier.linear_svm import use as linear_svm
+from classifier.shape_classifier.rbf_svm import use as rbf_svm
 from rejector.hellinger_plus_correlation import is_valid_shape as hellinger_plus_correlation
+from rejector.linear_svm import use as linear_svm_rejector
+from rejector.rbf_svm import use as rbf_svm_rejector
 from helper.EvaluationWrapper import EvaluationWrapper
 from helper.parsers import parse_strokes_from_inkml_file
-from helper.normalizer import normalize
+from helper.normalizer import resample_strokes
+from helper.normalizer import normalize_strokes, remove_junk_strokes
 import os
 from helper.print_progress_bar import printProgressBar
+from helper.export_strokes_to_inkml import export_strokes_to_inkml
 import datetime
 
 
@@ -30,11 +35,14 @@ RECOGNIZERS = {
 
 CLASSIFIERS = {
     'template_matching' : template_matching,
-    'linear_svm' : linear_svm
+    'linear_svm' : linear_svm,
+    'rbf_svm' : rbf_svm
 }
 
 REJECTORS = {
-    'hellinger_plus_correlation' : hellinger_plus_correlation
+    'hellinger_plus_correlation' : hellinger_plus_correlation,
+    'linear_svm' : linear_svm_rejector,
+    'rbf_svm' : rbf_svm_rejector
 }
     
 
@@ -51,10 +59,12 @@ parser.add_argument('--grouper', dest='grouper', type=str, nargs='?', action='st
                     help='select a grouping algorithm, thesis_grouper or optimized_grouper')
 parser.add_argument('--recognizer', dest='recognizer', type=str, nargs='?', action='store', default='shape_recognizer',
                     help='select a recognizer, random_mock_recognizer, perfect_mock_recognizer or shape_recognizer')
-parser.add_argument('--classifier', dest='classifier', type=str, nargs='?', action='store', default='template_matching',
+parser.add_argument('--classifier', dest='classifier', type=str, nargs='?', action='store', default='rbf_svm',
                     help='select a classifier, template_matching or linear_svm')
-parser.add_argument('--rejector', dest='rejector', type=str, nargs='?', action='store', default='hellinger_plus_correlation',
+parser.add_argument('--rejector', dest='rejector', type=str, nargs='?', action='store', default='rbf_svm',
                     help='select a rejector, like hellinger_plus_correlation')
+parser.add_argument('--other_ratio', dest='other_ratio', type=bool, nargs='?', action='store', default=False,
+                    help='scales input to another dimension')
 parser.add_argument('--production', dest='production', type=bool, nargs='?', action='store', default=False,
                     help='determines if we run with evaluation logic or not')
 parser.add_argument('--save', dest='save', type=str, nargs='?', action='store', default='n',
@@ -82,8 +92,7 @@ def validate_args(args):
         exit()
     
 validate_args(args)
-       
- 
+
 evaluationWrapper = None if args.production else EvaluationWrapper(RECOGNIZERS[args.recognizer])
 
 recognizer = RECOGNIZERS[args.recognizer] if args.production else evaluationWrapper.recognize
@@ -107,23 +116,26 @@ else:
 
 items = list(range(0, len(file_paths)))
 l = len(items)
-# printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)   
+printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)   
 
 for i, path in enumerate(file_paths):
     evaluationWrapper.setCurrentFilePath(path) if not args.production else None
     content = parse_strokes_from_inkml_file(path)
-    
+    content = remove_junk_strokes(content)
     candidates = grouper(content)
-    normalized_content = normalize(content)
+    if args.other_ratio:
+        content = normalize_strokes(content)
+    resampled_content = resample_strokes(content)
     results = []
     for candidate in candidates:
-        results.append(recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, normalized_content))
-    # printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
+        results.append(recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content))
+    printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
         
 if not args.production:
     evaluationWrapper.set_total()
     evaluationWrapper.set_accuracy()
     print(evaluationWrapper)
+    
 
 if args.save == 'y':
     print('Saving results to file...')

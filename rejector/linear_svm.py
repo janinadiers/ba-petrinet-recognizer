@@ -9,7 +9,7 @@ import joblib
 import datetime
 
 
-def train(X, y):
+def train(X, y, feature_names):
     X = np.array(X)
     y = np.array(y)  # Corresponding labels (1: Rectangle, 0: Circle, 2: no shape)
     
@@ -27,7 +27,7 @@ def train(X, y):
     # Generate a unique filename with a timestamp
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     # Save the model
-    joblib_file = f"classifier/shape_classifier/svm_models/svm_model_{timestamp}.joblib"
+    joblib_file = f"rejector/svm_models/linear_svm_model_{timestamp}.joblib"
     joblib.dump(clf, joblib_file)
 
 
@@ -35,7 +35,7 @@ def use(X, candidate)-> dict:
     
     X = np.array(X)
     
-    joblib_file = 'classifier/shape_classifier/svm_models/svm_model_20240610_202904.joblib'
+    joblib_file = 'rejector/svm_models/linear_svm_model_20240610_202904.joblib'
     
     loaded_clf = joblib.load(joblib_file)
      # Ensure X is a 2D array

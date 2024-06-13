@@ -1,5 +1,5 @@
 from helper.parsers import parse_ground_truth
-from helper.features import get_feature_vector
+from helper.features import get_circle_rectangle_features, get_shape_no_shape_features
 import numpy as np
 from sklearn.manifold import MDS
 import matplotlib.pyplot as plt
@@ -51,10 +51,10 @@ def define_clusters(file_path, strokes)->dict:
     cluster_hyper_spheres = {'circle': [], 'rectangle': []}
     for circle in circles:
         print('circle')
-        circle_features.append(get_feature_vector(circle, strokes))
+        circle_features.append(get_circle_rectangle_features(circle, strokes))
     for rectangle in rectangles:
         print('rect')
-        rectangle_features.append(get_feature_vector(rectangle, strokes))
+        rectangle_features.append(get_circle_rectangle_features(rectangle, strokes))
     # for ellipse in ellipses:
     #     print('ellipse')
     #     ellipse_features.append(get_feature_vector(ellipse, strokes))
@@ -70,7 +70,7 @@ def define_clusters(file_path, strokes)->dict:
     #     line_features.append(get_feature_vector(line_, strokes))
     for diamond in diamond:
         print('diamond')
-        diamond_features.append(get_feature_vector(diamond, strokes))
+        diamond_features.append(get_circle_rectangle_features(diamond, strokes))
         
     # cluster_centers['circle'] = get_cluster_center(circle_features)
     # cluster_centers['rectangle'] = get_cluster_center(rectangle_features)

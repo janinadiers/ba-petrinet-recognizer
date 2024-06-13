@@ -43,6 +43,8 @@ def calculate_total_stroke_length(stroke):
     total_length = 0
     for i in range(1, len(_stroke)):
         total_length += np.sqrt((_stroke[i]['x'] - _stroke[i-1]['x'])**2 + (_stroke[i]['y'] - _stroke[i-1]['y'])**2)
+    
+    total_length += np.sqrt((_stroke[-1]['x'] - _stroke[0]['x'])**2 + (_stroke[-1]['y'] - _stroke[0]['y'])**2)
     return total_length
 
 

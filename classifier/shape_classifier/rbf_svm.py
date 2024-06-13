@@ -9,8 +9,7 @@ from sklearn.metrics import accuracy_score
 from helper.utils import combine_strokes
 import joblib
 import datetime
-from helper.generate_feature_grids import generate_feature_images
-from helper.features import get_feature_vector
+
 
 
 def perform_grid_search_with_cross_validation(X, y):
@@ -29,7 +28,7 @@ def perform_grid_search_with_cross_validation(X, y):
     print("Best parameters found: ", grid.best_params_)
     
 def train(X, y, feature_names):
-    
+    print('right classifier trained')
     X = np.array(X)
     y = np.array(y)  # Corresponding labels (1: Rectangle, 0: Circle, 2: no shape)
     
@@ -61,9 +60,9 @@ def train(X, y, feature_names):
 
 
 def use(X, candidate)-> dict:
+    print('use classifier rbf_svm', X)
     X = np.array(X)
-    print('use', X)
-    joblib_file = 'classifier/shape_classifier/rbf_svm_models/svm_model_20240611_205134.joblib'
+    joblib_file = 'classifier/shape_classifier/rbf_svm_models/svm_model_20240612_114351.joblib'
     
     loaded_clf = joblib.load(joblib_file)
      # Ensure X is a 2D array

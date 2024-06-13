@@ -30,19 +30,7 @@ class TestCornerDetectionMethods(unittest.TestCase):
             combined_strokes = combine_strokes(grouped_ids, ordered_strokes)
             # print(find_x_distribution(combined_strokes))
           
-            x_coords = [stroke['x'] for stroke in combined_strokes] 
-            sorted_x_coords = sorted(x_coords)
-            max_x = max(sorted_x_coords)
-            min_x = min(sorted_x_coords)
-            number_of_x_values = len(sorted_x_coords)
-            twenty_percent = int(number_of_x_values * 0.2)
-            eighty_percent = int(number_of_x_values * 0.8)
-            twenty_percent_x = sorted_x_coords[twenty_percent]
-            eighty_percent_x = sorted_x_coords[eighty_percent]
-            span = max_x - min_x
-            print("Span:", span)
-            span_traveled_twenty_percent = (twenty_percent_x - min_x) / span
-            span_traveled_eighty_percent = (eighty_percent_x - min_x) / span
+            
             print("Span traveled twenty percent:", span_traveled_twenty_percent)
             print("Span traveled eighty percent:", span_traveled_eighty_percent)
             

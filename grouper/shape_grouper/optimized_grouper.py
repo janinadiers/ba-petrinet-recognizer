@@ -15,9 +15,7 @@ def get_all_simple_cycles(adj_matrix):
                 
     # Finde alle einfachen Zyklen
     to_directed = G.to_directed()
-    
     simple_cycles = nx.simple_cycles(to_directed, length_bound=8)
-    
     # Store unique cycles
     unique_cycles = []
     seen = set()

@@ -1,7 +1,6 @@
 from helper.parsers import parse_ground_truth
 import pandas as pd
-from helper.features import get_feature_vector
-
+from helper.utils import combine_strokes
 class EvaluationWrapper:
     def __init__(self, recognize:callable):
         self._recognize = recognize
@@ -17,6 +16,7 @@ class EvaluationWrapper:
     def setCurrentFilePath(self, file_path):
         print('Setting current file path...')
         self.truth = parse_ground_truth(file_path)
+        print('Current file path set.')
         
     
     def set_total(self):
@@ -46,19 +46,17 @@ class EvaluationWrapper:
                 self.matrix.at[row, 'accuracy'] = '-'  
         
     def recognize(self, rejector, classifier, candidate, strokes):
-        print('candidate:', candidate)
         recognizer_result = self._recognize(rejector, classifier, candidate, strokes)
-        print(recognizer_result)
+        
         truth_contains_candidate = False
         for dictionary in self.truth:
             for shape_name, trace_ids in dictionary.items():
                 
                 if set(trace_ids) == set(candidate):
-                    print(shape_name, get_feature_vector(candidate, strokes))
+                        
                     truth_contains_candidate = True
                     if 'valid' in recognizer_result:
                         shape_name_recognizer_result = next(iter(recognizer_result['valid']))
-                       
                         self.matrix.at[shape_name, shape_name_recognizer_result] += 1
                     else:
                         self.matrix.at[shape_name, 'no_shape'] += 1

@@ -15,7 +15,8 @@ def train(X, y, feature_names):
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     # besser großes C =3, da die punkte oft recht nah beieinander liegen und wir deshalb die margin klein halten wollen um Missklassifikationen zu vermeiden
-    clf = svm.SVC(kernel='linear', class_weight='balanced')
+    class_weights = {0: 5, 1: 5, 2: 1}
+    clf = svm.SVC(kernel='linear', class_weight=class_weights)
     print('Training the model...')
     
     clf.fit(X_train, y_train)
@@ -30,7 +31,7 @@ def train(X, y, feature_names):
     joblib_file = f"classifier/shape_classifier/linear_svm_models/svm_model_{timestamp}.joblib"
     joblib.dump(clf, joblib_file)
     
-    result = ['features: '+ str(feature_names), 'classifier: '+ 'linear_svm', 'accuracy: '+ str(accuracy * 100) + '%', 'C: 1.0', 'random_state: 42', 'class_weight: balanced']
+    result = ['features: '+ str(feature_names), 'classifier: '+ 'linear_svm', 'accuracy: '+ str(accuracy * 100) + '%', 'C: 1.0', 'random_state: 42', f'class_weight:{class_weights}']
    
 #    save model configuration to logs
     with open('f"classifier/shape_classifier/logs/linear_svm_model_{timestamp}.txt"', 'w') as f:
@@ -52,10 +53,8 @@ def use(X, candidate)-> dict:
     predicted_label = loaded_clf.predict(X)
     
     if predicted_label[0] == 0:
-        print('-----------------circle!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         return {'valid': {'circle': candidate}}
     elif predicted_label[0] == 1:
-        print('-----------------rectangle!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         return {'valid': {'rectangle': candidate}}
     else:
         return {'invalid': candidate}
