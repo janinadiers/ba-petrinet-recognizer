@@ -1,6 +1,0 @@
-features: ['amount_cluster']
-classifier: rbf_svm
-accuracy: 97.65110565110565%
-C: 1.0
-random_state: 42
-class_weight:{0: 5, 1: 5, 2: 1}

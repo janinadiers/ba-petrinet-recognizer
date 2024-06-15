@@ -2,6 +2,9 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import datetime
 import subprocess
+import os
+import time
+import ast
 
 app = Flask(__name__)
 CORS(app)  # This will enable CORS for all routes
@@ -15,9 +18,9 @@ def post_data():
     inkml = input_data.get('inkML')
     canvas_size = input_data.get('canvasSize')
 
-    response_data = {
-        'received': input_data
-    }
+    # response_data = {
+    #     'received': input_data
+    # }
     time_stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     with open(f'inkml_requests/{time_stamp}.inkml', 'w') as f:
         f.write(str(inkml))
@@ -40,7 +43,24 @@ def post_data():
     # Log the output and error
     app.logger.info(output)
     app.logger.error(error) 
-    return jsonify(response_data)
+    
+    # Wait for the result file to be created
+    while not os.path.exists(f'inkml_results/{time_stamp}.txt'):
+        time.sleep(0.1)  # Sleep briefly to avoid busy-waiting
+        
+    data = None
+    with open(f'inkml_results/{time_stamp}.txt', 'r') as f:
+        data = f.read()
+    
+    response_data = []
+    for data in ast.literal_eval(data):
+        if 'valid' in data:
+            response_data.append(data['valid'])
+    # remove file from inkml_requests and inkml_results
+    os.remove(f'inkml_requests/{time_stamp}.inkml')
+    os.remove(f'inkml_results/{time_stamp}.txt')
+    
+    return jsonify({'received': input_data, 'result': response_data})
   
 
 if __name__ == '__main__':

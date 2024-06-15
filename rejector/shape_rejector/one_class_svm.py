@@ -13,29 +13,41 @@ import matplotlib.pyplot as plt
 def train(X, y, feature_names):
     X = np.array(X)
     y = np.array(y)  # Corresponding labels (1: Rectangle, 0: Circle, 2: no shape)
-    # class_weights = {0: 10, 1: 1}
-    class_weights = 'balanced'
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    # besser großes C =3, da die punkte oft recht nah beieinander liegen und wir deshalb die margin klein halten wollen um Missklassifikationen zu vermeiden
-    clf = svm.SVC(kernel='rbf', class_weight=class_weights, C=3.0, gamma=0.5, probability=True)
-    print('Training the model...')
     
-    clf.fit(X_train, y_train)
+    # Für OneClassSVM nur die Inlier-Klasse verwenden
+    X_inliers = X[y == 0]
 
-    y_pred = clf.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-    print(f'Accuracy: {accuracy * 100:.2f}%')
+    # Datensatz in Trainings- und Testdaten aufteilen
+    X_train, X_test = train_test_split(X_inliers, test_size=0.2, random_state=42)
+
+    # OneClassSVM-Modell trainieren
+    clf = svm.OneClassSVM(kernel='rbf', nu=0.1, gamma=0.5)
+    print('Training one class svm model...')
+    clf.fit(X_train)
     
+        # Vorhersagen treffen
+    y_pred_train = clf.predict(X_train)
+    y_pred_test = clf.predict(X_test)
+    
+    # Für OneClassSVM sind die Vorhersagen +1 (Inlier) und -1 (Outlier)
+    # Berechnung der Genauigkeit für das Trainings- und Testset
+    accuracy_train = accuracy_score(np.ones_like(y_pred_train), y_pred_train)
+    accuracy_test = accuracy_score(np.ones_like(y_pred_test), y_pred_test)
+
+    print(f'Training Accuracy: {accuracy_train * 100:.2f}%')
+    print(f'Test Accuracy: {accuracy_test * 100:.2f}%')
+
+        
     # Generate a unique filename with a timestamp
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     # Save the model
-    joblib_file = f"rejector/shape_rejector/rbf_svm_models/rbf_svm_model_{timestamp}.joblib"
+    joblib_file = f"rejector/shape_rejector/one_class_rbf_svm_models/one_class_rbf_svm_model_circle_{timestamp}.joblib"
     joblib.dump(clf, joblib_file)
     
-    result = ['features: '+ str(feature_names), 'rejector: '+ 'rbf_svm', 'accuracy: '+ str(accuracy * 100) + '%', 'C: 3.0', 'gamma: 0.5', 'random_state: 42', f'class_weight:{class_weights}']
+    result = ['features: '+ str(feature_names), 'rejector: '+ 'rbf_svm', 'accuracy: '+ str(accuracy_test * 100) + '%', 'nu: 0.1', 'gamma: 0.5', 'random_state: 42']
 
     #save model configuration to logs
-    with open(f"rejector/shape_rejector/logs/rbf_svm_model_{timestamp}.txt", 'w') as f:
+    with open(f"rejector/shape_rejector/logs/one_class_rbf_svm_model_circle_{timestamp}.txt", 'w') as f:
         for item in result:
             f.write(item + '\n')
 
@@ -43,7 +55,7 @@ def train(X, y, feature_names):
 def use(X, candidate)-> dict:
     X = np.array(X)
     
-    joblib_file = 'rejector/shape_rejector/rbf_svm_models/rbf_svm_model_20240615_044617.joblib'
+    joblib_file = 'rejector/shape_rejector/one_class_rbf_svm_models/one_class_rbf_svm_model_20240615_084308.joblib'
     
     loaded_clf = joblib.load(joblib_file)
      # Ensure X is a 2D array
@@ -51,11 +63,11 @@ def use(X, candidate)-> dict:
         X = X.reshape(1, -1)
         
     predicted_label = loaded_clf.predict(X)
-    probability = loaded_clf.predict_proba(X)
+    # probability = loaded_clf.predict_proba(X)
+    print('predicted_label', predicted_label)
     
-    
-    if predicted_label[0] == 1 and probability[0][1] >= 0.99:
-        print('probability no shape', probability[0][1])
+    if predicted_label[0] == -1:
+        print('no shape')
         # print('-----------------no shape!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         return {'invalid': candidate}
     else:

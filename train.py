@@ -4,6 +4,7 @@ from classifier.shape_classifier.rbf_svm import train as rbf_svm
 from rejector.shape_rejector.hellinger_plus_correlation import is_valid_shape as hellinger_plus_correlation
 from rejector.shape_rejector.linear_svm import train as linear_svm_rejector
 from rejector.shape_rejector.rbf_svm import train as rbf_svm_rejector
+from rejector.shape_rejector.one_class_svm import train as one_class_svm
 import argparse 
 import os
 from helper.parsers import parse_strokes_from_inkml_file, parse_ground_truth
@@ -19,7 +20,8 @@ CLASSIFIERS = {
 REJECTORS = {
     'hellinger_plus_correlation' : hellinger_plus_correlation,
     'linear_svm' : linear_svm_rejector,
-    'rbf_svm' : rbf_svm_rejector
+    'rbf_svm' : rbf_svm_rejector,
+    'one_class_svm' : one_class_svm
 }
 
 
@@ -64,6 +66,7 @@ def prepare_classifier_data(path):
     return features, labels
 
 def prepare_rejector_data(path):
+    print('prepare_rejector_data')
     global feature_names
     content = parse_strokes_from_inkml_file(path)
     candidates = grouper(content) 
@@ -84,10 +87,10 @@ def prepare_rejector_data(path):
             for shape_name, trace_ids in dictionary.items():
                 if set(trace_ids) == set(candidate):
                     candidate_is_in_truth = True
-                    if shape_name == 'line':
-                        shape_name = 'no_shape'
-                    else:
+                    if shape_name == 'circle':
                         shape_name = 'shape'
+                    else:
+                        shape_name = 'no_shape'
                     labels.append(label_mapping[shape_name])
         if not candidate_is_in_truth:      
             labels.append(label_mapping['no_shape'])

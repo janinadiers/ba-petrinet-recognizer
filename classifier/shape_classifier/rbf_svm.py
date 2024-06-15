@@ -51,7 +51,7 @@ def train(X, y, feature_names):
     joblib_file = f"classifier/shape_classifier/rbf_svm_models/svm_model_{timestamp}.joblib"
     joblib.dump(clf, joblib_file)
     
-    result = ['features: '+ str(feature_names), 'classifier: '+ 'rbf_svm', 'accuracy: '+ str(accuracy * 100) + '%', 'C: 1.0', 'random_state: 42', f'class_weight:balanced']
+    result = ['features: '+ str(feature_names), 'classifier: '+ 'rbf_svm', 'accuracy: '+ str(accuracy * 100) + '%', f'C: 3.0', 'random_state: 42', f'class_weight:balanced']
    
     #save model configuration to logs
     with open(f"classifier/shape_classifier/logs/rbf_svm_model_{timestamp}.txt", 'w') as f:
@@ -61,7 +61,7 @@ def train(X, y, feature_names):
 
 def use(X, candidate)-> dict:
     X = np.array(X)
-    joblib_file = 'classifier/shape_classifier/rbf_svm_models/svm_model_20240613_150749.joblib'
+    joblib_file = 'classifier/shape_classifier/rbf_svm_models/svm_model_20240614_130424.joblib'
     
     loaded_clf = joblib.load(joblib_file)
      # Ensure X is a 2D array

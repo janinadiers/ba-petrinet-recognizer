@@ -45,7 +45,15 @@ def scale(points: list[dict]) -> list[dict]:
         point['x'] = (point['x'] - xmin) / scale
         point['y'] = (point['y'] - ymin) / scale
        
-    
+
+def map_values_in_range(value, old_min, old_max, new_min, new_max): 
+    print('value', value)
+    print('old_min', old_min)
+    print('old_max', old_max)
+    print('new_min', new_min)
+    print('new_max', new_max)
+    return (value - old_min) * (new_max - new_min) / (old_max - old_min) + new_min
+
 def normalize_strokes(strokes, canvas_width, canvas_height):
     
     dataset_canvas_width = 59414

@@ -5,6 +5,7 @@ from sklearn.manifold import MDS
 import matplotlib.pyplot as plt
 from sklearn.metrics import pairwise_distances
 from sklearn.preprocessing import MinMaxScaler
+from helper.normalizer import map_values_in_range
 
 # Der Input ist ein Set von vektoren, die das Cluster repräsentieren
 def get_cluster_center(cluster: np.ndarray[np.ndarray]):
@@ -51,13 +52,13 @@ def define_clusters(file_path, strokes)->dict:
     cluster_hyper_spheres = {'circle': [], 'rectangle': []}
     for circle in circles:
         print('circle')
-        circle_features.append(get_circle_rectangle_features(circle, strokes))
+        circle_features.append(get_shape_no_shape_features(circle, strokes)['features'])
     for rectangle in rectangles:
         print('rect')
-        rectangle_features.append(get_circle_rectangle_features(rectangle, strokes))
-    # for ellipse in ellipses:
-    #     print('ellipse')
-    #     ellipse_features.append(get_feature_vector(ellipse, strokes))
+        rectangle_features.append(get_shape_no_shape_features(rectangle, strokes)['features'])
+    for ellipse in ellipses:
+        print('ellipse')
+        ellipse_features.append(get_shape_no_shape_features(ellipse, strokes)['features'])
         
     # for parallelogram in parallelograms:
     #     print('para')
@@ -65,37 +66,42 @@ def define_clusters(file_path, strokes)->dict:
     # for double_circle in double_circles:
     #     print('double')
     #     double_circle_features.append(get_feature_vector(double_circle, strokes))
-    # for line_ in line:
-    #     print('line')
-    #     line_features.append(get_feature_vector(line_, strokes))
-    for diamond in diamond:
-        print('diamond')
-        diamond_features.append(get_circle_rectangle_features(diamond, strokes))
+    for line_ in line:
+        print('line')
+        line_features.append(get_shape_no_shape_features(line_, strokes)['features'])
+    # for diamond in diamond:
+    #     print('diamond')
+    #     diamond_features.append(get_shape_no_shape_features(diamond, strokes)['features'])
         
     # cluster_centers['circle'] = get_cluster_center(circle_features)
     # cluster_centers['rectangle'] = get_cluster_center(rectangle_features)
     # cluster_hyper_spheres['circle'] = get_hyper_sphere(cluster_centers['circle'], circle_features)
     # cluster_hyper_spheres['rectangle'] = get_hyper_sphere(cluster_centers['rectangle'], rectangle_features)
     
-    return circle_features, rectangle_features, ellipse_features, parallelogram_features, line_features, double_circle_features, diamond_features
+    return circle_features, rectangle_features, ellipse_features,line_features
     
     
 def visualize_clusters(X, labels):
+    print('visualize clusters', X, labels)
     # transform the data to be within a specified range to avoid biasing the MDS results towards features with larger ranges.
     scaler = MinMaxScaler()
+    # print('X', X)
+    # for feature_vector in X:
+        
+    # X = map_values_in_range(X, max(X), min(X), 0, 1)
     X_normalized = scaler.fit_transform(X)
     dissimilarity_matrix = pairwise_distances(X_normalized, metric='euclidean')
     mds = MDS(n_components=2, dissimilarity='precomputed', random_state=42)
     cluster_transformed = mds.fit_transform(dissimilarity_matrix)
     plt.figure(figsize=(10, 8))
     # colors = ['green', 'blue', 'yellow', 'red', 'black', 'purple', 'orange']
-    colors = ['green', 'blue']
+    colors = ['green', 'blue', 'yellow', 'red']
     # shape_labels = ['circle', 'rectangle', 'ellipse', 'parallelogram', 'line', 'double circle', 'diamond']
-    shape_labels = ['circle', 'rectangle']
+    shape_labels = ['circle', 'rectangle', 'ellipse', 'line']
     for label in np.unique(labels):
         indices = np.where(labels == label)
         plt.scatter(cluster_transformed[indices, 0], cluster_transformed[indices, 1],
-        c=colors[label], label=shape_labels[label], s=50, alpha=0.7)
+        c=colors[label], label=shape_labels[label], s=50, alpha=0.2)
     
     # Add a legend
     plt.legend(loc='upper left')

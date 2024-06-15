@@ -32,8 +32,8 @@ class EvaluationWrapper:
                 elif row != 'total':
                     if row == 'ellipse':
                         amount_ellipse_as_circle = int((self.matrix.at[row, 'circle'] / self.matrix.at[row, 'total']) * 100)
-                        amount_ellipse_as_no_shape = int((self.matrix.at[row, 'no_shape'] / self.matrix.at[row, 'total']) * 100)
-                        self.matrix.at[row, 'accuracy'] = str(amount_ellipse_as_circle + amount_ellipse_as_no_shape) + '%'
+                        # amount_ellipse_as_no_shape = int((self.matrix.at[row, 'no_shape'] / self.matrix.at[row, 'total']) * 100)
+                        self.matrix.at[row, 'accuracy'] = str(amount_ellipse_as_circle) + '%'
                     elif row == 'parallelogram':
                         amount_parallelogram_as_rectangle = int((self.matrix.at[row, 'rectangle'] / self.matrix.at[row, 'total']) * 100)
                         amount_parallelogram_as_no_shape = int((self.matrix.at[row, 'no_shape'] / self.matrix.at[row, 'total']) * 100)
@@ -51,15 +51,19 @@ class EvaluationWrapper:
             for shape_name, trace_ids in dictionary.items():
                 
                 if set(trace_ids) == set(candidate):  
-                    print('truth contains candidate', shape_name)
+                    # print('truth contains candidate', shape_name)
+                    # if shape_name == 'circle':
+                    #     print('<<<<<<<<<<<<<<<<<<<<<<<circle>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                        
                     truth_contains_candidate = True
                     if 'valid' in recognizer_result:
                         shape_name_recognizer_result = next(iter(recognizer_result['valid']))
                         self.matrix.at[shape_name, shape_name_recognizer_result] += 1
                     else:
-                        # if shape_name == 'circle' or shape_name == 'rectangle' or shape_name == 'ellipse':
-                        #     print('wrong rejection!')
-                        #     exit()
+                        if shape_name == 'circle' or shape_name == 'rectangle' or shape_name == 'ellipse':
+                            print('>>>>>>>>>>>>>>>>>>wrong rejection!>>>>>>>>>>>>>>>>>>>>>>>>>', shape_name)
+                            # exit()
+
                         self.matrix.at[shape_name, 'no_shape'] += 1
         if not truth_contains_candidate and not 'valid' in recognizer_result:
             self.matrix.at['no_shape', 'no_shape'] += 1

@@ -8,7 +8,7 @@ def combine_strokes(grouped_ids:list[int], strokes:list[dict]):
         stroke = strokes[stroke_id]
         combined_strokes += stroke
     return combined_strokes
-
+        
 
 def get_bounding_box(stroke:list[dict]):
     _stroke = copy.deepcopy(stroke)
@@ -131,18 +131,18 @@ def find_closest_stroke(end_point, strokes):
 
 
 def order_strokes(strokes):
-    # _strokes = copy.deepcopy(strokes)
-    # if not _strokes:
-    #     return []
+    _strokes = copy.deepcopy(strokes)
+    if not _strokes:
+        return []
 
-    # ordered_strokes = [_strokes.pop(0)]  # Start with the first stroke
-    # while _strokes:
-    #     current_end_point = ordered_strokes[-1][-1]  # End point of the current stroke
-    #     closest_stroke, closest_index = find_closest_stroke(current_end_point, _strokes)
-    #     ordered_strokes.append(closest_stroke)
-    #     _strokes.pop(closest_index)
-    # return ordered_strokes
-    return strokes
+    ordered_strokes = [_strokes.pop(0)]  # Start with the first stroke
+    while _strokes:
+        current_end_point = ordered_strokes[-1][-1]  # End point of the current stroke
+        closest_stroke, closest_index = find_closest_stroke(current_end_point, _strokes)
+        ordered_strokes.append(closest_stroke)
+        _strokes.pop(closest_index)
+    return ordered_strokes
+ 
 
 
 # def remove_outliers(stroke:list[dict]):

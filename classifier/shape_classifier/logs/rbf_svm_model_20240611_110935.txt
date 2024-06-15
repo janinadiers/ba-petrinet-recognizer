@@ -1,6 +1,0 @@
-features: ['amount_cluster', 'average_distance_circle', 'average_distance_rect', 'convex_hull_area_to_perimeter_ratio', 'convex_hull_perimeter_to_area_ratio']
-classifier: radial_svm
-accuracy: 97.0909090909091%
-C: 1.0
-random_state: 42
-class_weight: balanced

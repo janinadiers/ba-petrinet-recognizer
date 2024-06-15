@@ -12,6 +12,7 @@ from rejector.shape_rejector.hellinger_plus_correlation import is_valid_shape as
 from rejector.shape_rejector.linear_svm import use as linear_svm_rejector
 from rejector.shape_rejector.rbf_svm import use as rbf_svm_rejector
 from rejector.shape_rejector.rejector_with_threshold import use as rejector_with_threshold
+from rejector.shape_rejector.one_class_svm import use as one_class_svm
 from helper.EvaluationWrapper import EvaluationWrapper
 from helper.parsers import parse_strokes_from_inkml_file
 from helper.normalizer import resample_strokes
@@ -19,7 +20,6 @@ from helper.normalizer import normalize_strokes
 import os
 from helper.print_progress_bar import printProgressBar
 import datetime
-from helper.export_strokes_to_inkml import export_strokes_to_inkml
 
 
 GROUPERS = {
@@ -44,7 +44,8 @@ REJECTORS = {
     'hellinger_plus_correlation' : hellinger_plus_correlation,
     'linear_svm' : linear_svm_rejector,
     'rbf_svm' : rbf_svm_rejector,
-    'rejector_with_threshold' : rejector_with_threshold
+    'rejector_with_threshold' : rejector_with_threshold,
+    'one_class_svm' : one_class_svm
 }
     
 
@@ -130,12 +131,18 @@ for i, path in enumerate(file_paths):
         ratio = args.other_ratio.split('/')
         normalized_strokes = normalize_strokes(content, int(ratio[0]), int(ratio[1]))
         resampled_content = resample_strokes(normalized_strokes)
-        export_strokes_to_inkml(resampled_content, 'normalized_points.inkml')
     else:
         resampled_content = resample_strokes(content)
     results = []
+    recognized_strokes = []
     for candidate in candidates:
-        results.append(recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content))
+        # check if no values from the candidate are in recognized_strokes
+        if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
+            recognizer_result = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content)
+            results.append(recognizer_result)
+            if 'valid' in recognizer_result:
+                recognized_strokes.extend(candidate)
+    
     printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
         
 if not args.production:
