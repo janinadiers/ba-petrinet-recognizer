@@ -54,10 +54,11 @@ class EvaluationWrapper:
                     # print('truth contains candidate', shape_name)
                     # if shape_name == 'circle':
                     #     print('<<<<<<<<<<<<<<<<<<<<<<<circle>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-                        
+                    print(recognizer_result)
                     truth_contains_candidate = True
-                    if 'valid' in recognizer_result:
-                        shape_name_recognizer_result = next(iter(recognizer_result['valid']))
+                    if 'valid' in recognizer_result[0]:
+                        print('>>>>>>>>>>>>>>>>>>correct recognition!>>>>>>>>>>>>>>>>>>>>>>>>>', shape_name)
+                        shape_name_recognizer_result = next(iter(recognizer_result[0]['valid']))
                         self.matrix.at[shape_name, shape_name_recognizer_result] += 1
                     else:
                         if shape_name == 'circle' or shape_name == 'rectangle' or shape_name == 'ellipse':

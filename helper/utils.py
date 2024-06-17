@@ -1,6 +1,8 @@
 import numpy as np
 import copy
 from helper.normalizer import distance
+from helper.normalizer import normalize
+import matplotlib.pyplot as plt
 
 def combine_strokes(grouped_ids:list[int], strokes:list[dict]):
     combined_strokes = []  
@@ -78,7 +80,33 @@ def get_perfect_mock_shape(stroke:list[dict]) -> dict:
 
     return {'rectangle': perfect_mock_rect, 'circle': perfect_cyclic_mock_shape, 'bounding_box': {'min_x':min_x, 'min_y': min_y, 'width': max_x - min_x, 'height': max_y - min_y}}
     
+
+def get_rectangle_shape_with_vertical_lines(stroke):
+    _stroke = copy.deepcopy(stroke)
+    bounding_box = get_bounding_box(_stroke)
+    min_x, max_x, min_y, max_y, width, height = bounding_box
     
+    rectangle_with_points = get_rectangle_with_points(bounding_box, 68)
+    vertical_lines = []
+    vertical_lines.append([point for point in rectangle_with_points if point['x'] == min_x])
+    vertical_lines.append([point for point in rectangle_with_points if point['x'] == max_x])
+
+    plot_strokes(vertical_lines)
+    return vertical_lines
+    
+def get_rectangle_shape_with_horizontal_lines(stroke):
+    _stroke = copy.deepcopy(stroke)
+    bounding_box = get_bounding_box(_stroke)
+    min_x, max_x, min_y, max_y, width, height = bounding_box
+    rectangle_with_points = get_rectangle_with_points(bounding_box, 68)
+    horizontal_lines = []
+    horizontal_lines.append([point for point in rectangle_with_points if point['y'] == min_y])
+    horizontal_lines.append([point for point in rectangle_with_points if point['y'] == max_y])
+
+    # plot_strokes(horizontal_lines)
+    return horizontal_lines
+    
+         
 def get_circle_with_points(cx, cy, radius, num_points):
     # Winkelabstand zwischen den Punkten
     angle_step = 2 * np.pi / num_points
@@ -114,6 +142,8 @@ def get_rectangle_with_points(bounding_box, num_points):
     return points + [points[0]]
 
 
+
+
 # Function to find the closest stroke to the given end point
 def find_closest_stroke(end_point, strokes):
     min_distance = float('inf')
@@ -144,6 +174,39 @@ def order_strokes(strokes):
     return ordered_strokes
  
 
+def get_vertical_lines(stroke):
+    _stroke = copy.deepcopy(stroke)
+    bounding_box = get_bounding_box(_stroke)
+    min_x, max_x, min_y, max_y, width, height = bounding_box
+    left_vertical_line = []
+    right_vertical_line = []
+    vertical_lines = []
+    for i in range(0, 16):
+        y = min_y + i * height / 15
+        left_vertical_line.append({'x': min_x, 'y': y})
+        right_vertical_line.append({'x': max_x, 'y': y})
+    vertical_lines.append(left_vertical_line)
+    vertical_lines.append(right_vertical_line)
+    # vertical_lines.append(stroke)
+    # plot_strokes(vertical_lines)
+    return [left_vertical_line, right_vertical_line]
+
+def get_horizontal_lines(stroke):
+    _stroke = copy.deepcopy(stroke)
+    bounding_box = get_bounding_box(_stroke)
+    min_x, max_x, min_y, max_y, width, height = bounding_box
+    top_horizontal_line = []
+    bottom_horizontal_line = []
+    horizontal_lines = []
+    for i in range(0, 16):
+        x = min_x + i * width / 15
+        top_horizontal_line.append({'x': x, 'y': min_y})
+        bottom_horizontal_line.append({'x': x, 'y': max_y})
+    horizontal_lines.append(top_horizontal_line)
+    horizontal_lines.append(bottom_horizontal_line)
+    # horizontal_lines.append(stroke)
+    # plot_strokes(horizontal_lines)
+    return [top_horizontal_line, bottom_horizontal_line]
 
 # def remove_outliers(stroke:list[dict]):
 #     new_stroke = []
@@ -169,4 +232,17 @@ def order_strokes(strokes):
 
 #     return new_stroke[0]
 
-  
+# Function to plot strokes correctly
+def plot_strokes(strokes):
+    plt.figure(figsize=(8, 8))
+    print('strokes', len(strokes))
+    for stroke in strokes:
+        print('stroke', stroke)
+        _points = [(point['x'], point['y']) for point in stroke]  # Extract points for the current stroke
+        x, y = zip(*_points)  # Unpack the stroke into x and y coordinates
+        plt.plot(x, y, marker='o', linestyle='-', color='b')  # Plot the stroke
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.title('Strokes Visualization')
+    plt.grid(True)
+    plt.show()

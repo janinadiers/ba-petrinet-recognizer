@@ -1,6 +1,0 @@
-features: ['number_of_convex_hull_vertices']
-classifier: rbf_svm
-accuracy: 97.22222222222221%
-C: 1.0
-random_state: 42
-class_weight:balanced

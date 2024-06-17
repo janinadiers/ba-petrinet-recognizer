@@ -1,15 +1,27 @@
 
 from scipy.spatial import ConvexHull
-from helper.utils import get_bounding_box, calculate_diagonal_length, calculate_total_stroke_length
+from helper.utils import get_bounding_box, calculate_diagonal_length, calculate_total_stroke_length, plot_strokes
 import numpy as np
 import copy
-from helper.utils import combine_strokes, get_perfect_mock_shape, order_strokes, distance
+from helper.utils import combine_strokes, get_perfect_mock_shape, order_strokes,get_horizontal_lines, get_vertical_lines
 from shapely.geometry import Polygon, LineString
 from scipy.spatial.distance import directed_hausdorff
-from skimage.measure import EllipseModel
+from helper.normalizer import distance, translate_to_origin, scale
 
+def calculate_solidity(stroke):
+    points = np.array([(point['x'], point['y']) for point in stroke])
+    hull = ConvexHull(points)
+    hull_area = hull.volume 
+    area = Polygon(points).area
+    return area / hull_area
 
-
+def calculate_radius_variance(stroke):
+    bounding_box = get_bounding_box(stroke)
+    center = {'x': bounding_box[0] + bounding_box[4] / 2, 'y': bounding_box[2] + bounding_box[5] / 2}
+    center = np.array([center['x'], center['y']])
+    points = np.array([(point['x'], point['y']) for point in stroke])
+    distances = [np.linalg.norm(np.array(point) - np.array(center)) for point in points]
+    return np.var(distances)
     
 def get_hausdorff_distance(stroke):
     points = np.array([(point['x'], point['y']) for point in stroke])
@@ -85,10 +97,11 @@ def get_circularity(stroke):
     
     _points = [(point['x'], point['y']) for point in stroke]
     # Create a Polygon from the points
+    hull = ConvexHull(_points)
     polygon = Polygon(_points)
 
     # Calculate area and perimeter
-    area = polygon.area
+    area = Polygon(_points).area
     perimeter = polygon.length
 
     # Calculate circularity
@@ -203,6 +216,48 @@ def compute_total_stroke_length_to_diagonal_length(stroke):
     
     return total_stroke_length / diagonal_length
 
+
+def calculate_average_distance_to_template_shape_with_horizontal_lines(stroke):
+    horizontal_lines_template = get_horizontal_lines(stroke)
+    # calculate the average distance of each point to the template shape
+    distances = []
+   
+    for stroke1 in horizontal_lines_template:
+        for point1 in stroke1:
+            # find the closest point in the stroke to the point in the template shape
+            min_distance = float('inf')
+            for point2 in stroke:
+                eucl_distance = distance(point1, point2)
+                if eucl_distance < min_distance:
+                    min_distance = eucl_distance
+            distances.append(min_distance)
+    # print(np.mean(distances))
+    horizontal_lines_template.append(stroke)
+    # plot_strokes(horizontal_lines_template)
+    return np.mean(distances)
+
+
+def calculate_average_distance_to_template_shape_with_vertical_lines(stroke):
+    vertical_lines_template = get_vertical_lines(stroke)
+    # calculate the average distance of each point to the template shape
+    distances = []
+   
+    for stroke1 in vertical_lines_template:
+        for point1 in stroke1:
+            # find the closest point in the stroke to the point in the template shape
+            min_distance = float('inf')
+            for point2 in stroke:
+                eucl_distance = distance(point1, point2)
+                if eucl_distance < min_distance:
+                    min_distance = eucl_distance
+            distances.append(min_distance)
+    # print(np.mean(distances))
+    vertical_lines_template.append(stroke)
+    # plot_strokes(vertical_lines_template)
+    return np.mean(distances)
+            
+   
+  
 
 def calculate_average_min_distance_to_template_shape(candidate):
     ideal_circle_shape = get_perfect_mock_shape(candidate)['circle']
@@ -326,6 +381,43 @@ def get_shape_no_shape_features(candidate, strokes):
     return {'feature_names': ['closed_shape'], 'features': [closed_shape]}
    
 
+def get_circle_features(candidate, strokes):
+    stroke = combine_strokes(candidate, strokes)
+    strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
+    closed_shape = is_closed_shape(strokes_of_candidate)
+    aspect_ratio = get_aspect_ratio(stroke)
+    solidity = calculate_solidity(stroke)
+    circularity = get_circularity(stroke)
+    radius_variance = calculate_radius_variance(stroke)
+    average_min_distance_ideal_circle, average_min_distance_ideal_rect = calculate_average_min_distance_to_template_shape(stroke)
+
+    amount_cluster = get_cluster_amount(stroke)
+
+    number_of_convex_hull_vertices = get_number_of_convex_hull_vertices(stroke)
+    convex_hull_perimeter_to_area_ratio = compute_convex_hull_perimeter_to_area_ratio(stroke)
+    total_stroke_length_to_diagonal_length = compute_total_stroke_length_to_diagonal_length(stroke)
+
+    return {'feature_names': ['closed_shape', 'convex_hull_perimeter_to_area_ratio', 'total_stroke_length_to_diagonal_length', 'aspect_ratio'], 'features': [closed_shape, convex_hull_perimeter_to_area_ratio, total_stroke_length_to_diagonal_length, aspect_ratio]}
+
+
+def get_rectangle_features(candidate, strokes):
+    print('get_rectangle_features')
+    stroke = combine_strokes(candidate, strokes)
+    strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
+    print('strokes_of_candidate', strokes_of_candidate)
+    scaled_strokes = scale(strokes_of_candidate)
+    translated_strokes = translate_to_origin(scaled_strokes)
+    plot_strokes(translated_strokes)
+    number_of_convex_hull_vertices = get_number_of_convex_hull_vertices(stroke)
+    average_distance_to_template_with_vertical_lines =calculate_average_distance_to_template_shape_with_vertical_lines(stroke)
+    average_distance_to_template_with_horizontal_lines = calculate_average_distance_to_template_shape_with_horizontal_lines(stroke)
+   
+    print('average_distance_to_template_with_vertical_lines', average_distance_to_template_with_vertical_lines)
+    print('average_distance_to_template_with_horizontal_lines', average_distance_to_template_with_horizontal_lines)
+    return {'feature_names': ['number_of_convex_hull_vertices', 'average_distance_to_template_with_vertical_lines', 'average_distance_to_template_with_horizontal_lines'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines]}
+
+    
+    
 
 def get_circle_rectangle_features(candidate, strokes):
     """ Extract feature vector from stroke """

@@ -20,6 +20,7 @@ from helper.normalizer import normalize_strokes
 import os
 from helper.print_progress_bar import printProgressBar
 import datetime
+from helper.utils import plot_strokes
 
 
 GROUPERS = {
@@ -100,7 +101,8 @@ evaluationWrapper = None if args.production else EvaluationWrapper(RECOGNIZERS[a
 
 recognizer = RECOGNIZERS[args.recognizer] if args.production else evaluationWrapper.recognize
 grouper = GROUPERS[args.grouper]
-
+shape_no_shape_features = None
+circle_rectangle_features = None
 
 file_paths = []
 if args.inkml:
@@ -131,14 +133,21 @@ for i, path in enumerate(file_paths):
         ratio = args.other_ratio.split('/')
         normalized_strokes = normalize_strokes(content, int(ratio[0]), int(ratio[1]))
         resampled_content = resample_strokes(normalized_strokes)
+        plot_strokes(resampled_content)
     else:
         resampled_content = resample_strokes(content)
+        plot_strokes(resampled_content)
     results = []
     recognized_strokes = []
     for candidate in candidates:
         # check if no values from the candidate are in recognized_strokes
         if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
-            recognizer_result = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content)
+            print(args.rejector)
+            recognizer_result, shape_no_shape_features, circle_rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content)
+            if not shape_no_shape_features:
+                shape_no_shape_features = shape_no_shape_features
+            if not circle_rectangle_features:
+                circle_rectangle_features = circle_rectangle_features
             results.append(recognizer_result)
             if 'valid' in recognizer_result:
                 recognized_strokes.extend(candidate)
@@ -160,6 +169,8 @@ if args.save == 'y':
         f.write('# grouper: ' + str(args.grouper) + '\n')
         f.write('# classifier: ' + str(args.classifier) + '\n')
         f.write('# rejector: ' + str(args.rejector) + '\n')
+        f.write('# shape no shape features: '+ ''.join(shape_no_shape_features) +'\n')
+        f.write('# circle rectangle features: '+ ''.join(circle_rectangle_features) +'\n')
 
 if args.production:
     print('Saving inkml file...', results)

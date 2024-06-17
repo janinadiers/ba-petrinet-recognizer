@@ -10,18 +10,14 @@ import datetime
 import matplotlib.pyplot as plt
 
 
-def train(X, y, feature_names):
+def train(X, feature_names):
     X = np.array(X)
-    y = np.array(y)  # Corresponding labels (1: Rectangle, 0: Circle, 2: no shape)
     
-    # Für OneClassSVM nur die Inlier-Klasse verwenden
-    X_inliers = X[y == 0]
-
     # Datensatz in Trainings- und Testdaten aufteilen
-    X_train, X_test = train_test_split(X_inliers, test_size=0.2, random_state=42)
+    X_train, X_test = train_test_split(X, test_size=0.2, random_state=42)
 
     # OneClassSVM-Modell trainieren
-    clf = svm.OneClassSVM(kernel='rbf', nu=0.1, gamma=0.5)
+    clf = svm.OneClassSVM(kernel='rbf', nu=0.05, gamma='auto')
     print('Training one class svm model...')
     clf.fit(X_train)
     

@@ -12,12 +12,12 @@ import matplotlib.pyplot as plt
 
 def train(X, y, feature_names):
     X = np.array(X)
-    y = np.array(y)  # Corresponding labels (1: Rectangle, 0: Circle, 2: no shape)
-    # class_weights = {0: 10, 1: 1}
-    class_weights = 'balanced'
+    y = np.array(y)
+    class_weights = {0: 5000, 1: 1}
+    # class_weights = 'balanced'
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     # besser großes C =3, da die punkte oft recht nah beieinander liegen und wir deshalb die margin klein halten wollen um Missklassifikationen zu vermeiden
-    clf = svm.SVC(kernel='rbf', class_weight=class_weights, C=3.0, gamma=0.5, probability=True)
+    clf = svm.SVC(kernel='rbf', class_weight=class_weights, C=1.0, gamma=0.5, probability=True)
     print('Training the model...')
     
     clf.fit(X_train, y_train)
@@ -43,7 +43,7 @@ def train(X, y, feature_names):
 def use(X, candidate)-> dict:
     X = np.array(X)
     
-    joblib_file = 'rejector/shape_rejector/rbf_svm_models/rbf_svm_model_20240615_044617.joblib'
+    joblib_file = 'rejector/shape_rejector/rbf_svm_models/rbf_svm_model_20240615_221956.joblib'
     
     loaded_clf = joblib.load(joblib_file)
      # Ensure X is a 2D array
@@ -51,11 +51,10 @@ def use(X, candidate)-> dict:
         X = X.reshape(1, -1)
         
     predicted_label = loaded_clf.predict(X)
-    probability = loaded_clf.predict_proba(X)
+    # probability = loaded_clf.predict_proba(X)
     
     
-    if predicted_label[0] == 1 and probability[0][1] >= 0.99:
-        print('probability no shape', probability[0][1])
+    if predicted_label[0] == 1:
         # print('-----------------no shape!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         return {'invalid': candidate}
     else:
