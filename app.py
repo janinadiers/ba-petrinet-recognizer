@@ -24,7 +24,6 @@ def post_data():
     time_stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     with open(f'inkml_requests/{time_stamp}.inkml', 'w') as f:
         f.write(str(inkml))
-    print('inkml', inkml)
     # Command to execute the script
     command = [
         'python', 'main.py',

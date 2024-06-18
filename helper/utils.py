@@ -1,8 +1,8 @@
 import numpy as np
 import copy
-from helper.normalizer import distance
-from helper.normalizer import normalize
+# from helper.normalizer import distance
 import matplotlib.pyplot as plt
+import math
 
 def combine_strokes(grouped_ids:list[int], strokes:list[dict]):
     combined_strokes = []  
@@ -208,6 +208,15 @@ def get_horizontal_lines(stroke):
     # plot_strokes(horizontal_lines)
     return [top_horizontal_line, bottom_horizontal_line]
 
+def stroke_has_only_duplicates(stroke):
+    for i in range(len(stroke) - 1):
+        if stroke[i] != stroke[i + 1]:
+            return False
+    return True
+
+def distance(p1:dict, p2:dict) -> float:
+    return math.sqrt((p2['x'] - p1['x'])**2 + (p2['y'] - p1['y'])**2)
+
 # def remove_outliers(stroke:list[dict]):
 #     new_stroke = []
 
@@ -233,14 +242,17 @@ def get_horizontal_lines(stroke):
 #     return new_stroke[0]
 
 # Function to plot strokes correctly
-def plot_strokes(strokes):
+def plot_strokes(strokes, points=None):
     plt.figure(figsize=(8, 8))
-    print('strokes', len(strokes))
     for stroke in strokes:
-        print('stroke', stroke)
         _points = [(point['x'], point['y']) for point in stroke]  # Extract points for the current stroke
         x, y = zip(*_points)  # Unpack the stroke into x and y coordinates
         plt.plot(x, y, marker='o', linestyle='-', color='b')  # Plot the stroke
+    # if points is not None plot the points
+    if points is not None:
+        _points = [(point['x'], point['y']) for point in points]  # Extract points for the current stroke
+        x, y = zip(*_points)  # Unpack the stroke into x and y coordinates
+        plt.plot(x, y, marker='o', linestyle='-', color='r')  # Plot the stroke
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.title('Strokes Visualization')

@@ -4,33 +4,7 @@ from helper.export_strokes_to_inkml import export_strokes_to_inkml
 import numpy as np
 from scipy.interpolate import interp1d
 
-
-def normalize(strokes: list[dict]) -> list[dict]:
-    _strokes = copy.deepcopy(strokes)
-    resampled_strokes = []
-    for stroke in _strokes:
-        resampled_strokes.append(resample(stroke))
-    
-    # combined_strokes = [point for stroke in resampled_strokes for point in stroke]
-    # translated_points = translate_to_origin(combined_strokes)
-
-    # start_index = 0
-    # for stroke in resampled_strokes:
-    #     amount_points = len(stroke)
-    #     translated_strokes.append(translated_points[start_index:start_index+ amount_points])
-    #     start_index += amount_points
-      
-   
-    # export_strokes_to_inkml(translated_strokes, 'translated_points.inkml')
-    # exit()
-    # return normalized_strokes
-    return resampled_strokes
-    
-
-# def pixels_to_himetrics(pixels, dpi):
-#     himetrics_per_inch = 2540
-#     return pixels * (himetrics_per_inch / dpi)
-    
+  
 # Die Skalierung ist notwendig, um die Punkte auf eine einheitliche Größe zu bringen, sodass die Punkte in einem einheitlichen Koordinatensystem liegen
 def scale(strokes: list[dict]) -> list[dict]:
     _points = [point for stroke in strokes for point in stroke]
@@ -98,7 +72,7 @@ def normalize_strokes(strokes, canvas_width, canvas_height):
 def resample_strokes(strokes: list[dict]) -> list[dict]:
     _strokes = copy.deepcopy(strokes)
     resampled_strokes = []
-    print('stroke length: ', len(strokes))
+
     for stroke in _strokes:
         resampled_strokes.append(resample(stroke))
     
@@ -181,8 +155,7 @@ def resample(points, pixel_distance=32):
     # if new_points[-1] != points[-1]:
     #     new_points.append(points[-1])
     
-    for i in range(len(new_points) -1):
-        print('hier', round(distance(new_points[i], new_points[i+1])))
+
     return new_points
 
 # Function to calculate cumulative distance along points
