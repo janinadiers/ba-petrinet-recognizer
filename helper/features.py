@@ -157,8 +157,8 @@ def calculate_average_distance_to_template_shape_with_vertical_lines(strokes, st
     if candidate == [16, 17, 18, 20, 21, 19]:
         
         vertical_lines_template.extend(reconstructed_strokes)
-        plot_strokes(vertical_lines_template, points_to_plot)
-    return np.median(distances)
+        # plot_strokes(vertical_lines_template, points_to_plot)
+    return np.mean(distances)
 
 
 def calculate_average_distance_to_template_shape_with_horizontal_lines(strokes, stroke, candidate):
@@ -196,8 +196,8 @@ def calculate_average_distance_to_template_shape_with_horizontal_lines(strokes, 
         counter+=1
     if candidate == [16, 17, 18, 20, 21, 19]:
         horizontal_lines_template.extend(reconstructed_strokes)
-        plot_strokes(horizontal_lines_template, points_to_plot)
-    return np.median(distances)
+        # plot_strokes(horizontal_lines_template, points_to_plot)
+    return np.mean(distances)
             
    
 def calculate_average_min_distance_to_template_shape(candidate):
@@ -328,7 +328,7 @@ def get_circle_rectangle_features(candidate, strokes):
     scaled_strokes = scale(strokes_of_candidate)
     # plot_strokes(scaled_strokes)
     translated_strokes = translate_to_origin(scaled_strokes)
-    plot_strokes(translated_strokes)
+    # plot_strokes(translated_strokes)
     stroke = translated_strokes[0]   
     has_only_duplicates = stroke_has_only_duplicates(stroke)
     bounding_box = get_bounding_box(stroke)
@@ -337,14 +337,16 @@ def get_circle_rectangle_features(candidate, strokes):
     number_of_convex_hull_vertices = get_number_of_convex_hull_vertices(stroke)
     average_distance_to_template_with_vertical_lines =calculate_average_distance_to_template_shape_with_vertical_lines(strokes_of_candidate, stroke, candidate)
     average_distance_to_template_with_horizontal_lines = calculate_average_distance_to_template_shape_with_horizontal_lines(strokes_of_candidate, stroke, candidate)
-    # cluster_amount = get_cluster_amount(stroke)
-    # aspect_ratio = get_aspect_ratio(stroke)
+    total_stroke_length_to_diagonal_length = compute_total_stroke_length_to_diagonal_length(stroke)
+
+    cluster_amount = get_cluster_amount(stroke)
+    aspect_ratio = get_aspect_ratio(stroke)
     amount_of_strokes = len(strokes_of_candidate)
    
     print(number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines)
     print('candidate:', candidate)
     return {'feature_names': ['number_of_convex_hull_vertices','average_distance_to_template_with_vertical_lines', 'average_distance_to_template_with_horizontal_lines'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines]}
-
+    # return {'feature_names': ['number_of_convex_hull_vertices'], 'features': [number_of_convex_hull_vertices]}
 
 def get_circle_features(candidate, strokes):
     edge_point_positions = []

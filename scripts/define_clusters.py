@@ -51,13 +51,13 @@ def define_clusters(file_path, strokes)->dict:
     cluster_hyper_spheres = {'circle': [], 'rectangle': []}
     for circle in circles:
         print('circle')
-        circle_features.append(get_shape_no_shape_features(circle, strokes)['features'])
+        circle_features.append(get_circle_rectangle_features(circle, strokes)['features'])
     for rectangle in rectangles:
         print('rect')
-        rectangle_features.append(get_shape_no_shape_features(rectangle, strokes)['features'])
+        rectangle_features.append(get_circle_rectangle_features(rectangle, strokes)['features'])
     for ellipse in ellipses:
         print('ellipse')
-        ellipse_features.append(get_shape_no_shape_features(ellipse, strokes)['features'])
+        ellipse_features.append(get_circle_rectangle_features(ellipse, strokes)['features'])
         
     # for parallelogram in parallelograms:
     #     print('para')
@@ -65,9 +65,9 @@ def define_clusters(file_path, strokes)->dict:
     # for double_circle in double_circles:
     #     print('double')
     #     double_circle_features.append(get_feature_vector(double_circle, strokes))
-    for line_ in line:
-        print('line')
-        line_features.append(get_shape_no_shape_features(line_, strokes)['features'])
+    # for line_ in line:
+    #     print('line')
+    #     line_features.append(get_shape_no_shape_features(line_, strokes)['features'])
     # for diamond in diamond:
     #     print('diamond')
     #     diamond_features.append(get_shape_no_shape_features(diamond, strokes)['features'])
@@ -77,7 +77,7 @@ def define_clusters(file_path, strokes)->dict:
     # cluster_hyper_spheres['circle'] = get_hyper_sphere(cluster_centers['circle'], circle_features)
     # cluster_hyper_spheres['rectangle'] = get_hyper_sphere(cluster_centers['rectangle'], rectangle_features)
     
-    return circle_features, rectangle_features, ellipse_features,line_features
+    return circle_features, rectangle_features, ellipse_features
     
     
 def visualize_clusters(X, labels):
@@ -93,9 +93,9 @@ def visualize_clusters(X, labels):
     cluster_transformed = mds.fit_transform(dissimilarity_matrix)
     plt.figure(figsize=(10, 8))
     # colors = ['green', 'blue', 'yellow', 'red', 'black', 'purple', 'orange']
-    colors = ['green', 'blue', 'yellow', 'red']
+    colors = ['green', 'blue', 'yellow']
     # shape_labels = ['circle', 'rectangle', 'ellipse', 'parallelogram', 'line', 'double circle', 'diamond']
-    shape_labels = ['circle', 'rectangle', 'ellipse', 'line']
+    shape_labels = ['circle', 'rectangle', 'ellipse']
     for label in np.unique(labels):
         indices = np.where(labels == label)
         plt.scatter(cluster_transformed[indices, 0], cluster_transformed[indices, 1],

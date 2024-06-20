@@ -1,0 +1,6 @@
+features: ['number_of_convex_hull_vertices', 'average_distance_to_template_with_vertical_lines', 'average_distance_to_template_with_horizontal_lines']
+classifier: linear_svm
+accuracy: 94.4078947368421%
+C: 1.0
+random_state: 42
+class_weight:balanced, probability: True
