@@ -321,7 +321,28 @@ def get_shape_no_shape_features(candidate, strokes):
     
  
     return {'feature_names': ['closed_shape'], 'features': [closed_shape]}
-   
+
+
+def get_circle_rectangle_features(candidate, strokes):
+
+    strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
+    scaled_strokes = scale(strokes_of_candidate)
+    # plot_strokes(scaled_strokes)
+    translated_strokes = translate_to_origin(scaled_strokes)
+
+    stroke = translated_strokes[0]   
+    has_only_duplicates = stroke_has_only_duplicates(stroke)
+    bounding_box = get_bounding_box(stroke)
+    if (len(stroke) < 5 or has_only_duplicates or bounding_box[4] == 0 or bounding_box[5] == 0):
+        return {'feature_names': ['distance_between_stroke_edge_points'], 'features': None}
+    number_of_convex_hull_vertices = get_number_of_convex_hull_vertices(stroke)
+    average_distance_to_template_with_vertical_lines =calculate_average_distance_to_template_shape_with_vertical_lines(strokes_of_candidate, stroke)
+    average_distance_to_template_with_horizontal_lines = calculate_average_distance_to_template_shape_with_horizontal_lines(strokes_of_candidate, stroke)
+    # cluster_amount = get_cluster_amount(stroke)
+    # aspect_ratio = get_aspect_ratio(stroke)
+    amount_of_strokes = len(strokes_of_candidate)
+    return {'feature_names': ['number_of_convex_hull_vertices','average_distance_to_template_with_vertical_lines', 'average_distance_to_template_with_horizontal_lines'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines]}
+
 
 def get_circle_features(candidate, strokes):
     edge_point_positions = []
@@ -351,7 +372,7 @@ def get_rectangle_features(candidate, strokes):
 
     strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
     scaled_strokes = scale(strokes_of_candidate)
-    plot_strokes(scaled_strokes)
+    # plot_strokes(scaled_strokes)
     translated_strokes = translate_to_origin(scaled_strokes)
 
     stroke = translated_strokes[0]   

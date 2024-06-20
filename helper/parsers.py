@@ -17,10 +17,9 @@ def parse_strokes_from_inkml_file(file_path: str)-> list[dict]:
             point = list(point.split(' '))
             point = list(filter(None, point))
             if len(point) >= 2:
-                trace_points.append({'x': int(point[0]), 'y': int(point[1])}) 
+                trace_points.append({'x': float(point[0]), 'y': float(point[1])}) 
             
         traces.append(trace_points)
-    
     return traces
 
 

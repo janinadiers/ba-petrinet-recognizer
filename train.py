@@ -10,7 +10,7 @@ import argparse
 import os
 from helper.parsers import parse_strokes_from_inkml_file, parse_ground_truth
 from grouper.shape_grouper.optimized_grouper import group as grouper
-from helper.features import get_rectangle_features, get_shape_no_shape_features
+from helper.features import get_circle_rectangle_features, get_shape_no_shape_features
 from helper.normalizer import resample_strokes
 
 CLASSIFIERS = {
@@ -114,7 +114,7 @@ def prepare_one_class_classifier_data(path):
             for shape_name, trace_ids in dictionary.items():
                 if set(trace_ids) == set(candidate):
                     if shape_name == 'rectangle':
-                        result = get_rectangle_features(candidate, resampled_content)
+                        result = get_circle_rectangle_features(candidate, resampled_content)
                         if not feature_names:
                             feature_names = result['feature_names']
                                    
@@ -122,7 +122,7 @@ def prepare_one_class_classifier_data(path):
 
                     # print(shape_name)
                     # print('---------------------------')
-                    get_rectangle_features(candidate, resampled_content)
+                    get_circle_rectangle_features(candidate, resampled_content)
                     # print('---------------------------')
     
     return features
@@ -148,7 +148,7 @@ def prepare_one_class_rejector_data(path):
                    
 args = parser.parse_args()
 file_paths = []
-files = ['./__datasets__/FC_1.0/no_text/FC_Train.txt']
+files = ['./__datasets__/FC_1.0/no_text/FC_Train.txt', './__datasets__/FA_1.1/no_text/FA_Train.txt']
 all_features = []
 all_labels = []
 

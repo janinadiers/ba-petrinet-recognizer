@@ -65,7 +65,7 @@ parser.add_argument('--grouper', dest='grouper', type=str, nargs='?', action='st
                     help='select a grouping algorithm, thesis_grouper or optimized_grouper')
 parser.add_argument('--recognizer', dest='recognizer', type=str, nargs='?', action='store', default='shape_recognizer',
                     help='select a recognizer, random_mock_recognizer, perfect_mock_recognizer or shape_recognizer')
-parser.add_argument('--classifier', dest='classifier', type=str, nargs='?', action='store', default='one_class_rectangle_svm',
+parser.add_argument('--classifier', dest='classifier', type=str, nargs='?', action='store', default='linear_svm',
                     help='select a classifier, template_matching or linear_svm')
 parser.add_argument('--rejector', dest='rejector', type=str, nargs='?', action='store', default='rejector_with_threshold',
                     help='select a rejector, like hellinger_plus_correlation')
@@ -130,13 +130,15 @@ for i, path in enumerate(file_paths):
     # print('Processing file:', path)
     evaluationWrapper.setCurrentFilePath(path) if not args.production else None
     content = parse_strokes_from_inkml_file(path)
-    candidates = grouper(content)
+    
     resampled_content = None
     if args.other_ratio:
         ratio = args.other_ratio.split('/')
-        converted_strokes = convert_coordinates(content, int(ratio[0]), int(ratio[1]))
+        converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
+        candidates = grouper(converted_strokes)
         resampled_content = resample_strokes(converted_strokes)
     else:
+        candidates = grouper(content)
         resampled_content = resample_strokes(content)
     results = []
     recognized_strokes = []

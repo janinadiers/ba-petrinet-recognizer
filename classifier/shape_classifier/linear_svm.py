@@ -16,7 +16,7 @@ def train(X, y, feature_names):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     # besser großes C =3, da die punkte oft recht nah beieinander liegen und wir deshalb die margin klein halten wollen um Missklassifikationen zu vermeiden
     class_weights = 'balanced'
-    clf = svm.SVC(kernel='linear', class_weight=class_weights)
+    clf = svm.SVC(kernel='linear', class_weight=class_weights, probability=True, C=3.0)
     print('Training the model...')
     
     clf.fit(X_train, y_train)
@@ -42,7 +42,7 @@ def train(X, y, feature_names):
 def use(X, candidate)-> dict:
     X = np.array(X)
     # get the right model
-    joblib_file = 'classifier/shape_classifier/linear_svm_models/svm_model_20240611_083031.joblib'
+    joblib_file = 'classifier/shape_classifier/linear_svm_models/svm_model_20240620_174803.joblib'
     
     # Load the model
     loaded_clf = joblib.load(joblib_file)
