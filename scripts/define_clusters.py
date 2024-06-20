@@ -5,7 +5,6 @@ from sklearn.manifold import MDS
 import matplotlib.pyplot as plt
 from sklearn.metrics import pairwise_distances
 from sklearn.preprocessing import MinMaxScaler
-from helper.normalizer import map_values_in_range
 
 # Der Input ist ein Set von vektoren, die das Cluster repräsentieren
 def get_cluster_center(cluster: np.ndarray[np.ndarray]):
@@ -88,7 +87,6 @@ def visualize_clusters(X, labels):
     # print('X', X)
     # for feature_vector in X:
         
-    # X = map_values_in_range(X, max(X), min(X), 0, 1)
     X_normalized = scaler.fit_transform(X)
     dissimilarity_matrix = pairwise_distances(X_normalized, metric='euclidean')
     mds = MDS(n_components=2, dissimilarity='precomputed', random_state=42)

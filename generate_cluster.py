@@ -47,7 +47,7 @@ labels += [3 for i in range(len(all_line_features))]
 # labels += [5 for i in range(len(all_double_circle_features))]
 # all_circle_features.extend(all_diamond_features)
 # labels += [6 for i in range(len(all_diamond_features))]
-print(len(all_circle_features), len(labels))     
+# print(len(all_circle_features), len(labels))     
 visualize_clusters(all_circle_features, labels)
 
 

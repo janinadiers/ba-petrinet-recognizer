@@ -37,21 +37,21 @@ def train(X, feature_names):
     # Generate a unique filename with a timestamp
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     # Save the model
-    joblib_file = f"rejector/shape_rejector/one_class_rbf_svm_models/one_class_rbf_svm_model_circle_{timestamp}.joblib"
+    joblib_file = f"rejector/shape_rejector/one_class_rbf_svm_models/one_class_rbf_svm_model_{timestamp}.joblib"
     joblib.dump(clf, joblib_file)
     
     result = ['features: '+ str(feature_names), 'rejector: '+ 'rbf_svm', 'accuracy: '+ str(accuracy_test * 100) + '%', 'nu: 0.1', 'gamma: 0.5', 'random_state: 42']
 
     #save model configuration to logs
-    with open(f"rejector/shape_rejector/logs/one_class_rbf_svm_model_circle_{timestamp}.txt", 'w') as f:
+    with open(f"rejector/shape_rejector/logs/one_class_rbf_svm_model_{timestamp}.txt", 'w') as f:
         for item in result:
             f.write(item + '\n')
 
 
 def use(X, candidate)-> dict:
     X = np.array(X)
-    
-    joblib_file = 'rejector/shape_rejector/one_class_rbf_svm_models/one_class_rbf_svm_model_20240615_084308.joblib'
+    print('use one class svm')
+    joblib_file = 'rejector/shape_rejector/one_class_rbf_svm_models/one_class_rbf_svm_model_20240618_140811.joblib'
     
     loaded_clf = joblib.load(joblib_file)
      # Ensure X is a 2D array
@@ -60,10 +60,10 @@ def use(X, candidate)-> dict:
         
     predicted_label = loaded_clf.predict(X)
     # probability = loaded_clf.predict_proba(X)
-    print('predicted_label', predicted_label)
+    # print('predicted_label', predicted_label)
     
     if predicted_label[0] == -1:
-        print('no shape')
+        # print('no shape')
         # print('-----------------no shape!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
         return {'invalid': candidate}
     else:

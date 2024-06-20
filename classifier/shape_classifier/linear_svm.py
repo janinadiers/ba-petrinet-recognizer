@@ -15,7 +15,7 @@ def train(X, y, feature_names):
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     # besser großes C =3, da die punkte oft recht nah beieinander liegen und wir deshalb die margin klein halten wollen um Missklassifikationen zu vermeiden
-    class_weights = {0: 5, 1: 5, 2: 1}
+    class_weights = 'balanced'
     clf = svm.SVC(kernel='linear', class_weight=class_weights)
     print('Training the model...')
     
@@ -56,6 +56,5 @@ def use(X, candidate)-> dict:
         return {'valid': {'circle': candidate}}
     elif predicted_label[0] == 1:
         return {'valid': {'rectangle': candidate}}
-    else:
-        return {'invalid': candidate}
+
     

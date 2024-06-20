@@ -42,7 +42,7 @@ def train(X, y, feature_names):
 
 def use(X, candidate)-> dict:
     X = np.array(X)
-    
+    print('use rbf svm')
     joblib_file = 'rejector/shape_rejector/rbf_svm_models/rbf_svm_model_20240615_221956.joblib'
     
     loaded_clf = joblib.load(joblib_file)

@@ -37,7 +37,7 @@ def train(X, feature_names):
     # Generate a unique filename with a timestamp
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     # Save the model
-    joblib_file = f"classifier/shape_classifier/one_class_rbf_svm_models/one_class_rbf_svm_model_circle_{timestamp}.joblib"
+    joblib_file = f"classifier/shape_classifier/one_class_rbf_svm_models/one_class_rbf_svm_model_rectangle_{timestamp}.joblib"
     joblib.dump(clf, joblib_file)
     
     result = ['features: '+ str(feature_names), 'classifier: '+ 'rbf_svm', 'accuracy: '+ str(accuracy_test * 100) + '%', 'nu: 0.1', 'gamma: 0.5', 'random_state: 42']
@@ -51,7 +51,7 @@ def train(X, feature_names):
 def use(X, candidate)-> dict:
     X = np.array(X)
     
-    joblib_file = 'classifier/shape_classifier/one_class_rbf_svm_models/one_class_rbf_svm_model_20240615_084308.joblib'
+    joblib_file = 'classifier/shape_classifier/one_class_rbf_svm_models/one_class_rbf_svm_model_rectangle_20240618_095016.joblib'
     
     loaded_clf = joblib.load(joblib_file)
      # Ensure X is a 2D array
@@ -60,16 +60,15 @@ def use(X, candidate)-> dict:
         
     predicted_label = loaded_clf.predict(X)
     # probability = loaded_clf.predict_proba(X)
-    print('predicted_label', predicted_label)
+    # print('predicted_label', predicted_label)
     
     if predicted_label[0] == -1:
-        print('outlier')
-        # print('-----------------no shape!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        return {'invalid': candidate}
+        # print('outlier')
+        # return {'invalid': candidate}
+        return {'valid': {'circle': candidate}}
     else:
-        print('inlier')
-         # print('-----------------shape!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-        return {'valid': candidate}
+        # print('inlier')
+        return {'valid': {'rectangle': candidate}}
     
 def plot_decision_boundary(clf, X):
     decision_function_values = clf.decision_function(X)

@@ -39,7 +39,7 @@ def train(X, y, feature_names):
 
 
 def use(X, candidate)-> dict:
-    
+    print('use linear svm')
     X = np.array(X)
     
     joblib_file = 'rejector/linear_svm_models/linear_svm_model_20240610_202904.joblib'

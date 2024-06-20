@@ -8,6 +8,7 @@ from recognizer.shape_recognizer import recognize as shape_recognizer
 from classifier.shape_classifier.template_matching import use as template_matching
 from classifier.shape_classifier.linear_svm import use as linear_svm
 from classifier.shape_classifier.rbf_svm import use as rbf_svm
+from classifier.shape_classifier.one_class_rectangle_svm import use as one_class_rectangle_svm
 from rejector.shape_rejector.hellinger_plus_correlation import is_valid_shape as hellinger_plus_correlation
 from rejector.shape_rejector.linear_svm import use as linear_svm_rejector
 from rejector.shape_rejector.rbf_svm import use as rbf_svm_rejector
@@ -16,11 +17,11 @@ from rejector.shape_rejector.one_class_svm import use as one_class_svm
 from helper.EvaluationWrapper import EvaluationWrapper
 from helper.parsers import parse_strokes_from_inkml_file
 from helper.normalizer import resample_strokes
-from helper.normalizer import normalize_strokes
+from helper.normalizer import convert_coordinates
 import os
 from helper.print_progress_bar import printProgressBar
 import datetime
-from helper.utils import plot_strokes
+
 
 
 GROUPERS = {
@@ -38,7 +39,8 @@ RECOGNIZERS = {
 CLASSIFIERS = {
     'template_matching' : template_matching,
     'linear_svm' : linear_svm,
-    'rbf_svm' : rbf_svm
+    'rbf_svm' : rbf_svm,
+    'one_class_rectangle_svm' : one_class_rectangle_svm
 }
 
 REJECTORS = {
@@ -63,9 +65,9 @@ parser.add_argument('--grouper', dest='grouper', type=str, nargs='?', action='st
                     help='select a grouping algorithm, thesis_grouper or optimized_grouper')
 parser.add_argument('--recognizer', dest='recognizer', type=str, nargs='?', action='store', default='shape_recognizer',
                     help='select a recognizer, random_mock_recognizer, perfect_mock_recognizer or shape_recognizer')
-parser.add_argument('--classifier', dest='classifier', type=str, nargs='?', action='store', default='rbf_svm',
+parser.add_argument('--classifier', dest='classifier', type=str, nargs='?', action='store', default='one_class_rectangle_svm',
                     help='select a classifier, template_matching or linear_svm')
-parser.add_argument('--rejector', dest='rejector', type=str, nargs='?', action='store', default='rbf_svm',
+parser.add_argument('--rejector', dest='rejector', type=str, nargs='?', action='store', default='rejector_with_threshold',
                     help='select a rejector, like hellinger_plus_correlation')
 parser.add_argument('--other_ratio', dest='other_ratio', type=str, nargs='?', action='store',
                     help='scales input to another dimension')
@@ -102,7 +104,8 @@ evaluationWrapper = None if args.production else EvaluationWrapper(RECOGNIZERS[a
 recognizer = RECOGNIZERS[args.recognizer] if args.production else evaluationWrapper.recognize
 grouper = GROUPERS[args.grouper]
 shape_no_shape_features = None
-circle_rectangle_features = None
+rectangle_features = None
+circle_features = None
 
 file_paths = []
 if args.inkml:
@@ -121,38 +124,36 @@ else:
 
 items = list(range(0, len(file_paths)))
 l = len(items)
-printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)   
+# printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)   
 
 for i, path in enumerate(file_paths):
-    print('Processing file:', path)
+    # print('Processing file:', path)
     evaluationWrapper.setCurrentFilePath(path) if not args.production else None
     content = parse_strokes_from_inkml_file(path)
     candidates = grouper(content)
     resampled_content = None
     if args.other_ratio:
         ratio = args.other_ratio.split('/')
-        normalized_strokes = normalize_strokes(content, int(ratio[0]), int(ratio[1]))
-        resampled_content = resample_strokes(normalized_strokes)
-        plot_strokes(resampled_content)
+        converted_strokes = convert_coordinates(content, int(ratio[0]), int(ratio[1]))
+        resampled_content = resample_strokes(converted_strokes)
     else:
         resampled_content = resample_strokes(content)
-        plot_strokes(resampled_content)
     results = []
     recognized_strokes = []
     for candidate in candidates:
         # check if no values from the candidate are in recognized_strokes
         if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
-            print(args.rejector)
-            recognizer_result, shape_no_shape_features, circle_rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content)
+            # print(args.recognizer, args.classifier, args.rejector)
+            recognizer_result, shape_no_shape_features, rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content)
             if not shape_no_shape_features:
                 shape_no_shape_features = shape_no_shape_features
-            if not circle_rectangle_features:
-                circle_rectangle_features = circle_rectangle_features
+            if not rectangle_features:
+                rectangle_features = rectangle_features
             results.append(recognizer_result)
             if 'valid' in recognizer_result:
                 recognized_strokes.extend(candidate)
     
-    printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
+    # printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
         
 if not args.production:
     evaluationWrapper.set_total()
@@ -170,7 +171,7 @@ if args.save == 'y':
         f.write('# classifier: ' + str(args.classifier) + '\n')
         f.write('# rejector: ' + str(args.rejector) + '\n')
         f.write('# shape no shape features: '+ ''.join(shape_no_shape_features) +'\n')
-        f.write('# circle rectangle features: '+ ''.join(circle_rectangle_features) +'\n')
+        f.write('# circle rectangle features: '+ ''.join(rectangle_features) +'\n')
 
 if args.production:
     print('Saving inkml file...', results)

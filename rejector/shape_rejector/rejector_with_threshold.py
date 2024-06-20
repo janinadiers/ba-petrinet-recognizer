@@ -1,7 +1,6 @@
 def use(X, candidate)-> dict:
-    print('in rejector')
-    print('X', X)
-    if X[0] < 800:
+    
+    if X[0] < 0.53:
         return {'valid': candidate}
     else:
         return {'invalid': candidate}

@@ -10,7 +10,7 @@ import argparse
 import os
 from helper.parsers import parse_strokes_from_inkml_file, parse_ground_truth
 from grouper.shape_grouper.optimized_grouper import group as grouper
-from helper.features import get_circle_rectangle_features, get_rectangle_features, get_shape_no_shape_features
+from helper.features import get_rectangle_features, get_shape_no_shape_features
 from helper.normalizer import resample_strokes
 
 CLASSIFIERS = {
@@ -117,18 +117,35 @@ def prepare_one_class_classifier_data(path):
                         result = get_rectangle_features(candidate, resampled_content)
                         if not feature_names:
                             feature_names = result['feature_names']
-                                    
+                                   
                         features.append(result['features'])
 
-                        print(shape_name)
-                        print('---------------------------')
-                        get_rectangle_features(candidate, resampled_content)
-                        print('---------------------------')
+                    # print(shape_name)
+                    # print('---------------------------')
+                    get_rectangle_features(candidate, resampled_content)
+                    # print('---------------------------')
     
     return features
     
     
-    
+def prepare_one_class_rejector_data(path):
+    global feature_names
+    content = parse_strokes_from_inkml_file(path)
+    candidates = grouper(content) 
+    resampled_content = resample_strokes(content)
+    truth = parse_ground_truth(path)
+    features = []
+    for candidate in candidates:
+        for dictionary in truth:
+            for shape_name, trace_ids in dictionary.items():
+                if set(trace_ids) == set(candidate):
+                    result = get_shape_no_shape_features(candidate, resampled_content)
+                    if not feature_names:
+                        feature_names = result['feature_names']     
+                    features.append(result['features'])
+    return features
+                    
+                   
 args = parser.parse_args()
 file_paths = []
 files = ['./__datasets__/FC_1.0/no_text/FC_Train.txt']
@@ -147,19 +164,18 @@ for i, path in enumerate(file_paths):
         if args.classifier == 'one_class_svm_rectangle':
             features = prepare_one_class_classifier_data(path)
             all_features.extend(features)
-            # for feature_vector in all_features:
-            #     print('feature_vector: ', feature_vector)
-            #     if feature_vector[1] >= 0.1 or feature_vector[1] >= 0.1:
-            #         print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!IFFFFFF')
-            #         print('file path: ', path)
         else:
             features, labels = prepare_classifier_data(path)
             all_features.extend(features)
             all_labels.extend(labels)
     if args.rejector:
-        features, labels = prepare_rejector_data(path)
-        all_features.extend(features)
-        all_labels.extend(labels)
+        if args.rejector == 'one_class_svm':
+            features = prepare_one_class_rejector_data(path)
+            all_features.extend(features)
+        else:
+            features, labels = prepare_rejector_data(path)
+            all_features.extend(features)
+            all_labels.extend(labels)
 
 if args.classifier:
     if args.classifier not in CLASSIFIERS:
@@ -179,9 +195,7 @@ if args.rejector:
         print('Invalid rejector. Exiting...')
         exit()   
     elif args.rejector == 'one_class_svm':
-        all_features = prepare_one_class_classifier_data(path)
         rejector = REJECTORS[args.rejector]
-        
         rejector(all_features, feature_names)
     else:
         print('rejector selected', args.rejector)

@@ -214,6 +214,25 @@ def stroke_has_only_duplicates(stroke):
             return False
     return True
 
+def reconstruct_strokes_from_combined_strokes(strokes, combined_strokes:list[dict]):
+    edge_point_positions = []
+    for idx, stroke in enumerate(strokes):
+        if idx == 0:
+            edge_point_positions.append(0)
+            edge_point_positions.append(len(stroke) - 1)
+        else:
+            edge_point_positions.append(edge_point_positions[-1] + 1)
+            edge_point_positions.append(edge_point_positions[-1] + len(stroke) - 1)
+    reconstructed_strokes = []
+    for i in range(0, len(edge_point_positions), 2):
+        start = edge_point_positions[i]
+        end = edge_point_positions[i + 1]
+        reconstructed_strokes.append(combined_strokes[start:end + 1])
+    return reconstructed_strokes
+
+def path_length(points):
+    return sum(distance(points[i], points[i+1]) for i in range(len(points) - 1))
+
 def distance(p1:dict, p2:dict) -> float:
     return math.sqrt((p2['x'] - p1['x'])**2 + (p2['y'] - p1['y'])**2)
 
