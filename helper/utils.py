@@ -260,10 +260,43 @@ def distance(p1:dict, p2:dict) -> float:
 
 #     return new_stroke[0]
 
+# Function to get the min and max values of x and y
+def get_data_range(strokes):
+    min_x = min(point['x'] for stroke in strokes for point in stroke)
+    max_x = max(point['x'] for stroke in strokes for point in stroke)
+    min_y = min(point['y'] for stroke in strokes for point in stroke)
+    max_y = max(point['y'] for stroke in strokes for point in stroke)
+    return min_x, max_x, min_y, max_y
+
 # Function to plot strokes correctly
 def plot_strokes(strokes, points=None):
-    plt.figure(figsize=(8, 8))
+   # Get the data range
+    print('PLOOOOT')
+    min_x, max_x, min_y, max_y = get_data_range(strokes)
+    # Set minimum figure size
+    min_width = 5
+    min_height = 5
+    # Calculate figure size dynamically
+    fig_width = max(min_width, max_x - min_x)
+    fig_height = max(min_height, max_y - min_y)
+    # plt.figure(figsize=(fig_width, fig_height))
+    # plt.figure(figsize=(10, 10))
+    # # Create the plot
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
     for stroke in strokes:
+        x = [point['x'] for point in stroke]
+        y = [point['y'] for point in stroke]
+        ax.plot(x, y, 'bo-')
+
+    # Set the limits
+    ax.set_xlim(min_x - 0.5, max_x + 0.5)
+    ax.set_ylim(min_y - 0.5, max_y + 0.5)
+
+
+    
+    for stroke in strokes:
+        if len(stroke) == 0:
+            continue
         _points = [(point['x'], point['y']) for point in stroke]  # Extract points for the current stroke
         x, y = zip(*_points)  # Unpack the stroke into x and y coordinates
         plt.plot(x, y, marker='o', linestyle='-', color='b')  # Plot the stroke
@@ -274,6 +307,6 @@ def plot_strokes(strokes, points=None):
         plt.plot(x, y, marker='o', linestyle='-', color='r')  # Plot the stroke
     plt.xlabel('X')
     plt.ylabel('Y')
-    plt.title('Strokes Visualization')
+    plt.title('Stroke Visualization')
     plt.grid(True)
     plt.show()

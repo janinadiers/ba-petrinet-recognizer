@@ -19,7 +19,6 @@ def get_aspect_ratio(stroke):
 def get_number_of_convex_hull_vertices(stroke):
     _stroke = copy.deepcopy(stroke)
     points = [(point['x'], point['y']) for point in _stroke]
-    print('POINTS: ', points)
     try:
         hull = ConvexHull(points)
        
@@ -83,7 +82,6 @@ def is_closed_shape(stroke, edge_point_positions=None):
         min_distances.append(min(distances))
         
     # return np.mean(min_distances)
-    print('hiiier', max(min_distances))
     return max(min_distances)
 
 # compactness ratio: 
@@ -121,7 +119,7 @@ def compute_total_stroke_length_to_diagonal_length(stroke):
     return total_stroke_length / diagonal_length
 
 
-def calculate_average_distance_to_template_shape_with_vertical_lines(strokes, stroke):
+def calculate_average_distance_to_template_shape_with_vertical_lines(strokes, stroke, candidate):
    
     vertical_lines_template = get_vertical_lines(stroke)
     distances = []
@@ -156,13 +154,14 @@ def calculate_average_distance_to_template_shape_with_vertical_lines(strokes, st
                 points_to_plot.append(closest_point)
             else:
                 distances.append(1)
+    if candidate == [16, 17, 18, 20, 21, 19]:
+        
+        vertical_lines_template.extend(reconstructed_strokes)
+        plot_strokes(vertical_lines_template, points_to_plot)
+    return np.median(distances)
 
-    # vertical_lines_template.extend(reconstructed_strokes)
-    # plot_strokes(vertical_lines_template, points_to_plot)
-    return np.mean(distances)
 
-
-def calculate_average_distance_to_template_shape_with_horizontal_lines(strokes, stroke):
+def calculate_average_distance_to_template_shape_with_horizontal_lines(strokes, stroke, candidate):
     horizontal_lines_template = get_horizontal_lines(stroke)
     distances = []
     points_to_plot = []
@@ -195,10 +194,10 @@ def calculate_average_distance_to_template_shape_with_horizontal_lines(strokes, 
                 distances.append(1)
                 points_to_plot.append(closest_point)
         counter+=1
-
-    # horizontal_lines_template.extend(reconstructed_strokes)
-    # plot_strokes(horizontal_lines_template, points_to_plot)
-    return np.mean(distances)
+    if candidate == [16, 17, 18, 20, 21, 19]:
+        horizontal_lines_template.extend(reconstructed_strokes)
+        plot_strokes(horizontal_lines_template, points_to_plot)
+    return np.median(distances)
             
    
 def calculate_average_min_distance_to_template_shape(candidate):
@@ -329,18 +328,21 @@ def get_circle_rectangle_features(candidate, strokes):
     scaled_strokes = scale(strokes_of_candidate)
     # plot_strokes(scaled_strokes)
     translated_strokes = translate_to_origin(scaled_strokes)
-
+    plot_strokes(translated_strokes)
     stroke = translated_strokes[0]   
     has_only_duplicates = stroke_has_only_duplicates(stroke)
     bounding_box = get_bounding_box(stroke)
     if (len(stroke) < 5 or has_only_duplicates or bounding_box[4] == 0 or bounding_box[5] == 0):
         return {'feature_names': ['distance_between_stroke_edge_points'], 'features': None}
     number_of_convex_hull_vertices = get_number_of_convex_hull_vertices(stroke)
-    average_distance_to_template_with_vertical_lines =calculate_average_distance_to_template_shape_with_vertical_lines(strokes_of_candidate, stroke)
-    average_distance_to_template_with_horizontal_lines = calculate_average_distance_to_template_shape_with_horizontal_lines(strokes_of_candidate, stroke)
+    average_distance_to_template_with_vertical_lines =calculate_average_distance_to_template_shape_with_vertical_lines(strokes_of_candidate, stroke, candidate)
+    average_distance_to_template_with_horizontal_lines = calculate_average_distance_to_template_shape_with_horizontal_lines(strokes_of_candidate, stroke, candidate)
     # cluster_amount = get_cluster_amount(stroke)
     # aspect_ratio = get_aspect_ratio(stroke)
     amount_of_strokes = len(strokes_of_candidate)
+   
+    print(number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines)
+    print('candidate:', candidate)
     return {'feature_names': ['number_of_convex_hull_vertices','average_distance_to_template_with_vertical_lines', 'average_distance_to_template_with_horizontal_lines'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines]}
 
 

@@ -1,0 +1,4 @@
+accuracy: 95.39%
+C: 3.0
+features:['number_of_convex_hull_vertices','average_distance_to_template_with_vertical_lines', 'average_distance_to_template_with_horizontal_lines']
+probability: True
