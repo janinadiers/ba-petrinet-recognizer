@@ -299,13 +299,13 @@ def get_edge_points(strokes_of_candidate):
 
 def get_shape_no_shape_features(candidate, strokes):
     """ Extract feature vector from stroke """
-    
+    print('get shape no shape features')
     strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
     edge_point_positions = get_edge_points(strokes_of_candidate)
     edge_points = []
     
     scaled_strokes = scale(strokes_of_candidate)
-    translated_strokes = translate_to_origin(scaled_strokes)
+    translated_strokes = translate_to_origin(scaled_strokes, candidate)
     # plot_strokes(translated_strokes)
     stroke = translated_strokes[0]   
     for edge_point_position in edge_point_positions:
@@ -323,13 +323,15 @@ def get_shape_no_shape_features(candidate, strokes):
 
 
 def get_circle_rectangle_features(candidate, strokes):
-
+    print('candidate 12122:', candidate)
     strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
     scaled_strokes = scale(strokes_of_candidate)
+    
     # plot_strokes(scaled_strokes)
-    translated_strokes = translate_to_origin(scaled_strokes)
+    translated_strokes = translate_to_origin(scaled_strokes, candidate)
     # plot_strokes(translated_strokes)
     stroke = translated_strokes[0]   
+    
     has_only_duplicates = stroke_has_only_duplicates(stroke)
     bounding_box = get_bounding_box(stroke)
     if (len(stroke) < 5 or has_only_duplicates or bounding_box[4] == 0 or bounding_box[5] == 0):
@@ -344,7 +346,6 @@ def get_circle_rectangle_features(candidate, strokes):
     amount_of_strokes = len(strokes_of_candidate)
    
     print(number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines)
-    print('candidate:', candidate)
     return {'feature_names': ['number_of_convex_hull_vertices','average_distance_to_template_with_vertical_lines', 'average_distance_to_template_with_horizontal_lines'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines]}
     # return {'feature_names': ['number_of_convex_hull_vertices'], 'features': [number_of_convex_hull_vertices]}
 
@@ -356,7 +357,7 @@ def get_circle_features(candidate, strokes):
          
     strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
     scaled_strokes = scale(strokes_of_candidate)
-    translated_strokes = translate_to_origin(scaled_strokes)
+    translated_strokes = translate_to_origin(scaled_strokes, candidate)
     edge_points_to_be_plotted = [translated_strokes[edge_point_position] for edge_point_position in edge_point_positions]
     # plot_strokes(translated_strokes, edge_points_to_be_plotted)
     stroke = translated_strokes[0]
@@ -377,7 +378,7 @@ def get_rectangle_features(candidate, strokes):
     strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
     scaled_strokes = scale(strokes_of_candidate)
     # plot_strokes(scaled_strokes)
-    translated_strokes = translate_to_origin(scaled_strokes)
+    translated_strokes = translate_to_origin(scaled_strokes, candidate)
 
     stroke = translated_strokes[0]   
     has_only_duplicates = stroke_has_only_duplicates(stroke)

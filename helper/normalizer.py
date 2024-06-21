@@ -66,13 +66,23 @@ def resample_strokes(strokes: list[dict]) -> list[dict]:
     return resampled_strokes          
  
 
-def resample(points, pixel_distance=32):
+def path_length(points):
+    total_length = 0
+    for i in range(1, len(points)):
+        total_length += distance(points[i-1], points[i])
+    return total_length
+
+def resample(points, num_points=200):
     if len(points) < 2:
         return points
     # total_length = path_length(points)
     # if total_length / pixel_distance < 2:
     #     pixel_distance = total_length / 1.5
-
+    total_length = path_length(points)
+    pixel_distance = total_length / (num_points - 1)
+    if pixel_distance == 0:
+        return points
+    
     I = pixel_distance
     D = 0
     new_points = [points[0]]
@@ -92,22 +102,33 @@ def resample(points, pixel_distance=32):
             D = 0
         else:
             D += d
-        i += 1    
+        i += 1 
+    
+    if len(new_points) < num_points:
+        new_points.append(points[-1])   
 
     return new_points
 
 # translate the points from all strokes to have the centroid at the origin
-def translate_to_origin(points:list[dict]) -> list[dict]:
+def translate_to_origin(points:list[dict], candidate) -> list[dict]:
+    print('translate to origin')
     _points = copy.deepcopy(points[0])
+    
     centroid = [0,0]
     # Translate points to have the centroid at the origin
     for point in _points:
         centroid = [centroid[0] + point['x'], centroid[1] + point['y']]
+    if candidate == [0]:
+        print('hiier:',len(_points), _points[0])
       
     centroid = [centroid[0] / len(_points), centroid[1] / len(_points)]
+    
+    
     for point in _points:
         point['x'] -= centroid[0]
         point['y'] -= centroid[1]
+    
+    
     return [_points]
  
 

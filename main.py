@@ -156,6 +156,7 @@ for i, path in enumerate(file_paths):
                 recognized_strokes.extend(candidate)
     
     # printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
+# print('result: ', results)
         
 if not args.production:
     evaluationWrapper.set_total()
@@ -176,8 +177,6 @@ if args.save == 'y':
         f.write('# circle rectangle features: '+ ''.join(rectangle_features) +'\n')
 
 if args.production:
-    print('Saving inkml file...', results)
     file_name = args.inkml[0].split('/')[-1].split('.')[0]
-   
     with open(f'inkml_results/{file_name}.txt', 'w') as f:
         f.write(str(results))

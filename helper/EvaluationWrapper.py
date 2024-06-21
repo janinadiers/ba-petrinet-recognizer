@@ -45,12 +45,13 @@ class EvaluationWrapper:
         
     def recognize(self, rejector, classifier, candidate, strokes):
         recognizer_result = self._recognize(rejector, classifier, candidate, strokes)
-        
+        # print('djaksdkas', self.truth)
         truth_contains_candidate = False
         for dictionary in self.truth:
             for shape_name, trace_ids in dictionary.items():
-                
                 if set(trace_ids) == set(candidate):  
+                    # print('<<<<<<<<<<<<<<<<<<<<<!!!!!!!!!!!!!shape_name', shape_name, recognizer_result[0])
+
                     # if shape_name == 'circle':
                     #     print('<<<<<<<<<<<<<<<<<<<<<<<circle>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
                     truth_contains_candidate = True
@@ -62,12 +63,14 @@ class EvaluationWrapper:
                         if shape_name == 'circle' or shape_name == 'rectangle' or shape_name == 'ellipse':
                             print('>>>>>>>>>>>>>>>>>>wrong rejection!>>>>>>>>>>>>>>>>>>>>>>>>>', shape_name)
                             
-
                         self.matrix.at[shape_name, 'no_shape'] += 1
-        if not truth_contains_candidate and not 'valid' in recognizer_result:
+        
+        if not truth_contains_candidate and not 'valid' in recognizer_result[0]:
             self.matrix.at['no_shape', 'no_shape'] += 1
-        elif not truth_contains_candidate and 'valid' in recognizer_result:
-            shape_name_recognizer_result = next(iter(recognizer_result['valid']))
+        elif not truth_contains_candidate and 'valid' in recognizer_result[0]:
+            shape_name_recognizer_result = next(iter(recognizer_result[0]['valid']))
+            print('::::::::: ::::::::::::::::::::::::', shape_name_recognizer_result)
+
             self.matrix.at['no_shape', shape_name_recognizer_result] += 1
         
         return recognizer_result
