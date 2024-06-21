@@ -18,6 +18,7 @@ from helper.EvaluationWrapper import EvaluationWrapper
 from helper.parsers import parse_strokes_from_inkml_file
 from helper.normalizer import resample_strokes
 from helper.normalizer import convert_coordinates
+from helper.export_to_pnml import export_to_pnml
 import os
 from helper.print_progress_bar import printProgressBar
 import datetime
@@ -125,13 +126,12 @@ else:
 items = list(range(0, len(file_paths)))
 l = len(items)
 # printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)   
-
+resampled_content = None
 for i, path in enumerate(file_paths):
     # print('Processing file:', path)
     evaluationWrapper.setCurrentFilePath(path) if not args.production else None
     content = parse_strokes_from_inkml_file(path)
     
-    resampled_content = None
     if args.other_ratio:
         ratio = args.other_ratio.split('/')
         converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
@@ -180,3 +180,4 @@ if args.production:
     file_name = args.inkml[0].split('/')[-1].split('.')[0]
     with open(f'inkml_results/{file_name}.txt', 'w') as f:
         f.write(str(results))
+    export_to_pnml(results, resampled_content, file_name + '.pnml')

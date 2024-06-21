@@ -236,6 +236,15 @@ def path_length(points):
 def distance(p1:dict, p2:dict) -> float:
     return math.sqrt((p2['x'] - p1['x'])**2 + (p2['y'] - p1['y'])**2)
 
+def get_strokes_from_candidate(candidate, strokes):
+    _strokes = []
+    # print('candidate', candidate, len(strokes))
+    for index in candidate:
+        _strokes.append(strokes[index])
+    ordered_strokes = order_strokes(_strokes)
+
+    return ordered_strokes
+
 # def remove_outliers(stroke:list[dict]):
 #     new_stroke = []
 

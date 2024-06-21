@@ -3,7 +3,7 @@ from scipy.spatial import ConvexHull
 from helper.utils import get_bounding_box, calculate_diagonal_length, calculate_total_stroke_length, plot_strokes
 import numpy as np
 import copy
-from helper.utils import get_perfect_mock_shape, order_strokes,get_horizontal_lines, get_vertical_lines, stroke_has_only_duplicates, reconstruct_strokes_from_combined_strokes
+from helper.utils import get_perfect_mock_shape, order_strokes,get_horizontal_lines, get_vertical_lines, stroke_has_only_duplicates, reconstruct_strokes_from_combined_strokes, get_strokes_from_candidate
 from shapely.geometry import Polygon, LineString
 from helper.normalizer import distance, translate_to_origin, scale
 
@@ -277,14 +277,7 @@ def get_cluster_amount(stroke):
 
 
 
-def get_strokes_from_candidate(candidate, strokes):
-    _strokes = []
-    
-    for index in candidate:
-        _strokes.append(strokes[index])
-    ordered_strokes = order_strokes(_strokes)
 
-    return ordered_strokes
 
 def get_edge_points(strokes_of_candidate):
     edge_point_positions = []

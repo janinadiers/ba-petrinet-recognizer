@@ -72,14 +72,21 @@ def path_length(points):
         total_length += distance(points[i-1], points[i])
     return total_length
 
-def resample(points, num_points=200):
+def resample(points, num_points=200, base_num_points=200, length_factor=0.1):
     if len(points) < 2:
         return points
     # total_length = path_length(points)
     # if total_length / pixel_distance < 2:
     #     pixel_distance = total_length / 1.5
+    
     total_length = path_length(points)
     pixel_distance = total_length / (num_points - 1)
+    # total_length = path_length(points)
+    
+    # Calculate the number of points based on the total length and a factor
+    # num_points = max(int(total_length * length_factor), 2) 
+    # pixel_distance = total_length / (num_points - 1)
+    
     if pixel_distance == 0:
         return points
     
