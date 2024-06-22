@@ -279,8 +279,49 @@ def get_data_range(strokes):
 
 # Function to plot strokes correctly
 def plot_strokes(strokes, points=None):
-   # Get the data range
-    print('PLOOOOT')
+   # Get the data range    
+    min_x, max_x, min_y, max_y = get_data_range(strokes)
+    # Set minimum figure size
+    min_width = 5
+    min_height = 5
+    # Calculate figure size dynamically
+    fig_width = max(min_width, max_x - min_x)
+    fig_height = max(min_height, max_y - min_y)
+   
+    # # Create the plot
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+    for stroke in strokes:
+        x = [point['x'] for point in stroke]
+        y = [point['y'] for point in stroke]
+        ax.plot(x, y, 'bo-')
+
+    # Set the limits
+    ax.set_xlim(min_x - 0.5, max_x + 0.5)
+    ax.set_ylim(min_y - 0.5, max_y + 0.5)
+
+    
+    for stroke in strokes:
+        if len(stroke) == 0:
+            continue
+        _points = [(point['x'], point['y']) for point in stroke]  # Extract points for the current stroke
+        x, y = zip(*_points)  # Unpack the stroke into x and y coordinates
+        plt.plot(x, y, marker='o', linestyle='-', color='b')  # Plot the stroke
+    # if points is not None plot the points
+    if points is not None:
+        _points = [(point['x'], point['y']) for point in points]  # Extract points for the current stroke
+        x, y = zip(*_points)  # Unpack the stroke into x and y coordinates
+        plt.plot(x, y, marker='o', linestyle='-', color='r')  # Plot the stroke
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.title('Stroke Visualization')
+    plt.grid(True)
+    plt.show()
+    
+    
+    # Function to plot strokes correctly
+def plot_strokes_without_scala(strokes, points=None):
+    print(strokes)
+   # Get the data range    
     min_x, max_x, min_y, max_y = get_data_range(strokes)
     # Set minimum figure size
     min_width = 5
@@ -295,14 +336,7 @@ def plot_strokes(strokes, points=None):
     for stroke in strokes:
         x = [point['x'] for point in stroke]
         y = [point['y'] for point in stroke]
-        ax.plot(x, y, 'bo-')
-
-    # Set the limits
-    ax.set_xlim(min_x - 0.5, max_x + 0.5)
-    ax.set_ylim(min_y - 0.5, max_y + 0.5)
-
-
-    
+  
     for stroke in strokes:
         if len(stroke) == 0:
             continue

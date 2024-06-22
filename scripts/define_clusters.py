@@ -81,6 +81,8 @@ def define_clusters(file_path, strokes)->dict:
     
     
 def visualize_clusters(X, labels):
+    x_lim=(-1, 1)
+    y_lim=(-1, 1)
     print('visualize clusters', X, labels)
     # transform the data to be within a specified range to avoid biasing the MDS results towards features with larger ranges.
     scaler = MinMaxScaler()
@@ -101,6 +103,9 @@ def visualize_clusters(X, labels):
         plt.scatter(cluster_transformed[indices, 0], cluster_transformed[indices, 1],
         c=colors[label], label=shape_labels[label], s=50, alpha=0.2)
     
+    # Set fixed limits for x and y axes
+    plt.xlim(x_lim)
+    plt.ylim(y_lim)
     # Add a legend
     plt.legend(loc='upper left')
     # plt.colorbar()

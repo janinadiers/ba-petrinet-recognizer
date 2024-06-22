@@ -11,15 +11,13 @@ import datetime
 def train(X, y, feature_names):
   
     X = np.array(X)
-    y = np.array(y)  # Corresponding labels (1: Rectangle, 0: Circle, 2: no shape)
+    y = np.array(y)
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    # besser großes C =3, da die punkte oft recht nah beieinander liegen und wir deshalb die margin klein halten wollen um Missklassifikationen zu vermeiden
     class_weights = 'balanced'
-    probability= False
-    clf = svm.SVC(kernel='linear', class_weight=class_weights, C=3.0)
+    probability= True
+    clf = svm.SVC(kernel='linear', class_weight=class_weights, C=3.0, probability=probability)
     print('Training the model...')
-    
     clf.fit(X_train, y_train)
 
     y_pred = clf.predict(X_test)
@@ -32,7 +30,7 @@ def train(X, y, feature_names):
     joblib_file = f"classifier/shape_classifier/linear_svm_models/svm_model_{timestamp}.joblib"
     joblib.dump(clf, joblib_file)
     
-    result = ['features: '+ str(feature_names), 'classifier: '+ 'linear_svm', 'accuracy: '+ str(accuracy * 100) + '%', 'C: 1.0', 'random_state: 42', f'class_weight:{class_weights}, probability: {probability}']
+    result = ['features: '+ str(feature_names), 'classifier: '+ 'linear_svm', 'accuracy: '+ str(accuracy * 100) + '%', 'C: 3.0', 'random_state: 42', f'class_weight:{class_weights}, probability: {probability}']
    
 #    save model configuration to logs
     with open(f"classifier/shape_classifier/logs/linear_svm_model_{timestamp}.txt", 'w') as f:
@@ -43,32 +41,37 @@ def train(X, y, feature_names):
 def use(X, candidate)-> dict:
     X = np.array(X)
     # get the right model
-    joblib_file = 'classifier/shape_classifier/linear_svm_models/svm_model_20240620_191828.joblib'
+    joblib_file = 'classifier/shape_classifier/linear_svm_models/svm_model_20240622_225934.joblib'
     
     # Load the model
     loaded_clf = joblib.load(joblib_file)
      # Ensure X is a 2D array
     if X.ndim == 1:
         X = X.reshape(1, -1)
-        
+
+    
     predicted_label = loaded_clf.predict(X)
     # get probability of label 0
-    # probability = loaded_clf.predict_proba(X)
-    # print(f'Predicted label: {predicted_label[0]}')
-    # print(f'Probability of label 0: {probability[0,0] * 100:.2f}%')
-    # print(f'Probability of label 1: {probability[0,1] * 100:.2f}%')
+    probability = loaded_clf.predict_proba(X)
+    print(f'Predicted label: {predicted_label[0]}')
+    print(f'Probability of label 0: {probability[0,0] * 100:.2f}%')
+    print(f'Probability of label 1: {probability[0,1] * 100:.2f}%')
     # # How can I check the probability of label 0 and label 1?
     # print('probability', probability)    
-    # # check if probability of label 0 is greater than 0.5
-    # if probability[0,0] > 0.9:
-    #     return {'valid': {'circle': candidate}}
-    # elif probability[0,1] > 0.9:
-    #     return {'valid': {'rectangle': candidate}}
-    # else:
-    #     return {'invalid': candidate}
-    if predicted_label[0] == 0:
+    # check if probability of label 0 is greater than 0.5
+    if probability[0,0] > probability[0,1]:
         return {'valid': {'circle': candidate}}
-    elif predicted_label[0] == 1:
+    elif probability[0,1] > probability[0,0]:
         return {'valid': {'rectangle': candidate}}
+    else:
+        if predicted_label[0] == 0:
+            return {'valid': {'circle': candidate}}
+        elif predicted_label[0] == 1:
+            return {'valid': {'rectangle': candidate}}
+    #     return {'invalid': candidate}
+    # if predicted_label[0] == 0:
+    #     return {'valid': {'circle': candidate}}
+    # elif predicted_label[0] == 1:
+    #     return {'valid': {'rectangle': candidate}}
 
     

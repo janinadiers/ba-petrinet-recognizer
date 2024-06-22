@@ -1,6 +1,7 @@
 features: ['number_of_convex_hull_vertices', 'average_distance_to_template_with_vertical_lines', 'average_distance_to_template_with_horizontal_lines']
 classifier: linear_svm
-accuracy: 94.4078947368421%
+accuracy: 95.39473684210526%
 C: 3.0
 random_state: 42
 class_weight:balanced, probability: False
+mit einem n Wert von 50 zum resamplen und translaten

@@ -9,8 +9,9 @@ def export_to_pnml(result:dict, strokes, filename):
                 break
             for key, value in entry['valid'].items():
                 if key == 'circle':
-                    print('valid', first_value)
-                    print(get_strokes_from_candidate(first_value, strokes))
+                    pass
+                    # print('valid', first_value)
+                    # print(get_strokes_from_candidate(first_value, strokes))
                 if key == 'rectangle':
                     pass
                 if key == 'line':

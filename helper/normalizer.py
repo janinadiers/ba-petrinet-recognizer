@@ -14,7 +14,6 @@ def scale(strokes: list[dict]) -> list[dict]:
     if(scale == 0):
         return [_points]
     for point in _points:
-        
         # Those lines ensure, that the points are in the range of 0 and 1
         point['x'] = (point['x'] - xmin) / scale
         point['y'] = (point['y'] - ymin) / scale
@@ -72,31 +71,30 @@ def path_length(points):
         total_length += distance(points[i-1], points[i])
     return total_length
 
-def resample(points, num_points=200, base_num_points=200, length_factor=0.1):
+
+def resample(points, n=80):
     if len(points) < 2:
         return points
-    # total_length = path_length(points)
-    # if total_length / pixel_distance < 2:
-    #     pixel_distance = total_length / 1.5
-    
+   
     total_length = path_length(points)
-    pixel_distance = total_length / (num_points - 1)
-    # total_length = path_length(points)
-    
+  
     # Calculate the number of points based on the total length and a factor
-    # num_points = max(int(total_length * length_factor), 2) 
-    # pixel_distance = total_length / (num_points - 1)
+    # num_points = max(int(total_length * length_factor), base_num_points) 
+    # n = total_length / (num_points - 1)
     
-    if pixel_distance == 0:
+    
+    I = total_length / (n - 1)
+  
+    if I == 0:
         return points
-    
-    I = pixel_distance
+   
     D = 0
     new_points = [points[0]]
     i = 1
 
     while i < len(points):
         d = distance(points[i-1], points[i])
+        
         if D + d >= I:
             t = (I - D) / d
             qx = points[i-1]['x'] + t * (points[i]['x'] - points[i-1]['x'])
@@ -110,14 +108,12 @@ def resample(points, num_points=200, base_num_points=200, length_factor=0.1):
         else:
             D += d
         i += 1 
-    
-    if len(new_points) < num_points:
-        new_points.append(points[-1])   
 
     return new_points
 
+
 # translate the points from all strokes to have the centroid at the origin
-def translate_to_origin(points:list[dict], candidate) -> list[dict]:
+def translate_to_origin(points:list[dict],  candidate, n= 80,) -> list[dict]:
     print('translate to origin')
     _points = copy.deepcopy(points[0])
     
@@ -125,11 +121,10 @@ def translate_to_origin(points:list[dict], candidate) -> list[dict]:
     # Translate points to have the centroid at the origin
     for point in _points:
         centroid = [centroid[0] + point['x'], centroid[1] + point['y']]
-    if candidate == [0]:
-        print('hiier:',len(_points), _points[0])
+    # if candidate == [0]:
+    #     print('hiier:',len(_points), _points[0])
       
-    centroid = [centroid[0] / len(_points), centroid[1] / len(_points)]
-    
+    centroid = [centroid[0] / n, centroid[1] / n]
     
     for point in _points:
         point['x'] -= centroid[0]
