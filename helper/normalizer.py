@@ -1,5 +1,5 @@
 import copy
-from helper.utils import distance
+from helper.utils import distance, path_length
 
 
 # Die Skalierung ist notwendig, um die Punkte auf eine einheitliche Größe zu bringen, sodass die Punkte in einem einheitlichen Koordinatensystem liegen
@@ -65,19 +65,13 @@ def resample_strokes(strokes: list[dict]) -> list[dict]:
     return resampled_strokes          
  
 
-def path_length(points):
-    total_length = 0
-    for i in range(1, len(points)):
-        total_length += distance(points[i-1], points[i])
-    return total_length
-
 
 def resample(points, n=80):
     if len(points) < 2:
         return points
    
     total_length = path_length(points)
-  
+    
     # Calculate the number of points based on the total length and a factor
     # num_points = max(int(total_length * length_factor), base_num_points) 
     # n = total_length / (num_points - 1)
@@ -113,16 +107,13 @@ def resample(points, n=80):
 
 
 # translate the points from all strokes to have the centroid at the origin
-def translate_to_origin(points:list[dict],  candidate, n= 80,) -> list[dict]:
-    print('translate to origin')
+def translate_to_origin(points:list[dict], n= 80,) -> list[dict]:
     _points = copy.deepcopy(points[0])
     
     centroid = [0,0]
     # Translate points to have the centroid at the origin
     for point in _points:
         centroid = [centroid[0] + point['x'], centroid[1] + point['y']]
-    # if candidate == [0]:
-    #     print('hiier:',len(_points), _points[0])
       
     centroid = [centroid[0] / n, centroid[1] / n]
     

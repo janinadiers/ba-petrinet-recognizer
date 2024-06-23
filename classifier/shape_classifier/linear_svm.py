@@ -59,15 +59,24 @@ def use(X, candidate)-> dict:
     # # How can I check the probability of label 0 and label 1?
     # print('probability', probability)    
     # check if probability of label 0 is greater than 0.5
-    if probability[0,0] > probability[0,1]:
+    
+    if probability[0,0] > 0.8:
         return {'valid': {'circle': candidate}}
-    elif probability[0,1] > probability[0,0]:
+    elif probability[0,1] > 0.8:
         return {'valid': {'rectangle': candidate}}
     else:
-        if predicted_label[0] == 0:
-            return {'valid': {'circle': candidate}}
-        elif predicted_label[0] == 1:
-            return {'valid': {'rectangle': candidate}}
+        return {'invalid': candidate}
+    # if probability[0,0] > probability[0,1]:
+    #     return {'valid': {'circle': candidate}}
+    # elif probability[0,1] > probability[0,0]:
+    #     return {'valid': {'rectangle': candidate}}
+    # else:
+    #     if predicted_label[0] == 0:
+    #         return {'valid': {'circle': candidate}}
+    #     elif predicted_label[0] == 1:
+    #         return {'valid': {'rectangle': candidate}}
+        # else:
+        #     return {'invalid': candidate}
     #     return {'invalid': candidate}
     # if predicted_label[0] == 0:
     #     return {'valid': {'circle': candidate}}

@@ -144,9 +144,11 @@ for i, path in enumerate(file_paths):
         resampled_content = resample_strokes(content)
     results = []
     recognized_strokes = []
+    print('Length Produzierte candidates:', len(candidates))
     for candidate in candidates:
         # check if no values from the candidate are in recognized_strokes
         if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
+        # if True:
             # print(args.recognizer, args.classifier, args.rejector)
             recognizer_result, shape_no_shape_features, rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content)
             if not shape_no_shape_features:

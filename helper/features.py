@@ -437,7 +437,7 @@ def get_shape_no_shape_features(candidate, strokes):
     edge_points = []
     
     scaled_strokes = scale(strokes_of_candidate)
-    translated_strokes = translate_to_origin(scaled_strokes, candidate)
+    translated_strokes = translate_to_origin(scaled_strokes)
     # print('translated_strokes:', translated_strokes)
     # plot_strokes(translated_strokes)
     stroke = translated_strokes[0]   
@@ -451,7 +451,7 @@ def get_shape_no_shape_features(candidate, strokes):
         return {'feature_names': ['distance_between_stroke_edge_points'], 'features': None}
     closed_shape = is_closed_shape(stroke, edge_point_positions)
     
- 
+    print('closed_shape:', closed_shape)
     return {'feature_names': ['closed_shape'], 'features': [closed_shape]}
 
 
@@ -461,7 +461,7 @@ def get_circle_rectangle_features(candidate, strokes):
         
     scaled_strokes = scale(strokes_of_candidate)
     
-    translated_strokes = translate_to_origin(scaled_strokes, candidate)
+    translated_strokes = translate_to_origin(scaled_strokes)
 
     stroke = translated_strokes[0]   
     
@@ -481,7 +481,7 @@ def get_circle_rectangle_features(candidate, strokes):
     labels = cluster_direction_vectors(direction_vectors, np.array([[point['x'], point['y']] for point in stroke]))
     # visualize_vectors(np.array([[point['x'], point['y']] for point in stroke]), direction_vectors, labels)
     # average_distance_to_template_shape_circle = calculate_average_min_distance_to_template_shape(stroke, candidate)[0]
-    print(number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines, labels)
+    print(number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines)
     return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'directional_clusters'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines, count_clusters(labels) ]}
     # return {'feature_names': ['directional_clusters'], 'features': [count_clusters(labels) ]}
 

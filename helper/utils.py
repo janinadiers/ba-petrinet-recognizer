@@ -233,6 +233,7 @@ def reconstruct_strokes_from_combined_strokes(strokes, combined_strokes:list[dic
 def path_length(points):
     return sum(distance(points[i], points[i+1]) for i in range(len(points) - 1))
 
+
 def distance(p1:dict, p2:dict) -> float:
     return math.sqrt((p2['x'] - p1['x'])**2 + (p2['y'] - p1['y'])**2)
 
