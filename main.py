@@ -10,7 +10,7 @@ from classifier.shape_classifier.linear_svm import use as linear_svm
 from classifier.shape_classifier.rbf_svm import use as rbf_svm
 from classifier.shape_classifier.one_class_rectangle_svm import use as one_class_rectangle_svm
 from classifier.shape_classifier.classifier_with_thresholds import use as classifier_with_thresholds
-from rejector.shape_rejector.hellinger_plus_correlation import is_valid_shape as hellinger_plus_correlation
+from rejector.shape_rejector.hellinger_plus_correlation import use as hellinger_plus_correlation
 from rejector.shape_rejector.linear_svm import use as linear_svm_rejector
 from rejector.shape_rejector.rbf_svm import use as rbf_svm_rejector
 from rejector.shape_rejector.rejector_with_threshold import use as rejector_with_threshold

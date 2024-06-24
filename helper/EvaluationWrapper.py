@@ -1,6 +1,7 @@
 from helper.parsers import parse_ground_truth
 import pandas as pd
-from helper.utils import combine_strokes
+from helper.utils import plot_strokes, get_strokes_from_candidate
+from helper.normalizer import scale, translate_to_origin
 class EvaluationWrapper:
     def __init__(self, recognize:callable):
         self._recognize = recognize
@@ -67,6 +68,10 @@ class EvaluationWrapper:
                     else:
                         if shape_name == 'circle' or shape_name == 'rectangle' or shape_name == 'ellipse':
                             print('>>>>>>>>>>>>>>>>>>wrong rejection!>>>>>>>>>>>>>>>>>>>>>>>>>', shape_name)
+                            strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
+                            scaled_strokes = scale(strokes_of_candidate)
+                            translated_strokes = translate_to_origin(scaled_strokes)
+                            plot_strokes([translated_strokes[0]])
                             
                         self.matrix.at[shape_name, 'no_shape'] += 1
         
@@ -78,6 +83,10 @@ class EvaluationWrapper:
             print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<wrong recognition: no_shape was recognized!>>>>>>>>>>>>>>>>>>>>>', shape_name_recognizer_result)
             self.matrix.at['no_shape', 'truth'] += 1
             self.matrix.at['no_shape', shape_name_recognizer_result] += 1
-        truth_contains_candidate = False
+            # strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
+            # scaled_strokes = scale(strokes_of_candidate)
+            # translated_strokes = translate_to_origin(scaled_strokes)
+            # plot_strokes([translated_strokes[0]])
+       
         return recognizer_result
         

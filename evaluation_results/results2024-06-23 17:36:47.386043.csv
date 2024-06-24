@@ -1,0 +1,17 @@
+,circle,rectangle,no_shape,total,truth,accuracy
+circle,112,0,0,112,112,100%
+rectangle,11,259,0,270,380,68%
+diamond,9,116,0,125,224,0%
+ellipse,250,2,0,252,265,94%
+parallelogram,3,257,0,260,356,72%
+line,0,8,1182,1190,1335,88%
+double circle,0,0,0,0,0,-
+no_shape,7,360,5986,6353,6353,94%
+total,392,1002,7168,17124,9025,0
+# dataset: ['./__datasets__/FC_1.0/no_text/FC_Test.txt']
+# grouper: optimized_grouper
+# classifier: linear_svm
+# rejector: rejector_with_threshold
+# shape no shape features: closed_shape
+# circle rectangle features: number_of_convex_hull_verticesstandard_deviation_to_template_with_vertical_linesstandard_deviation_to_template_with_horizontal_linesdirectional_clusters
+rejector_threshold: 0.53

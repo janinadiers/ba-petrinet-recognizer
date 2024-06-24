@@ -20,5 +20,5 @@ def hellinger_distance(P, Q):
     return distance
 
 
-def is_valid_shape():
+def use():
     pass

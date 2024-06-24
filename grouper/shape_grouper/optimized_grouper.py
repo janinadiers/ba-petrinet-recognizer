@@ -3,6 +3,9 @@ from typing import Callable
 import networkx as nx
 from grouper.shape_grouper.distance_calculators.distance_between_all_points import initialize_adjacency_matrix
 
+def sort_by_length(strokes:list[dict]) -> list[dict]:
+    strokes.sort(key=lambda x: len(x))
+    return strokes
     
 def get_all_simple_cycles(adj_matrix):
     G = nx.Graph()
@@ -25,7 +28,9 @@ def get_all_simple_cycles(adj_matrix):
         if normalized_cycle not in seen:
             seen.add(normalized_cycle)
             unique_cycles.append(cycle)
-    return unique_cycles
+            
+    print('unique_cycles:', sort_by_length(unique_cycles))
+    return sort_by_length(unique_cycles)  
     
 
   
