@@ -22,7 +22,7 @@ all_diamond_features = []
 
 
 labels = []           
-for i, path in enumerate(file_paths[:40]):
+for i, path in enumerate(file_paths[:80]):
     content = parse_strokes_from_inkml_file(path)
     resampled_strokes = resample_strokes(content)
     circle_features, rectangle_features, ellipse_features = get_features(path, resampled_strokes)

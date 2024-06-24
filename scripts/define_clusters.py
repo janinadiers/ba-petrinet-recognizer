@@ -5,6 +5,57 @@ from sklearn.manifold import MDS
 import matplotlib.pyplot as plt
 from sklearn.metrics import pairwise_distances
 from sklearn.preprocessing import MinMaxScaler
+from helper.utils import distance
+from matplotlib.patches import Ellipse
+import math
+
+
+def calculate_ellipse_parameters(cluster_points, cluster_center):
+    
+    _cluster_points = [{'x': point[0], 'y': point[1]} for point in cluster_points]
+    _cluster_center = {'x': cluster_center[0], 'y': cluster_center[1]}
+    
+    furthest_point = max(_cluster_points, key=lambda point: distance(point, _cluster_center))
+    F1 = furthest_point
+    F2 = {}
+    
+   
+    _cluster_center = {'x': cluster_center[0], 'y': cluster_center[1]}
+    
+    # Calculate the distance from the cluster center to the origin
+    cluster_center_to_origin_x = _cluster_center['x']
+    cluster_center_to_origin_y = _cluster_center['y']
+    
+    
+    translated_F1 = {'x': F1['x'] - cluster_center_to_origin_x, 'y': F1['y'] - cluster_center_to_origin_y}
+    translated_F2 = {'x': -translated_F1['x'], 'y': -translated_F1['y']}
+
+     # Move the translated points back to their original positions
+    F1 = {'x': translated_F1['x'] + cluster_center_to_origin_x, 'y': translated_F1['y'] + cluster_center_to_origin_y}
+    F2 = {'x': translated_F2['x'] + cluster_center_to_origin_x, 'y': translated_F2['y'] + cluster_center_to_origin_y}
+    
+    dx = F1['x'] - F2['x']
+    dy = F1['y'] - F2['y']
+    
+    # Calculate the angle using atan2
+    angle = math.atan2(dy, dx)
+    
+    # Convert the angle to degrees
+    angle_degrees = math.degrees(angle)
+    
+       
+    sum_of_absolute_distances = []
+    for point in _cluster_points:
+        distance_to_F1 = [abs(point['x'] - F1['x']), abs(point['y'] - F1['y'])]
+        distance_to_F2 = [abs(point['x'] - F2['x']), abs(point['y'] - F2['y'])]
+        distancejdfsjl = [distance_to_F1[0] + distance_to_F2[0], distance_to_F1[1] + distance_to_F2[1]]
+        
+        sum_of_absolute_distances.append(distancejdfsjl)
+   
+    S = np.max(sum_of_absolute_distances)
+
+    print('angle degrees:', angle_degrees)
+    return F1, F2, S, angle_degrees
 
 
 def get_all_strokes_with_label(label:str, truth:dict)->list:
@@ -49,7 +100,6 @@ def visualize_clusters(X, labels):
      # Calculate cluster centers based on the normalized data
     unique_labels = np.unique(labels)
     cluster_centers = np.array([X_normalized[labels == label].mean(axis=0) for label in unique_labels])
-    print('cluster_centers:', cluster_centers, X_normalized)
     
     combined_data = np.vstack([X_normalized, cluster_centers])
     dissimilarity_matrix = pairwise_distances(combined_data, metric='euclidean')
@@ -80,15 +130,28 @@ def visualize_clusters(X, labels):
         # Calculate radius as the maximum distance from the center to points in the cluster
         cluster_indices = np.where(labels == label)
         cluster_points_transformed = cluster_transformed[cluster_indices]
+        # furthest_point = find_furthest_point(cluster_points_transformed, center_transformed)
+        F1, F2, S, angle = calculate_ellipse_parameters(cluster_points_transformed, center_transformed)
         radius = np.max(np.linalg.norm(cluster_points_transformed - center_transformed, axis=1))
-        
+        # Find the location of the other end of the semi-major axis and consider it as F2.
+        print('angle:', angle)
+        ellipse = Ellipse((center_transformed[0], center_transformed[1]), width=distance(F1, F2), height=S, angle=angle, lw=2, fc='None', color='r', fill=False, linestyle='--')
         circle = plt.Circle((center_transformed[0], center_transformed[1]), radius,
-                            color='r', fill=False, linestyle='--')
-        plt.gca().add_patch(circle)   
+                            color='r', fill=False)
+        print('F1:', F1, 'F2:', F2)
+        point1 = plt.Circle((F1['x'], F1['y']), 0.01, color='black')
+        point2 = plt.Circle((F2['x'], F2['y']), 0.01, color='black')
+        plt.gca().add_patch(ellipse)
+        plt.gca().add_patch(circle)
+        plt.gca().add_patch(point1)
+        plt.gca().add_patch(point2)
+        # circle = plt.Circle((center_transformed[0], center_transformed[1]), radius,
+        #                     color='r', fill=False, linestyle='--')
+        # plt.gca().add_patch(circle)   
     
     # Set fixed limits for x and y axes
-    plt.xlim(x_lim)
-    plt.ylim(y_lim)
+    # plt.xlim(x_lim)
+    # plt.ylim(y_lim)
     
     # Add a legend
     plt.legend(loc='upper left')
