@@ -10,7 +10,8 @@ from classifier.shape_classifier.linear_svm import use as linear_svm
 from classifier.shape_classifier.rbf_svm import use as rbf_svm
 from classifier.shape_classifier.one_class_rectangle_svm import use as one_class_rectangle_svm
 from classifier.shape_classifier.classifier_with_thresholds import use as classifier_with_thresholds
-from rejector.shape_rejector.hellinger_plus_correlation import use as hellinger_plus_correlation
+from rejector.shape_rejector.threshold_and_ellipse import use as threshold_and_ellipse
+from rejector.shape_rejector.hellinger_and_correlation import use as hellinger_plus_correlation
 from rejector.shape_rejector.linear_svm import use as linear_svm_rejector
 from rejector.shape_rejector.rbf_svm import use as rbf_svm_rejector
 from rejector.shape_rejector.rejector_with_threshold import use as rejector_with_threshold
@@ -48,11 +49,12 @@ CLASSIFIERS = {
 }
 
 REJECTORS = {
-    'hellinger_plus_correlation' : hellinger_plus_correlation,
+    'threshold_and_ellipse' : threshold_and_ellipse,
     'linear_svm' : linear_svm_rejector,
     'rbf_svm' : rbf_svm_rejector,
     'rejector_with_threshold' : rejector_with_threshold,
-    'one_class_svm' : one_class_svm
+    'one_class_svm' : one_class_svm,
+    'hellinger_plus_correlation' : hellinger_plus_correlation
 }
     
 
@@ -153,7 +155,10 @@ for i, path in enumerate(file_paths):
         if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
         # if True:
             # print(args.recognizer, args.classifier, args.rejector)
-            recognizer_result, shape_no_shape_features, rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content)
+            if args.rejector == 'hellinger_plus_correlation' or args.rejector == 'threshold_and_ellipse':
+                recognizer_result, shape_no_shape_features, rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content, shape_no_shape_features_needed=False)
+            else:
+                recognizer_result, shape_no_shape_features, rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content, shape_no_shape_features_needed=False)
             if not shape_no_shape_features:
                 shape_no_shape_features = shape_no_shape_features
             if not rectangle_features:
@@ -193,7 +198,6 @@ if args.production:
             shape_name = next(iter(result['valid']))
             candidates = result['valid'][shape_name]
             strokes_of_candidate= get_strokes_from_candidate(candidates, content)
-            
             min_x = np.inf
             min_y = np.inf
             max_x = 0

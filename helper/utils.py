@@ -234,8 +234,44 @@ def path_length(points):
     return sum(distance(points[i], points[i+1]) for i in range(len(points) - 1))
 
 
-def distance(p1:dict, p2:dict) -> float:
-    return math.sqrt((p2['x'] - p1['x'])**2 + (p2['y'] - p1['y'])**2)
+def distance(v1:dict, v2:dict) -> float:
+    if isinstance(v1, dict):
+        v1 = [v1['x'], v1['y']]
+        v2 = [v2['x'], v2['y']]
+    # Calculate the Euclidean distance between two n dimensional vektors
+    return np.linalg.norm(np.array(v1) - np.array(v2))
+    # return math.sqrt((v2[0] - v1[0])**2 + (v2[1] - v1[1])**2)
+    # return math.sqrt((p2['x'] - p1['x'])**2 + (p2['y'] - p1['y'])**2)
+
+# Ich denke der Input für die Funktion sollte ein Array von Punkten sein
+def pearsons_correlation(x, y):
+    if isinstance(x, dict):
+        x = [x['x'],x['y']] 
+        y = [y['x'],y['y']]
+    print('x', x)
+    print('y', y)
+    # Calculate Pearson's correlation coefficient
+    correlation_matrix = np.corrcoef(x, y)
+    pearson_correlation = correlation_matrix[0, 1]
+    return pearson_correlation
+
+
+
+def hellinger_distance(P, Q):
+    print('P', P)
+    print('Q', Q)
+    if isinstance(P, dict):
+        P = [P['x'],P['y']]
+        Q = [Q['x'],Q['y']]
+    # Ensure P and Q are numpy arrays
+    P = np.array(P)
+    Q = np.array(Q)
+    
+    
+    # Compute the Hellinger distance
+    distance = np.sqrt(np.sum((np.sqrt(P) - np.sqrt(Q)) ** 2)) / np.sqrt(2)
+    print('distance', distance)
+    return distance
 
 def get_strokes_from_candidate(candidate, strokes):
     _strokes = []

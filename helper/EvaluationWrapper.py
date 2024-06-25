@@ -51,15 +51,14 @@ class EvaluationWrapper:
             else:
                 self.matrix.at[row, 'accuracy'] = '-'  
         
-    def recognize(self, rejector, classifier, candidate, strokes):
-        recognizer_result = self._recognize(rejector, classifier, candidate, strokes)
+    def recognize(self, rejector, classifier, candidate, strokes, shape_no_shape_features_needed:bool)-> dict:
+        recognizer_result = self._recognize(rejector, classifier, candidate, strokes, shape_no_shape_features_needed)
         truth_contains_candidate = False
         
         self._candidates.append(candidate)
         for dictionary in self.truth:
             for shape_name, trace_ids in dictionary.items():
                 if set(trace_ids) == set(candidate):  
-                    print('>>>>>>>>>>>>>>>>>>truth contains candidate!>>>>>>>>>>>>>>>>>>>>>>>>>', candidate, shape_name)
                     truth_contains_candidate = True
                     if 'valid' in recognizer_result[0]:
                        
@@ -68,10 +67,10 @@ class EvaluationWrapper:
                     else:
                         if shape_name == 'circle' or shape_name == 'rectangle' or shape_name == 'ellipse':
                             print('>>>>>>>>>>>>>>>>>>wrong rejection!>>>>>>>>>>>>>>>>>>>>>>>>>', shape_name)
-                            strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
-                            scaled_strokes = scale(strokes_of_candidate)
-                            translated_strokes = translate_to_origin(scaled_strokes)
-                            plot_strokes([translated_strokes[0]])
+                            # strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
+                            # scaled_strokes = scale(strokes_of_candidate)
+                            # translated_strokes = translate_to_origin(scaled_strokes)
+                            # plot_strokes([translated_strokes[0]])
                             
                         self.matrix.at[shape_name, 'no_shape'] += 1
         

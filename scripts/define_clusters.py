@@ -21,18 +21,13 @@ def calculate_ellipse_parameters(cluster_points, cluster_center):
     
    
     _cluster_center = {'x': cluster_center[0], 'y': cluster_center[1]}
-    
-    # Calculate the distance from the cluster center to the origin
-    cluster_center_to_origin_x = _cluster_center['x']
-    cluster_center_to_origin_y = _cluster_center['y']
-    
-    
-    translated_F1 = {'x': F1['x'] - cluster_center_to_origin_x, 'y': F1['y'] - cluster_center_to_origin_y}
+      
+    translated_F1 = {'x': F1['x'] - _cluster_center['x'], 'y': F1['y'] - _cluster_center['y']}
     translated_F2 = {'x': -translated_F1['x'], 'y': -translated_F1['y']}
 
      # Move the translated points back to their original positions
-    F1 = {'x': translated_F1['x'] + cluster_center_to_origin_x, 'y': translated_F1['y'] + cluster_center_to_origin_y}
-    F2 = {'x': translated_F2['x'] + cluster_center_to_origin_x, 'y': translated_F2['y'] + cluster_center_to_origin_y}
+    F1 = {'x': translated_F1['x'] + _cluster_center['x'], 'y': translated_F1['y'] + _cluster_center['y']}
+    F2 = {'x': translated_F2['x'] + _cluster_center['x'], 'y': translated_F2['y'] + _cluster_center['y']}
     
     dx = F1['x'] - F2['x']
     dy = F1['y'] - F2['y']
@@ -51,13 +46,48 @@ def calculate_ellipse_parameters(cluster_points, cluster_center):
         distancejdfsjl = [distance_to_F1[0] + distance_to_F2[0], distance_to_F1[1] + distance_to_F2[1]]
         
         sum_of_absolute_distances.append(distancejdfsjl)
+    S = np.max(sum_of_absolute_distances, axis=0)
+    S = sum(S)
    
-    S = np.max(sum_of_absolute_distances)
-
-    print('angle degrees:', angle_degrees)
     return F1, F2, S, angle_degrees
 
-
+def calculate_ellipse_parameters_n_dimensional(feature_vectors, cluster_center):
+    furthest_point = max(feature_vectors, key=lambda vector: distance(vector, cluster_center))
+    F1 = furthest_point
+    F2 = [0 for _ in range(len(F1))]
+    translated_F1 = []
+    translated_F2 = []
+    for idx,entry in enumerate(F1):
+        # print('jfakls', entry, cluster_center[idx])
+        translated_F1.append(entry - cluster_center[idx])
+        translated_F2.append(-translated_F1[idx])
+    for idx,entry in enumerate(translated_F1):
+        F1[idx] = entry + cluster_center[idx]
+        F2[idx] = translated_F2[idx] + cluster_center[idx]
+        
+    sum_of_absolute_distances = []
+    for vector in feature_vectors:
+        # calculate the absolute distance from the vector to F1 and F2
+        distance_to_F1 = [abs(vector[dim] - F1[dim]) for dim in range(len(F1))]
+        distance_to_F2 = [abs(vector[dim] - F2[dim]) for dim in range(len(F2))]
+        total_distance = [distance_to_F1[dim] + distance_to_F2[dim] for dim in range(len(distance_to_F1))]
+        
+        sum_of_absolute_distances.append(total_distance)
+        # distance_to_F1 = distance(vector, F1)
+        # distance_to_F2 = distance
+        # sum_of_absolute_distances.append(distance_to_F1 + distance_to_F2)
+    S = np.max(sum_of_absolute_distances, axis=0)
+    S = sum(S)
+    return F1, F2, S
+    
+def calculate_S(feature_vector, F1, F2, distance_function):
+    
+    distance_to_F1 = distance_function(feature_vector, F1)
+    distance_to_F2 = distance_function(feature_vector, F2)
+    sum_of_absolute_distances = distance_to_F1 + distance_to_F2
+    
+    return sum_of_absolute_distances
+    
 def get_all_strokes_with_label(label:str, truth:dict)->list:
     strokes = []
     for item in truth:
@@ -65,28 +95,41 @@ def get_all_strokes_with_label(label:str, truth:dict)->list:
             strokes.append(item[label])
     return strokes
 
-def get_features(file_path, strokes)->dict:
+def get_all_no_shapes(truth:dict, candidates)->list:
+    strokes = []
+    for candidate in candidates:
+        candidate_in_truth = False
+        for dictionary in truth:
+            for shape_name, trace_ids in dictionary.items():
+                if set(trace_ids) == set(candidate): 
+                    candidate_in_truth = True
+        if not candidate_in_truth:
+            strokes.append(candidate)
+    return strokes
+                    
+
+def get_features(file_path, strokes, candidates)->dict:
     truth = parse_ground_truth(file_path)
     circles = get_all_strokes_with_label('circle', truth)
     ellipses = get_all_strokes_with_label('ellipse', truth)
     rectangles = get_all_strokes_with_label('rectangle', truth)
-    
-    
+    no_shapes = get_all_no_shapes(truth, candidates)
     circle_features = []
     rectangle_features = []
     ellipse_features = []
+    # no_shape_features = []
    
     for circle in circles:
-        print('circle')
         circle_features.append(get_circle_rectangle_features(circle, strokes)['features'])
     for rectangle in rectangles:
-        print('rect')
         rectangle_features.append(get_circle_rectangle_features(rectangle, strokes)['features'])
     for ellipse in ellipses:
-        print('ellipse')
         ellipse_features.append(get_circle_rectangle_features(ellipse, strokes)['features'])
-        
-    return circle_features, rectangle_features, ellipse_features
+    circle_features.extend(ellipse_features)
+    # for no_shape in no_shapes:
+    #     no_shape_features.append(get_circle_rectangle_features(no_shape, strokes)['features'])
+     
+    return circle_features, rectangle_features
     
 def visualize_clusters(X, labels):
   
@@ -113,9 +156,10 @@ def visualize_clusters(X, labels):
     cluster_centers_transformed = combined_transformed[len(X):]
    
     plt.figure(figsize=(10, 8))
-    colors = ['green', 'blue', 'yellow']
-    shape_labels = ['circle', 'rectangle', 'ellipse']
-    
+    # colors = ['green', 'blue', 'red']
+    colors = ['green', 'blue']
+    # shape_labels = ['circle', 'rectangle', 'no_shape']
+    shape_labels = ['circle', 'rectangle']
     for label in unique_labels:
         indices = np.where(labels == label)
         plt.scatter(cluster_transformed[indices, 0], cluster_transformed[indices, 1],
@@ -131,14 +175,12 @@ def visualize_clusters(X, labels):
         cluster_indices = np.where(labels == label)
         cluster_points_transformed = cluster_transformed[cluster_indices]
         # furthest_point = find_furthest_point(cluster_points_transformed, center_transformed)
-        F1, F2, S, angle = calculate_ellipse_parameters(cluster_points_transformed, center_transformed)
+        F1, F2, S, angle = calculate_ellipse_parameters(cluster_points_transformed, center_transformed  )
         radius = np.max(np.linalg.norm(cluster_points_transformed - center_transformed, axis=1))
         # Find the location of the other end of the semi-major axis and consider it as F2.
-        print('angle:', angle)
         ellipse = Ellipse((center_transformed[0], center_transformed[1]), width=distance(F1, F2), height=S, angle=angle, lw=2, fc='None', color='r', fill=False, linestyle='--')
         circle = plt.Circle((center_transformed[0], center_transformed[1]), radius,
                             color='r', fill=False)
-        print('F1:', F1, 'F2:', F2)
         point1 = plt.Circle((F1['x'], F1['y']), 0.01, color='black')
         point2 = plt.Circle((F2['x'], F2['y']), 0.01, color='black')
         plt.gca().add_patch(ellipse)

@@ -1,7 +1,7 @@
 from helper.utils import path_length
 from helper.normalizer import scale, translate_to_origin
 
-def use(X, candidate, strokes_of_candidate)-> dict:
+def use(X, candidate)-> dict:
     # points = [point for stroke in strokes_of_candidate for point in stroke]
     # scaled_points = scale(strokes_of_candidate)
     # # print('scaled_points', scaled_points)

@@ -148,7 +148,7 @@ def prepare_one_class_rejector_data(path):
                    
 args = parser.parse_args()
 file_paths = []
-files = ['./__datasets__/FC_1.0/no_text/FC_Train.txt', './__datasets__/FA_1.1/no_text/FA_Train.txt']
+files = ['./__datasets__/FC_1.0/no_text/FC_Train.txt', './__datasets__/FC_1.0/no_text/FC_Validation.txt' './__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt']
 all_features = []
 all_labels = []
 
