@@ -5,6 +5,7 @@ import subprocess
 import os
 import time
 import ast
+import json
 
 app = Flask(__name__)
 CORS(app)  # This will enable CORS for all routes
@@ -44,20 +45,23 @@ def post_data():
     app.logger.error(error) 
     
     # Wait for the result file to be created
-    while not os.path.exists(f'inkml_results/{time_stamp}.txt'):
+    while not os.path.exists(f'inkml_results/{time_stamp}.json'):
         time.sleep(0.1)  # Sleep briefly to avoid busy-waiting
         
     data = None
-    with open(f'inkml_results/{time_stamp}.txt', 'r') as f:
-        data = f.read()
-    
+  
+    with open(f'inkml_results/{time_stamp}.json', 'r') as f:
+        data = json.load(f)
+        
+        print('data: ', data)
     response_data = []
-    for data in ast.literal_eval(data):
-        if 'valid' in data:
-            response_data.append(data['valid'])
+    
+    for item in data:
+        print('hiier: ', item)
+        response_data.append(item)
     # remove file from inkml_requests and inkml_results
     os.remove(f'inkml_requests/{time_stamp}.inkml')
-    os.remove(f'inkml_results/{time_stamp}.txt')
+    os.remove(f'inkml_results/{time_stamp}.json')
     
     return jsonify({'received': input_data, 'result': response_data})
   

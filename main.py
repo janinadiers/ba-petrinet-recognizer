@@ -19,11 +19,12 @@ from helper.EvaluationWrapper import EvaluationWrapper
 from helper.parsers import parse_strokes_from_inkml_file
 from helper.normalizer import resample_strokes
 from helper.normalizer import convert_coordinates
-from helper.export_to_pnml import export_to_pnml
 import os
 from helper.print_progress_bar import printProgressBar
 import datetime
-
+from helper.utils import get_strokes_from_candidate
+import numpy as np
+import json
 
 
 GROUPERS = {
@@ -129,6 +130,8 @@ items = list(range(0, len(file_paths)))
 l = len(items)
 # printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)   
 resampled_content = None
+content = None
+
 for i, path in enumerate(file_paths):
     # print('Processing file:', path)
     evaluationWrapper.setCurrentFilePath(path) if not args.production else None
@@ -182,6 +185,47 @@ if args.save == 'y':
 
 if args.production:
     file_name = args.inkml[0].split('/')[-1].split('.')[0]
-    with open(f'inkml_results/{file_name}.txt', 'w') as f:
-        f.write(str(results))
-    export_to_pnml(results, resampled_content, file_name + '.pnml')
+    with open(f'inkml_results/{file_name}.json', 'a') as f:
+        f.write('[')
+    id_counter = 0
+    for result in results:
+        if 'valid' in result:
+            shape_name = next(iter(result['valid']))
+            candidates = result['valid'][shape_name]
+            strokes_of_candidate= get_strokes_from_candidate(candidates, content)
+            
+            min_x = np.inf
+            min_y = np.inf
+            max_x = 0
+            max_y = 0
+            width = 0
+            height = 0
+            conversion_factor = 1000
+            for stroke in strokes_of_candidate:
+                for point in stroke:
+                    if point['x'] < min_x:
+                        min_x = point['x']
+                    if point['y'] < min_y:
+                        min_y = point['y']
+                    if point['x'] > max_x:
+                        max_x = point['x']
+                    if point['y'] > max_y:
+                        max_y = point['y']
+            width = max_x - min_x
+            height = max_y - min_y
+            if shape_name == 'rectangle':
+                shape_id = 't' + str(id_counter)
+            elif shape_name == 'circle':
+                shape_id = 'p' + str(id_counter)
+            # line still has to be implemented 
+            # x and y values are being adapted to the canvas size of the petri net editors from I love petri nets
+            result_obj = {'shape_name': shape_name,'min_x': min_x, 'min_y': min_y, 'max_x': max_x, 'max_y': max_y, 'width': width, 'height': height, 'shape_id': shape_id}
+          
+            with open(f'inkml_results/{file_name}.json', 'a') as f:
+                json.dump(result_obj, f, indent=4)
+                if id_counter < len(results) - 1:
+                    f.write(',\n')
+        id_counter += 1
+    with open(f'inkml_results/{file_name}.json', 'a') as f:
+        f.write(']')
+    
