@@ -1,5 +1,3 @@
-import numpy as np
-from rejector.shape_rejector.rejector_with_threshold import use as use_rejector_with_threshold
 from helper.utils import hellinger_distance,  distance, pearsons_correlation
 import json
 
