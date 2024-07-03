@@ -10,6 +10,7 @@ from scipy.spatial import distance_matrix
 from sklearn.cluster import DBSCAN
 from sklearn import decomposition
 from sklearn.preprocessing import MinMaxScaler
+from helper.export_strokes_to_inkml import export_strokes_to_inkml
 import matplotlib.pyplot as plt
 
 def truncate_lists_to_same_length(list1, list2):
@@ -120,8 +121,8 @@ def cluster_direction_vectors(direction_vectors, points, eps=0.05, min_samples=1
     pca = decomposition.PCA(n_components=2)
     pca.fit(scaled_features)
     combined_features = pca.transform(scaled_features)
-    visualize_clusters(combined_features)
-    visualize_clusters_without_scala(combined_features)
+    # visualize_clusters(combined_features)
+    # visualize_clusters_without_scala(combined_features)
 
     # Use DBSCAN to cluster the direction vectors
     # clustering = DBSCAN(eps=eps, min_samples=min_samples, metric='cosine').fit(combined_features)
@@ -148,6 +149,8 @@ def get_aspect_ratio(stroke):
 def get_number_of_convex_hull_vertices(stroke):
     _stroke = copy.deepcopy(stroke)
     points = [(point['x'], point['y']) for point in _stroke]
+    points = np.array(points)
+    # unique_points = np.unique(points, axis=0)
     try:
         hull = ConvexHull(points)
         # hull_points = [{'x': points[idx][0], 'y': points[idx][1]} for idx in hull.vertices]
@@ -155,7 +158,9 @@ def get_number_of_convex_hull_vertices(stroke):
         # plot_strokes([_stroke],hull_points)
         return len(hull.vertices)
     except Exception as e:
-        raise Exception("Convex hull could not be computed.", e)
+        print("Convex hull could not be computed.", e)
+        # Vermutlich handelt es sich in diesem Fall um eine Linie
+        return 2
     
 
 def get_convexity(strokes):
@@ -430,21 +435,23 @@ def get_edge_points(strokes_of_candidate):
 def get_shape_no_shape_features(candidate, strokes):
     """ Extract feature vector from stroke """
     print('get shape no shape features')
+    
     strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
     edge_point_positions = get_edge_points(strokes_of_candidate)
     edge_points = []
     
     scaled_strokes = scale(strokes_of_candidate)
     translated_strokes = translate_to_origin(scaled_strokes)
-    # print('translated_strokes:', translated_strokes)
-    # plot_strokes(translated_strokes)
+    
+  
     stroke = translated_strokes[0]   
     for edge_point_position in edge_point_positions:
         edge_points.append(stroke[edge_point_position])
-    # plot_strokes([stroke], edge_points)
+    # print(edge_points)
+    # plot_strokes(translated_strokes, edge_points)
     
     has_only_duplicates = stroke_has_only_duplicates(stroke)
-    bounding_box = get_bounding_box(stroke)
+    # bounding_box = get_bounding_box(stroke)
     if (len(stroke) < 5 or has_only_duplicates):
         return {'feature_names': ['distance_between_stroke_edge_points'], 'features': None}
     closed_shape = is_closed_shape(stroke, edge_point_positions)
@@ -456,7 +463,8 @@ def get_shape_no_shape_features(candidate, strokes):
 def get_circle_rectangle_features(candidate, strokes):
     print('candidate 12122:', candidate)
     strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
-        
+    edge_point_positions = get_edge_points(strokes_of_candidate)
+    edge_points = []
     scaled_strokes = scale(strokes_of_candidate)
     
     translated_strokes = translate_to_origin(scaled_strokes)
@@ -470,19 +478,21 @@ def get_circle_rectangle_features(candidate, strokes):
     number_of_convex_hull_vertices = get_number_of_convex_hull_vertices(stroke)
     average_distance_to_template_with_vertical_lines =calculate_average_distance_to_template_shape_with_vertical_lines(strokes_of_candidate, stroke, candidate)
     average_distance_to_template_with_horizontal_lines = calculate_average_distance_to_template_shape_with_horizontal_lines(strokes_of_candidate, stroke, candidate)
-    total_stroke_length_to_diagonal_length = compute_total_stroke_length_to_diagonal_length(stroke)
-    convex_hull_area_to_perimeter_ratio = compute_convex_hull_area_to_perimeter_ratio(stroke)
-    cluster_amount = get_cluster_amount(stroke)
-    aspect_ratio = get_aspect_ratio(stroke)
-    amount_of_strokes = len(strokes_of_candidate)
+    # total_stroke_length_to_diagonal_length = compute_total_stroke_length_to_diagonal_length(stroke)
+    # convex_hull_area_to_perimeter_ratio = compute_convex_hull_area_to_perimeter_ratio(stroke)
+    # cluster_amount = get_cluster_amount(stroke)
+    # aspect_ratio = get_aspect_ratio(stroke)
+    # closed_shape = is_closed_shape(stroke, edge_point_positions)
+
+    # amount_of_strokes = len(strokes_of_candidate)
     direction_vectors = calculate_direction_vectors(stroke)
     labels = cluster_direction_vectors(direction_vectors, np.array([[point['x'], point['y']] for point in stroke]))
-    visualize_vectors(np.array([[point['x'], point['y']] for point in stroke]), direction_vectors, labels)
+    # visualize_vectors(np.array([[point['x'], point['y']] for point in stroke]), direction_vectors, labels)
     # average_distance_to_template_shape_circle = calculate_average_min_distance_to_template_shape(stroke, candidate)[0]
     print(number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines)
     return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'directional_clusters'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines, count_clusters(labels) ]}
     # return {'feature_names': ['directional_clusters'], 'features': [count_clusters(labels) ]}
-
-    # return {'feature_names': ['number_of_convex_hull_vertices'], 'features': [number_of_convex_hull_vertices]}
+    # return {'feature_names': ['is_closed_shape', ], 'features': [closed_shape] }
+    # return {'feature_names': ['directional_clusters'], 'features': [count_clusters(labels)]}
 
 

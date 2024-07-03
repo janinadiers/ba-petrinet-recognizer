@@ -1,0 +1,19 @@
+,circle,rectangle,no_shape,total,truth,accuracy
+circle,270,0,0,270,270,100%
+rectangle,0,884,0,884,920,96%
+diamond,0,0,524,524,544,96%
+ellipse,643,0,0,643,643,100%
+parallelogram,0,0,843,843,865,97%
+line,0,0,3012,3012,3234,93%
+double circle,0,0,0,0,0,-
+no_shape,0,0,40529,40529,40529,100%
+total,913,884,44908,93410,47005,0
+# dataset: ['./__datasets__/FC_1.0/no_text/FC_Train.txt', './__datasets__/FC_1.0/no_text/FC_Validation.txt']
+# grouper: optimized_grouper
+# classifier: linear_svm
+# rejector: rejector_with_threshold
+# shape no shape features: 
+# circle rectangle features: 
+# distance parameter: 400
+# run time: 0.11 seconds
+# recognizer calls: 46705

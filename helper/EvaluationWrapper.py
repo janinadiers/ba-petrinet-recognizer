@@ -2,6 +2,7 @@ from helper.parsers import parse_ground_truth
 import pandas as pd
 from helper.utils import plot_strokes, get_strokes_from_candidate
 from helper.normalizer import scale, translate_to_origin
+import datetime
 class EvaluationWrapper:
     def __init__(self, recognize:callable):
         self._recognize = recognize
@@ -10,18 +11,36 @@ class EvaluationWrapper:
         self.rows = ['circle', 'rectangle', 'diamond', 'ellipse', 'parallelogram', 'line', 'double circle', 'no_shape', 'total']
         self.matrix = pd.DataFrame(0, index=self.rows, columns=self.columns)
         self._candidates = []
+        self.recognizer_calls = 0
+        self.start_time = None
+        self.times = []
+        self.valid_shapes = 0
 
 
+    def get_amount_of_valid_shapes(self):
+        return self.valid_shapes
+    
+    def calculate_average_time(self):
+        total_time = datetime.timedelta(0)
+        for time in self.times:
+            total_time += time
+        return total_time / len(self.times)
+    
     def __str__(self):
-        print('candidates:', self._candidates)
-        print('len candidates:', len(self._candidates))
+        print('recognizer calls: ', self.recognizer_calls)
+        print('average time: ', self.calculate_average_time())
         return self.matrix.to_string()
+
+    def save_time(self):
+        self.times.append(datetime.datetime.now() - self.start_time)
 
     def setCurrentFilePath(self, file_path):
         self.truth = parse_ground_truth(file_path)
         for dictionary in self.truth:
             for shape_name, trace_ids in dictionary.items():
                 self.matrix.at[shape_name, 'truth'] += 1  
+        self.start_time = datetime.datetime.now()
+
     
     def set_total(self):
         for row in self.rows:
@@ -51,17 +70,19 @@ class EvaluationWrapper:
             else:
                 self.matrix.at[row, 'accuracy'] = '-'  
         
-    def recognize(self, rejector, classifier, candidate, strokes, shape_no_shape_features_needed:bool)-> dict:
-        recognizer_result = self._recognize(rejector, classifier, candidate, strokes, shape_no_shape_features_needed)
+    def recognize(self, rejector, classifier, candidate, strokes):
+        self.recognizer_calls += 1
+        recognizer_result = self._recognize(rejector, classifier, candidate, strokes, self.truth)
         truth_contains_candidate = False
         
         self._candidates.append(candidate)
         for dictionary in self.truth:
             for shape_name, trace_ids in dictionary.items():
                 if set(trace_ids) == set(candidate):  
+                    self.valid_shapes += 1
+                    print('>>>>>>>>>>>>>>>>>>truth contains candidate!>>>>>>>>>>>>>>>>>>>>>>>>>', candidate, shape_name)
                     truth_contains_candidate = True
                     if 'valid' in recognizer_result[0]:
-                       
                         shape_name_recognizer_result = next(iter(recognizer_result[0]['valid']))
                         self.matrix.at[shape_name, shape_name_recognizer_result] += 1
                     else:
@@ -77,6 +98,7 @@ class EvaluationWrapper:
         if not truth_contains_candidate and not 'valid' in recognizer_result[0]:
             self.matrix.at['no_shape', 'no_shape'] += 1
             self.matrix.at['no_shape', 'truth'] += 1
+            
         elif not truth_contains_candidate and 'valid' in recognizer_result[0]:
             shape_name_recognizer_result = next(iter(recognizer_result[0]['valid']))
             print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<wrong recognition: no_shape was recognized!>>>>>>>>>>>>>>>>>>>>>', shape_name_recognizer_result)

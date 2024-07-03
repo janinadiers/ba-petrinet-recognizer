@@ -20,6 +20,7 @@ from helper.EvaluationWrapper import EvaluationWrapper
 from helper.parsers import parse_strokes_from_inkml_file
 from helper.normalizer import resample_strokes
 from helper.normalizer import convert_coordinates
+from helper.utils import plot_strokes_without_scala
 import os
 from helper.print_progress_bar import printProgressBar
 import datetime
@@ -64,7 +65,7 @@ def _toGlobalPath(path: str):
 parser = argparse.ArgumentParser(description='Petrinet recognizer 0.1.')
 
 parser.add_argument('--files', dest='files', nargs='+',
-                    help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FA_1.1/no_text/FA_Train.txt'])
+                    help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FC_1.0/no_text/FC_Train.txt', './__datasets__/FC_1.0/no_text/FC_Validation.txt'])
 parser.add_argument('--inkml', dest='inkml', type=_toGlobalPath, nargs='?', action='store', default='',
                     help='glob to inkml file(s)')
 parser.add_argument('--grouper', dest='grouper', type=str, nargs='?', action='store', default='optimized_grouper',
@@ -130,12 +131,13 @@ else:
 
 items = list(range(0, len(file_paths)))
 l = len(items)
-# printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)   
+printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)   
 resampled_content = None
 content = None
 
 for i, path in enumerate(file_paths):
-    # print('Processing file:', path)
+    # if evaluationWrapper.get_amount_of_valid_shapes() >= 1225:
+    #     break
     evaluationWrapper.setCurrentFilePath(path) if not args.production else None
     content = parse_strokes_from_inkml_file(path)
     
@@ -149,16 +151,18 @@ for i, path in enumerate(file_paths):
         resampled_content = resample_strokes(content)
     results = []
     recognized_strokes = []
-    print('Length Produzierte candidates:', len(candidates))
+    candidates_already_checked = []
+   
     for candidate in candidates:
+        # strokes_of_candidate = get_strokes_from_candidate(candidate, content)
+        # plot_strokes_without_scala(strokes_of_candidate)
+        # if evaluationWrapper.get_amount_of_valid_shapes() >= 1225:
+        #     break
         # check if no values from the candidate are in recognized_strokes
         if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
-        # if True:
-            # print(args.recognizer, args.classifier, args.rejector)
-            if args.rejector == 'hellinger_plus_correlation' or args.rejector == 'threshold_and_ellipse':
-                recognizer_result, shape_no_shape_features, rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content, shape_no_shape_features_needed=False)
-            else:
-                recognizer_result, shape_no_shape_features, rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content, shape_no_shape_features_needed=False)
+            recognizer_result, shape_no_shape_features, rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content)
+            # recognizer_result, shape_no_shape_features, rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, content)
+            candidates_already_checked.append(candidate)
             if not shape_no_shape_features:
                 shape_no_shape_features = shape_no_shape_features
             if not rectangle_features:
@@ -167,10 +171,11 @@ for i, path in enumerate(file_paths):
             if 'valid' in recognizer_result:
                 recognized_strokes.extend(candidate)
     
-    # printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
-# print('result: ', results)
+    printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
+    
         
 if not args.production:
+    evaluationWrapper.save_time()
     evaluationWrapper.set_total()
     evaluationWrapper.set_accuracy()
     print(evaluationWrapper)

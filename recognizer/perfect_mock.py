@@ -1,18 +1,20 @@
-def recognize(grouped_ids:list[int], expected_shapes:list[dict]) -> dict:
-    # global count
-    # count += 1
-    # print('grouped_ids', grouped_ids)
-    # print('grouped_ids', grouped_ids)
+
+def recognize(rejector:callable, classifier:callable, candidate:list[int], strokes:list[list[dict]], expected_shapes) -> dict:
+    print('perfect mock!!!')
     for dictionary in expected_shapes:
         for shape_name, trace_ids in dictionary.items():
-            # if set(trace_ids) == set(grouped_ids):
-            # print('trace_ids', trace_ids)
-            if set(trace_ids) == set(grouped_ids) and (shape_name == 'circle' or shape_name == 'rectangle'):
-                print('-------------------------- >>>>>>>>>>>>>>>>>> valid', shape_name)
-                return {'valid': {shape_name: trace_ids}}
+            if set(trace_ids) == set(candidate) and (shape_name == 'circle' or shape_name == 'rectangle' or shape_name == 'ellipse'):
+                print(shape_name)
+                if shape_name == 'ellipse': 
+                    print('iffffff')
+                    print('-------------------------- >>>>>>>>>>>>>>>>>> valid', shape_name)
+                    return {'valid': {'circle': candidate}}, [], []
+                # print('-------------------------- >>>>>>>>>>>>>>>>>> valid', shape_name)
+                return {'valid': {shape_name: candidate}}, [], []
+            
             
         
-    return {'invalid': grouped_ids}
+    return {'invalid': candidate}, [], []
     
     
 

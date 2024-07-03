@@ -240,20 +240,18 @@ def distance(v1:dict, v2:dict) -> float:
         v2 = [v2['x'], v2['y']]
     # Calculate the Euclidean distance between two n dimensional vektors
     return np.linalg.norm(np.array(v1) - np.array(v2))
-    # return math.sqrt((v2[0] - v1[0])**2 + (v2[1] - v1[1])**2)
-    # return math.sqrt((p2['x'] - p1['x'])**2 + (p2['y'] - p1['y'])**2)
+   
 
 # Ich denke der Input für die Funktion sollte ein Array von Punkten sein
 def pearsons_correlation(x, y):
     if isinstance(x, dict):
         x = [x['x'],x['y']] 
         y = [y['x'],y['y']]
-    print('x', x)
-    print('y', y)
+  
     # Calculate Pearson's correlation coefficient
-    correlation_matrix = np.corrcoef(x, y)
-    pearson_correlation = correlation_matrix[0, 1]
-    return pearson_correlation
+    print('x', x, 'y', y)
+    return np.corrcoef(x, y)[0, 1]
+
 
 
 
@@ -364,12 +362,12 @@ def plot_strokes_without_scala(strokes, points=None):
     min_width = 5
     min_height = 5
     # Calculate figure size dynamically
-    fig_width = max(min_width, max_x - min_x)
-    fig_height = max(min_height, max_y - min_y)
+    # fig_width = max(min_width, max_x - min_x)
+    # fig_height = max(min_height, max_y - min_y)
     # plt.figure(figsize=(fig_width, fig_height))
     # plt.figure(figsize=(10, 10))
     # # Create the plot
-    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+    fig, ax = plt.subplots(figsize=(2,2))
     for stroke in strokes:
         x = [point['x'] for point in stroke]
         y = [point['y'] for point in stroke]

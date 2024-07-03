@@ -1,5 +1,4 @@
 import numpy as np
-from typing import Callable
 import networkx as nx
 from grouper.shape_grouper.distance_calculators.distance_between_all_points import initialize_adjacency_matrix
 
@@ -9,7 +8,7 @@ def sort_by_length(strokes:list[dict]) -> list[dict]:
     
 def get_all_simple_cycles(adj_matrix):
     G = nx.Graph()
-
+    print('optimized grouper')
     # Benachbarte Strokes hinzufügen
     for i in range(len(adj_matrix)):
         for j in range(i , len(adj_matrix[i])):
@@ -29,7 +28,6 @@ def get_all_simple_cycles(adj_matrix):
             seen.add(normalized_cycle)
             unique_cycles.append(cycle)
             
-    print('unique_cycles:', sort_by_length(unique_cycles))
     return sort_by_length(unique_cycles)  
     
 

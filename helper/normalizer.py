@@ -65,7 +65,7 @@ def resample_strokes(strokes: list[dict]) -> list[dict]:
     return resampled_strokes          
  
 
-
+# n = 80 default
 def resample(points, n=80):
     if len(points) < 2:
         return points

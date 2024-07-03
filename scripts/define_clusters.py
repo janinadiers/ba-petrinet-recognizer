@@ -10,75 +10,66 @@ from matplotlib.patches import Ellipse
 import math
 
 
-def calculate_ellipse_parameters(cluster_points, cluster_center):
+# def calculate_ellipse_parameters(cluster_points, cluster_center):
     
-    _cluster_points = [{'x': point[0], 'y': point[1]} for point in cluster_points]
-    _cluster_center = {'x': cluster_center[0], 'y': cluster_center[1]}
+#     _cluster_points = [{'x': point[0], 'y': point[1]} for point in cluster_points]
+#     _cluster_center = {'x': cluster_center[0], 'y': cluster_center[1]}
     
-    furthest_point = max(_cluster_points, key=lambda point: distance(point, _cluster_center))
-    F1 = furthest_point
-    F2 = {}
+#     furthest_point = max(_cluster_points, key=lambda point: distance(point, _cluster_center))
+#     F1 = furthest_point
+#     F2 = {}
     
    
-    _cluster_center = {'x': cluster_center[0], 'y': cluster_center[1]}
+#     _cluster_center = {'x': cluster_center[0], 'y': cluster_center[1]}
       
-    translated_F1 = {'x': F1['x'] - _cluster_center['x'], 'y': F1['y'] - _cluster_center['y']}
-    translated_F2 = {'x': -translated_F1['x'], 'y': -translated_F1['y']}
+#     translated_F1 = {'x': F1['x'] - _cluster_center['x'], 'y': F1['y'] - _cluster_center['y']}
+#     translated_F2 = {'x': -translated_F1['x'], 'y': -translated_F1['y']}
 
-     # Move the translated points back to their original positions
-    F1 = {'x': translated_F1['x'] + _cluster_center['x'], 'y': translated_F1['y'] + _cluster_center['y']}
-    F2 = {'x': translated_F2['x'] + _cluster_center['x'], 'y': translated_F2['y'] + _cluster_center['y']}
+#      # Move the translated points back to their original positions
+#     F1 = {'x': translated_F1['x'] + _cluster_center['x'], 'y': translated_F1['y'] + _cluster_center['y']}
+#     F2 = {'x': translated_F2['x'] + _cluster_center['x'], 'y': translated_F2['y'] + _cluster_center['y']}
     
-    dx = F1['x'] - F2['x']
-    dy = F1['y'] - F2['y']
+#     dx = F1['x'] - F2['x']
+#     dy = F1['y'] - F2['y']
     
-    # Calculate the angle using atan2
-    angle = math.atan2(dy, dx)
+#     # Calculate the angle using atan2
+#     angle = math.atan2(dy, dx)
     
-    # Convert the angle to degrees
-    angle_degrees = math.degrees(angle)
+#     # Convert the angle to degrees
+#     angle_degrees = math.degrees(angle)
     
        
-    sum_of_absolute_distances = []
-    for point in _cluster_points:
-        distance_to_F1 = [abs(point['x'] - F1['x']), abs(point['y'] - F1['y'])]
-        distance_to_F2 = [abs(point['x'] - F2['x']), abs(point['y'] - F2['y'])]
-        distancejdfsjl = [distance_to_F1[0] + distance_to_F2[0], distance_to_F1[1] + distance_to_F2[1]]
+#     sum_of_absolute_distances = []
+#     for point in _cluster_points:
+#         distance_to_F1 = [abs(point['x'] - F1['x']), abs(point['y'] - F1['y'])]
+#         distance_to_F2 = [abs(point['x'] - F2['x']), abs(point['y'] - F2['y'])]
+#         distancejdfsjl = [distance_to_F1[0] + distance_to_F2[0], distance_to_F1[1] + distance_to_F2[1]]
         
-        sum_of_absolute_distances.append(distancejdfsjl)
-    S = np.max(sum_of_absolute_distances, axis=0)
-    S = sum(S)
+#         sum_of_absolute_distances.append(distancejdfsjl)
+#     S = np.max(sum_of_absolute_distances, axis=0)
+#     S = sum(S)
    
-    return F1, F2, S, angle_degrees
+#     return F1, F2, S, angle_degrees
 
 def calculate_ellipse_parameters_n_dimensional(feature_vectors, cluster_center):
     furthest_point = max(feature_vectors, key=lambda vector: distance(vector, cluster_center))
     F1 = furthest_point
-    F2 = [0 for _ in range(len(F1))]
-    translated_F1 = []
-    translated_F2 = []
-    for idx,entry in enumerate(F1):
-        # print('jfakls', entry, cluster_center[idx])
-        translated_F1.append(entry - cluster_center[idx])
-        translated_F2.append(-translated_F1[idx])
-    for idx,entry in enumerate(translated_F1):
-        F1[idx] = entry + cluster_center[idx]
-        F2[idx] = translated_F2[idx] + cluster_center[idx]
-        
-    sum_of_absolute_distances = []
+    F2 = 2 * np.array(cluster_center) - np.array(F1)
+    
+    sum_of_distances = []
     for vector in feature_vectors:
-        # calculate the absolute distance from the vector to F1 and F2
-        distance_to_F1 = [abs(vector[dim] - F1[dim]) for dim in range(len(F1))]
-        distance_to_F2 = [abs(vector[dim] - F2[dim]) for dim in range(len(F2))]
-        total_distance = [distance_to_F1[dim] + distance_to_F2[dim] for dim in range(len(distance_to_F1))]
-        
-        sum_of_absolute_distances.append(total_distance)
-        # distance_to_F1 = distance(vector, F1)
-        # distance_to_F2 = distance
-        # sum_of_absolute_distances.append(distance_to_F1 + distance_to_F2)
-    S = np.max(sum_of_absolute_distances, axis=0)
-    S = sum(S)
-    return F1, F2, S
+        distance_to_F1 = distance(vector, F1)
+        distance_to_F2 = distance(vector, F2)
+        total_distance = distance_to_F1 + distance_to_F2
+        sum_of_distances.append(total_distance)
+    try:
+        angle = np.degrees(np.arctan2(F2[1] - F1[1], F2[0] - F1[0]))
+    except Exception as e:
+        print('error', e)
+        angle = 0
+
+    S = max(sum_of_distances)
+    return F1, F2, S, angle
     
 def calculate_S(feature_vector, F1, F2, distance_function):
     
@@ -117,7 +108,7 @@ def get_features(file_path, strokes, candidates)->dict:
     circle_features = []
     rectangle_features = []
     ellipse_features = []
-    # no_shape_features = []
+    no_shape_features = []
    
     for circle in circles:
         circle_features.append(get_circle_rectangle_features(circle, strokes)['features'])
@@ -128,8 +119,8 @@ def get_features(file_path, strokes, candidates)->dict:
     circle_features.extend(ellipse_features)
     # for no_shape in no_shapes:
     #     no_shape_features.append(get_circle_rectangle_features(no_shape, strokes)['features'])
-     
     return circle_features, rectangle_features
+    # return circle_features, rectangle_features, no_shape_features
     
 def visualize_clusters(X, labels):
   
@@ -175,18 +166,25 @@ def visualize_clusters(X, labels):
         cluster_indices = np.where(labels == label)
         cluster_points_transformed = cluster_transformed[cluster_indices]
         # furthest_point = find_furthest_point(cluster_points_transformed, center_transformed)
-        F1, F2, S, angle = calculate_ellipse_parameters(cluster_points_transformed, center_transformed  )
+        F1, F2, S, angle = calculate_ellipse_parameters_n_dimensional(cluster_points_transformed, center_transformed  )
         radius = np.max(np.linalg.norm(cluster_points_transformed - center_transformed, axis=1))
         # Find the location of the other end of the semi-major axis and consider it as F2.
-        ellipse = Ellipse((center_transformed[0], center_transformed[1]), width=distance(F1, F2), height=S, angle=angle, lw=2, fc='None', color='r', fill=False, linestyle='--')
-        circle = plt.Circle((center_transformed[0], center_transformed[1]), radius,
-                            color='r', fill=False)
-        point1 = plt.Circle((F1['x'], F1['y']), 0.01, color='black')
-        point2 = plt.Circle((F2['x'], F2['y']), 0.01, color='black')
-        plt.gca().add_patch(ellipse)
-        plt.gca().add_patch(circle)
-        plt.gca().add_patch(point1)
-        plt.gca().add_patch(point2)
+        a = S / 2
+    
+        # Distance between foci
+        # d = distance(F1, F2)
+        
+        # # Semi-minor axis
+        # b = np.sqrt(a**2 - (d / 2)**2)
+        # ellipse = Ellipse((center_transformed[0], center_transformed[1]), width=d, height=2 * b, angle=angle, lw=2, fc='None', color='r', fill=False, linestyle='--')
+        # circle = plt.Circle((center_transformed[0], center_transformed[1]), radius,
+        #                     color='r', fill=False)
+        # point1 = plt.Circle((F1[0], F1[1]), 0.01, color='black')
+        # point2 = plt.Circle((F2[0], F2[1]), 0.01, color='black')
+        # plt.gca().add_patch(ellipse)
+        # plt.gca().add_patch(circle)
+        # plt.gca().add_patch(point1)
+        # plt.gca().add_patch(point2)
         # circle = plt.Circle((center_transformed[0], center_transformed[1]), radius,
         #                     color='r', fill=False, linestyle='--')
         # plt.gca().add_patch(circle)   
