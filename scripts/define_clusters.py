@@ -117,10 +117,10 @@ def get_features(file_path, strokes, candidates)->dict:
     for ellipse in ellipses:
         ellipse_features.append(get_circle_rectangle_features(ellipse, strokes)['features'])
     circle_features.extend(ellipse_features)
-    # for no_shape in no_shapes:
-    #     no_shape_features.append(get_circle_rectangle_features(no_shape, strokes)['features'])
-    return circle_features, rectangle_features
-    # return circle_features, rectangle_features, no_shape_features
+    for no_shape in no_shapes:
+        no_shape_features.append(get_circle_rectangle_features(no_shape, strokes)['features'])
+    # return circle_features, rectangle_features
+    return circle_features, rectangle_features, no_shape_features
     
 def visualize_clusters(X, labels):
   
@@ -147,10 +147,10 @@ def visualize_clusters(X, labels):
     cluster_centers_transformed = combined_transformed[len(X):]
    
     plt.figure(figsize=(10, 8))
-    # colors = ['green', 'blue', 'red']
-    colors = ['green', 'blue']
-    # shape_labels = ['circle', 'rectangle', 'no_shape']
-    shape_labels = ['circle', 'rectangle']
+    colors = ['green', 'blue', 'red']
+    # colors = ['green', 'blue']
+    shape_labels = ['circle', 'rectangle', 'no_shape']
+    # shape_labels = ['circle', 'rectangle']
     for label in unique_labels:
         indices = np.where(labels == label)
         plt.scatter(cluster_transformed[indices, 0], cluster_transformed[indices, 1],

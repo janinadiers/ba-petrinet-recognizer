@@ -122,11 +122,11 @@ def cluster_direction_vectors(direction_vectors, points, eps=0.05, min_samples=1
     pca.fit(scaled_features)
     combined_features = pca.transform(scaled_features)
     # visualize_clusters(combined_features)
-    # visualize_clusters_without_scala(combined_features)
 
     # Use DBSCAN to cluster the direction vectors
-    # clustering = DBSCAN(eps=eps, min_samples=min_samples, metric='cosine').fit(combined_features)
-    clustering = DBSCAN(eps=eps, min_samples=int(len(points) * 0.15), metric='cosine').fit(combined_features)
+    clustering = DBSCAN(eps=eps, min_samples=min_samples, metric='cosine').fit(combined_features)
+    # clustering = DBSCAN(eps=eps, min_samples=int(len(points) * 0.15), metric='cosine').fit(combined_features)
+
 
     return clustering.labels_
 
@@ -482,7 +482,7 @@ def get_circle_rectangle_features(candidate, strokes):
     # convex_hull_area_to_perimeter_ratio = compute_convex_hull_area_to_perimeter_ratio(stroke)
     # cluster_amount = get_cluster_amount(stroke)
     # aspect_ratio = get_aspect_ratio(stroke)
-    # closed_shape = is_closed_shape(stroke, edge_point_positions)
+    closed_shape = is_closed_shape(stroke, edge_point_positions)
 
     # amount_of_strokes = len(strokes_of_candidate)
     direction_vectors = calculate_direction_vectors(stroke)
@@ -490,7 +490,9 @@ def get_circle_rectangle_features(candidate, strokes):
     # visualize_vectors(np.array([[point['x'], point['y']] for point in stroke]), direction_vectors, labels)
     # average_distance_to_template_shape_circle = calculate_average_min_distance_to_template_shape(stroke, candidate)[0]
     print(number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines)
-    return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'directional_clusters'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines, count_clusters(labels) ]}
+    # return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'directional_clusters'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines, count_clusters(labels) ]}
+    return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'directional_clusters'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines, count_clusters(labels)]}
+
     # return {'feature_names': ['directional_clusters'], 'features': [count_clusters(labels) ]}
     # return {'feature_names': ['is_closed_shape', ], 'features': [closed_shape] }
     # return {'feature_names': ['directional_clusters'], 'features': [count_clusters(labels)]}

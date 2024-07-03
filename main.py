@@ -2,6 +2,7 @@ import argparse
 from glob import glob  
 from grouper.shape_grouper.thesis_grouper import group as thesis_grouper
 from grouper.shape_grouper.optimized_grouper import group as optimized_grouper
+from grouper.connection_grouper.grouper import group as connection_grouper
 from recognizer.random_mock import recognize as random_mock
 from recognizer.perfect_mock import recognize as perfect_mock
 from recognizer.shape_recognizer import recognize as shape_recognizer
@@ -20,7 +21,7 @@ from helper.EvaluationWrapper import EvaluationWrapper
 from helper.parsers import parse_strokes_from_inkml_file
 from helper.normalizer import resample_strokes
 from helper.normalizer import convert_coordinates
-from helper.utils import plot_strokes_without_scala
+from helper.utils import get_unrecognized_strokes
 import os
 from helper.print_progress_bar import printProgressBar
 import datetime
@@ -33,6 +34,7 @@ GROUPERS = {
     'thesis_grouper' : thesis_grouper,
     'optimized_grouper' : optimized_grouper
 }
+
 
 RECOGNIZERS = {
     'random_mock' : random_mock,
@@ -106,9 +108,10 @@ def validate_args(args):
     
 validate_args(args)
 
-evaluationWrapper = None if args.production else EvaluationWrapper(RECOGNIZERS[args.recognizer])
+evaluationWrapper = None if args.production else EvaluationWrapper(RECOGNIZERS[args.recognizer], connection_grouper)
 
 recognizer = RECOGNIZERS[args.recognizer] if args.production else evaluationWrapper.recognize
+connection_grouper = connection_grouper if args.production else evaluationWrapper.group_connections
 grouper = GROUPERS[args.grouper]
 shape_no_shape_features = None
 rectangle_features = None
@@ -151,6 +154,7 @@ for i, path in enumerate(file_paths):
         resampled_content = resample_strokes(content)
     results = []
     recognized_strokes = []
+    unrecognized_strokes = []
     candidates_already_checked = []
    
     for candidate in candidates:
@@ -159,17 +163,21 @@ for i, path in enumerate(file_paths):
         # if evaluationWrapper.get_amount_of_valid_shapes() >= 1225:
         #     break
         # check if no values from the candidate are in recognized_strokes
-        if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
-            recognizer_result, shape_no_shape_features, rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content)
-            # recognizer_result, shape_no_shape_features, rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, content)
-            candidates_already_checked.append(candidate)
-            if not shape_no_shape_features:
-                shape_no_shape_features = shape_no_shape_features
-            if not rectangle_features:
-                rectangle_features = rectangle_features
+        # if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
+        recognizer_result, shape_no_shape_features, rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content)
+        # recognizer_result, shape_no_shape_features, rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, content)
+        candidates_already_checked.append(candidate)
+        if not shape_no_shape_features:
+            shape_no_shape_features = shape_no_shape_features
+        if not rectangle_features:
+            rectangle_features = rectangle_features
+        if 'valid' in recognizer_result:
+            recognized_strokes.extend(candidate)
             results.append(recognizer_result)
-            if 'valid' in recognizer_result:
-                recognized_strokes.extend(candidate)
+    unrecognized_strokes = get_unrecognized_strokes(recognized_strokes, content)
+    edges = connection_grouper(results, unrecognized_strokes)
+    results.extend(edges)
+    
     
     printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
     
@@ -199,41 +207,40 @@ if args.production:
         f.write('[')
     id_counter = 0
     for result in results:
-        if 'valid' in result:
-            shape_name = next(iter(result['valid']))
-            candidates = result['valid'][shape_name]
-            strokes_of_candidate= get_strokes_from_candidate(candidates, content)
-            min_x = np.inf
-            min_y = np.inf
-            max_x = 0
-            max_y = 0
-            width = 0
-            height = 0
-            conversion_factor = 1000
-            for stroke in strokes_of_candidate:
-                for point in stroke:
-                    if point['x'] < min_x:
-                        min_x = point['x']
-                    if point['y'] < min_y:
-                        min_y = point['y']
-                    if point['x'] > max_x:
-                        max_x = point['x']
-                    if point['y'] > max_y:
-                        max_y = point['y']
-            width = max_x - min_x
-            height = max_y - min_y
-            if shape_name == 'rectangle':
-                shape_id = 't' + str(id_counter)
-            elif shape_name == 'circle':
-                shape_id = 'p' + str(id_counter)
-            # line still has to be implemented 
-            # x and y values are being adapted to the canvas size of the petri net editors from I love petri nets
-            result_obj = {'shape_name': shape_name,'min_x': min_x, 'min_y': min_y, 'max_x': max_x, 'max_y': max_y, 'width': width, 'height': height, 'shape_id': shape_id}
-          
-            with open(f'inkml_results/{file_name}.json', 'a') as f:
-                json.dump(result_obj, f, indent=4)
-                if id_counter < len(results) - 1:
-                    f.write(',\n')
+        shape_name = next(iter(result['valid']))
+        candidates = result['valid'][shape_name]
+        strokes_of_candidate= get_strokes_from_candidate(candidates, content)
+        min_x = np.inf
+        min_y = np.inf
+        max_x = 0
+        max_y = 0
+        width = 0
+        height = 0
+        conversion_factor = 1000
+        for stroke in strokes_of_candidate:
+            for point in stroke:
+                if point['x'] < min_x:
+                    min_x = point['x']
+                if point['y'] < min_y:
+                    min_y = point['y']
+                if point['x'] > max_x:
+                    max_x = point['x']
+                if point['y'] > max_y:
+                    max_y = point['y']
+        width = max_x - min_x
+        height = max_y - min_y
+        if shape_name == 'rectangle':
+            shape_id = 't' + str(id_counter)
+        elif shape_name == 'circle':
+            shape_id = 'p' + str(id_counter)
+        # line still has to be implemented 
+        # x and y values are being adapted to the canvas size of the petri net editors from I love petri nets
+        result_obj = {'shape_name': shape_name,'min_x': min_x, 'min_y': min_y, 'max_x': max_x, 'max_y': max_y, 'width': width, 'height': height, 'shape_id': shape_id}
+        
+        with open(f'inkml_results/{file_name}.json', 'a') as f:
+            json.dump(result_obj, f, indent=4)
+            if id_counter < len(results) - 1:
+                f.write(',\n')
         id_counter += 1
     with open(f'inkml_results/{file_name}.json', 'a') as f:
         f.write(']')

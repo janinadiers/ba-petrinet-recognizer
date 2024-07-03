@@ -21,21 +21,21 @@ all_rectangle_features = []
 all_no_shape_features = []
 
 labels = []           
-for i, path in enumerate(file_paths):
+for i, path in enumerate(file_paths[:10]):
     content = parse_strokes_from_inkml_file(path)
     candidates = group(content)
     resampled_strokes = resample_strokes(content)
-    # circle_features, rectangle_features, no_shape_features = get_features(path, resampled_strokes, candidates)
-    circle_features, rectangle_features= get_features(path, resampled_strokes, candidates)
+    circle_features, rectangle_features, no_shape_features = get_features(path, resampled_strokes, candidates)
+    # circle_features, rectangle_features= get_features(path, resampled_strokes, candidates)
 
     all_circle_features.extend(circle_features)
     all_rectangle_features.extend(rectangle_features)
-    # all_no_shape_features.extend(no_shape_features)
+    all_no_shape_features.extend(no_shape_features)
 
     
 labels += [0 for i in range(len(all_circle_features))]
 labels += [1 for i in range(len(all_rectangle_features))]
-# labels += [2 for i in range(len(all_no_shape_features))]
+labels += [2 for i in range(len(all_no_shape_features))]
 
 circle_cluster_center = np.array(all_circle_features).mean(axis=0)
 circle_correlation_values = [pearsons_correlation(vector, circle_cluster_center) for vector in all_circle_features]
@@ -67,13 +67,13 @@ result_obj = {
 }
  
 # write results into json file
-with open(f'rejector/clusters.json', 'a') as f:
-    json.dump(result_obj, f, indent=4)
+# with open(f'rejector/clusters.json', 'a') as f:
+#     json.dump(result_obj, f, indent=4)
 
-# all_circle_features.extend(all_rectangle_features)
-# all_circle_features.extend(all_no_shape_features)   
+all_circle_features.extend(all_rectangle_features)
+all_circle_features.extend(all_no_shape_features)   
 
-# visualize_clusters(all_circle_features, labels)
+visualize_clusters(all_circle_features, labels)
 
 
     

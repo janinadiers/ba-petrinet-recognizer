@@ -4,8 +4,9 @@ from helper.utils import plot_strokes, get_strokes_from_candidate
 from helper.normalizer import scale, translate_to_origin
 import datetime
 class EvaluationWrapper:
-    def __init__(self, recognize:callable):
+    def __init__(self, recognize:callable, group_connections:callable):
         self._recognize = recognize
+        self.group_connections = group_connections
         self.truth = None
         self.columns = ['circle', 'rectangle','no_shape', 'total', 'truth', 'accuracy']
         self.rows = ['circle', 'rectangle', 'diamond', 'ellipse', 'parallelogram', 'line', 'double circle', 'no_shape', 'total']
@@ -69,7 +70,29 @@ class EvaluationWrapper:
                         self.matrix.at[row, 'accuracy'] = str(int((self.matrix.at[row, 'no_shape'] / self.matrix.at[row, 'truth']) * 100)) + '%'
             else:
                 self.matrix.at[row, 'accuracy'] = '-'  
+    
+    
+    def group_connections(self, shapes, unrecognized_strokes):
+        edges = self.group_connections(shapes, unrecognized_strokes)
+        truth_contains_edge = False
+        correctly_recognized_edges = 0
+        for edge in edges:
+            for dictionary in self.truth:
+                for shape_name, trace_ids in dictionary.items():
+                    if set(trace_ids) == set(edge['valid']['line']):  
+                        print('>>>>>>>>>>>>>>>>>>truth contains edge!>>>>>>>>>>>>>>>>>>>>>>>>>', edge['valid'], shape_name)
+                        truth_contains_edge = True
+                        # self.matrix.at[shape_name, 'line'] += 1
+           
+            if not truth_contains_edge:
+                print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<wrong recognition: no_shape was recognized as line!>>>>>>>>>>>>>>>>>>>>>', edge['valid'])
+                # self.matrix.at['no_shape', 'line'] += 1
+            truth_contains_edge = False
+           
+        return edges
+
         
+                  
     def recognize(self, rejector, classifier, candidate, strokes):
         self.recognizer_calls += 1
         recognizer_result = self._recognize(rejector, classifier, candidate, strokes, self.truth)

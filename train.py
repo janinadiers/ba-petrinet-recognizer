@@ -2,7 +2,7 @@ from classifier.shape_classifier.template_matching import use as template_matchi
 from classifier.shape_classifier.linear_svm import train as linear_svm
 from classifier.shape_classifier.rbf_svm import train as rbf_svm
 from classifier.shape_classifier.one_class_rectangle_svm import train as one_class_svm_rectangle
-from rejector.shape_rejector.hellinger_plus_correlation import is_valid_shape as hellinger_plus_correlation
+from rejector.shape_rejector.hellinger_and_correlation import use as hellinger_plus_correlation
 from rejector.shape_rejector.linear_svm import train as linear_svm_rejector
 from rejector.shape_rejector.rbf_svm import train as rbf_svm_rejector
 from rejector.shape_rejector.one_class_svm import train as one_class_svm
@@ -148,7 +148,7 @@ def prepare_one_class_rejector_data(path):
                    
 args = parser.parse_args()
 file_paths = []
-files = ['./__datasets__/FC_1.0/no_text/FC_Train.txt', './__datasets__/FC_1.0/no_text/FC_Validation.txt' './__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt']
+files = ['./__datasets__/FC_1.0/no_text/FC_Train.txt', './__datasets__/FC_1.0/no_text/FC_Validation.txt', './__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt']
 all_features = []
 all_labels = []
 

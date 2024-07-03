@@ -9,6 +9,7 @@ def use(X, candidate)-> dict:
     # path_length_of_candidate = path_length(translated_points[0])
     
     # print('rejector_with_threshold', path_length_of_candidate * 0.02, X[0])
+    # ursprünglich 0.4
     if X[0] < 0.4:
         return {'valid': candidate}
     else:

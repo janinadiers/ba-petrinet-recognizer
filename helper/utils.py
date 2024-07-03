@@ -10,6 +10,14 @@ def combine_strokes(grouped_ids:list[int], strokes:list[dict]):
         stroke = strokes[stroke_id]
         combined_strokes += stroke
     return combined_strokes
+
+def get_unrecognized_strokes(recognized_strokes, strokes:list[dict]):
+    _strokes = copy.deepcopy(strokes)
+    unrecognized_strokes = []
+    for i, stroke in enumerate(_strokes):
+        if i not in recognized_strokes:
+            unrecognized_strokes.append(stroke)
+    return unrecognized_strokes
         
 
 def get_bounding_box(stroke:list[dict]):
