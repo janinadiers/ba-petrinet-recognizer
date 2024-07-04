@@ -10,7 +10,7 @@ def use(X, candidate)-> dict:
     
     # print('rejector_with_threshold', path_length_of_candidate * 0.02, X[0])
     # ursprünglich 0.4
-    if X[0] < 0.4:
+    if X[0] < 0.6:
         return {'valid': candidate}
     else:
         return {'invalid': candidate}

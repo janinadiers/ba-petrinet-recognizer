@@ -1,5 +1,5 @@
 from helper.parsers import parse_ground_truth
-from helper.features import get_circle_rectangle_features
+from helper.features import get_circle_rectangle_features, get_hellinger_correlation_features
 import numpy as np
 from sklearn.manifold import MDS
 import matplotlib.pyplot as plt
@@ -7,49 +7,9 @@ from sklearn.metrics import pairwise_distances
 from sklearn.preprocessing import MinMaxScaler
 from helper.utils import distance
 from matplotlib.patches import Ellipse
+from helper.utils import get_strokes_from_candidate
 import math
 
-
-# def calculate_ellipse_parameters(cluster_points, cluster_center):
-    
-#     _cluster_points = [{'x': point[0], 'y': point[1]} for point in cluster_points]
-#     _cluster_center = {'x': cluster_center[0], 'y': cluster_center[1]}
-    
-#     furthest_point = max(_cluster_points, key=lambda point: distance(point, _cluster_center))
-#     F1 = furthest_point
-#     F2 = {}
-    
-   
-#     _cluster_center = {'x': cluster_center[0], 'y': cluster_center[1]}
-      
-#     translated_F1 = {'x': F1['x'] - _cluster_center['x'], 'y': F1['y'] - _cluster_center['y']}
-#     translated_F2 = {'x': -translated_F1['x'], 'y': -translated_F1['y']}
-
-#      # Move the translated points back to their original positions
-#     F1 = {'x': translated_F1['x'] + _cluster_center['x'], 'y': translated_F1['y'] + _cluster_center['y']}
-#     F2 = {'x': translated_F2['x'] + _cluster_center['x'], 'y': translated_F2['y'] + _cluster_center['y']}
-    
-#     dx = F1['x'] - F2['x']
-#     dy = F1['y'] - F2['y']
-    
-#     # Calculate the angle using atan2
-#     angle = math.atan2(dy, dx)
-    
-#     # Convert the angle to degrees
-#     angle_degrees = math.degrees(angle)
-    
-       
-#     sum_of_absolute_distances = []
-#     for point in _cluster_points:
-#         distance_to_F1 = [abs(point['x'] - F1['x']), abs(point['y'] - F1['y'])]
-#         distance_to_F2 = [abs(point['x'] - F2['x']), abs(point['y'] - F2['y'])]
-#         distancejdfsjl = [distance_to_F1[0] + distance_to_F2[0], distance_to_F1[1] + distance_to_F2[1]]
-        
-#         sum_of_absolute_distances.append(distancejdfsjl)
-#     S = np.max(sum_of_absolute_distances, axis=0)
-#     S = sum(S)
-   
-#     return F1, F2, S, angle_degrees
 
 def calculate_ellipse_parameters_n_dimensional(feature_vectors, cluster_center):
     furthest_point = max(feature_vectors, key=lambda vector: distance(vector, cluster_center))
@@ -104,29 +64,30 @@ def get_features(file_path, strokes, candidates)->dict:
     circles = get_all_strokes_with_label('circle', truth)
     ellipses = get_all_strokes_with_label('ellipse', truth)
     rectangles = get_all_strokes_with_label('rectangle', truth)
-    no_shapes = get_all_no_shapes(truth, candidates)
+    # no_shapes = get_all_no_shapes(truth, candidates)
     circle_features = []
     rectangle_features = []
     ellipse_features = []
     no_shape_features = []
    
     for circle in circles:
-        circle_features.append(get_circle_rectangle_features(circle, strokes)['features'])
+        circle_features.append(get_hellinger_correlation_features(circle, strokes)['features'])
     for rectangle in rectangles:
-        rectangle_features.append(get_circle_rectangle_features(rectangle, strokes)['features'])
+        rectangle_features.append(get_hellinger_correlation_features(rectangle, strokes)['features'])
     for ellipse in ellipses:
-        ellipse_features.append(get_circle_rectangle_features(ellipse, strokes)['features'])
+        ellipse_features.append(get_hellinger_correlation_features(ellipse, strokes)['features'])
     circle_features.extend(ellipse_features)
-    for no_shape in no_shapes:
-        no_shape_features.append(get_circle_rectangle_features(no_shape, strokes)['features'])
-    # return circle_features, rectangle_features
-    return circle_features, rectangle_features, no_shape_features
+    # for no_shape in no_shapes:
+    #     no_shape_features.append(get_hellinger_correlation_features(no_shape, strokes)['features'])
+    return circle_features, rectangle_features
+    # return circle_features, rectangle_features, no_shape_features
     
 def visualize_clusters(X, labels):
   
 
     x_lim=(-1, 1)
     y_lim=(-1, 1)
+    print('X', X, labels)
     # # transform the data to be within a specified range to avoid biasing the MDS results towards features with larger ranges.
     scaler = MinMaxScaler() 
     X_normalized = scaler.fit_transform(X)
@@ -147,10 +108,10 @@ def visualize_clusters(X, labels):
     cluster_centers_transformed = combined_transformed[len(X):]
    
     plt.figure(figsize=(10, 8))
-    colors = ['green', 'blue', 'red']
-    # colors = ['green', 'blue']
-    shape_labels = ['circle', 'rectangle', 'no_shape']
-    # shape_labels = ['circle', 'rectangle']
+    # colors = ['green', 'blue', 'red']
+    colors = ['green', 'blue']
+    # shape_labels = ['circle', 'rectangle', 'no_shape']
+    shape_labels = ['circle', 'rectangle']
     for label in unique_labels:
         indices = np.where(labels == label)
         plt.scatter(cluster_transformed[indices, 0], cluster_transformed[indices, 1],
@@ -160,7 +121,7 @@ def visualize_clusters(X, labels):
     # Plot the cluster centers and their respective circles
     for center_transformed, label in zip(cluster_centers_transformed, unique_labels):
         plt.scatter(center_transformed[0], center_transformed[1],
-                    c='red', marker='x', s=100, linewidths=3)
+                    c='black', marker='x', s=100, linewidths=3)
         
         # Calculate radius as the maximum distance from the center to points in the cluster
         cluster_indices = np.where(labels == label)
@@ -172,22 +133,22 @@ def visualize_clusters(X, labels):
         a = S / 2
     
         # Distance between foci
-        # d = distance(F1, F2)
+        d = distance(F1, F2)
         
-        # # Semi-minor axis
-        # b = np.sqrt(a**2 - (d / 2)**2)
-        # ellipse = Ellipse((center_transformed[0], center_transformed[1]), width=d, height=2 * b, angle=angle, lw=2, fc='None', color='r', fill=False, linestyle='--')
-        # circle = plt.Circle((center_transformed[0], center_transformed[1]), radius,
-        #                     color='r', fill=False)
-        # point1 = plt.Circle((F1[0], F1[1]), 0.01, color='black')
-        # point2 = plt.Circle((F2[0], F2[1]), 0.01, color='black')
-        # plt.gca().add_patch(ellipse)
-        # plt.gca().add_patch(circle)
-        # plt.gca().add_patch(point1)
-        # plt.gca().add_patch(point2)
-        # circle = plt.Circle((center_transformed[0], center_transformed[1]), radius,
-        #                     color='r', fill=False, linestyle='--')
-        # plt.gca().add_patch(circle)   
+        # Semi-minor axis
+        b = np.sqrt(a**2 - (d / 2)**2)
+        ellipse = Ellipse((center_transformed[0], center_transformed[1]), width=d, height=2 * b, angle=angle, lw=2, fc='None', color='r', fill=False, linestyle='--')
+        circle = plt.Circle((center_transformed[0], center_transformed[1]), radius,
+                            color='r', fill=False)
+        point1 = plt.Circle((F1[0], F1[1]), 0.01, color='black')
+        point2 = plt.Circle((F2[0], F2[1]), 0.01, color='black')
+        plt.gca().add_patch(ellipse)
+        plt.gca().add_patch(circle)
+        plt.gca().add_patch(point1)
+        plt.gca().add_patch(point2)
+        circle = plt.Circle((center_transformed[0], center_transformed[1]), radius,
+                            color='r', fill=False, linestyle='--')
+        plt.gca().add_patch(circle)   
     
     # Set fixed limits for x and y axes
     # plt.xlim(x_lim)

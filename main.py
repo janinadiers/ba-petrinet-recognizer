@@ -111,7 +111,7 @@ validate_args(args)
 evaluationWrapper = None if args.production else EvaluationWrapper(RECOGNIZERS[args.recognizer], connection_grouper)
 
 recognizer = RECOGNIZERS[args.recognizer] if args.production else evaluationWrapper.recognize
-connection_grouper = connection_grouper if args.production else evaluationWrapper.group_connections
+connection_localizer = connection_grouper if args.production else evaluationWrapper.group_connections
 grouper = GROUPERS[args.grouper]
 shape_no_shape_features = None
 rectangle_features = None
@@ -141,41 +141,41 @@ content = None
 for i, path in enumerate(file_paths):
     # if evaluationWrapper.get_amount_of_valid_shapes() >= 1225:
     #     break
+    print('Processing file: ', path)
     evaluationWrapper.setCurrentFilePath(path) if not args.production else None
     content = parse_strokes_from_inkml_file(path)
     
     if args.other_ratio:
         ratio = args.other_ratio.split('/')
         converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
-        candidates = grouper(converted_strokes)
         resampled_content = resample_strokes(converted_strokes)
+        candidates = grouper(resampled_content)
+        
     else:
-        candidates = grouper(content)
         resampled_content = resample_strokes(content)
+        candidates = grouper(resampled_content)
+        
     results = []
     recognized_strokes = []
     unrecognized_strokes = []
     candidates_already_checked = []
    
-    for candidate in candidates:
-        # strokes_of_candidate = get_strokes_from_candidate(candidate, content)
-        # plot_strokes_without_scala(strokes_of_candidate)
-        # if evaluationWrapper.get_amount_of_valid_shapes() >= 1225:
-        #     break
-        # check if no values from the candidate are in recognized_strokes
-        # if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
-        recognizer_result, shape_no_shape_features, rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, resampled_content)
-        # recognizer_result, shape_no_shape_features, rectangle_features = recognizer(REJECTORS[args.rejector], CLASSIFIERS[args.classifier], candidate, content)
-        candidates_already_checked.append(candidate)
-        if not shape_no_shape_features:
-            shape_no_shape_features = shape_no_shape_features
-        if not rectangle_features:
-            rectangle_features = rectangle_features
-        if 'valid' in recognizer_result:
-            recognized_strokes.extend(candidate)
-            results.append(recognizer_result)
-    unrecognized_strokes = get_unrecognized_strokes(recognized_strokes, content)
-    edges = connection_grouper(results, unrecognized_strokes)
+    # for candidate in candidates:
+    #     # strokes_of_candidate = get_strokes_from_candidate(candidate, content)
+    #     # plot_strokes_without_scala(strokes_of_candidate)
+    #     # check if no values from the candidate are in recognized_strokes
+    #     # if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
+    #     recognizer_result, shape_no_shape_features, rectangle_features = recognizer({'use': REJECTORS[args.rejector], 'name':args.rejector},  CLASSIFIERS[args.classifier], candidate, resampled_content)
+    #     candidates_already_checked.append(candidate)
+    #     if not shape_no_shape_features:
+    #         shape_no_shape_features = shape_no_shape_features
+    #     if not rectangle_features:
+    #         rectangle_features = rectangle_features
+    #     if 'valid' in recognizer_result:
+    #         recognized_strokes.extend(candidate)
+    #         results.append(recognizer_result)
+    unrecognized_strokes = get_unrecognized_strokes(recognized_strokes, resampled_content)
+    edges = connection_localizer(results, unrecognized_strokes)
     results.extend(edges)
     
     

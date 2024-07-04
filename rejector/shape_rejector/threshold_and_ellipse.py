@@ -1,6 +1,5 @@
 import numpy as np
-from rejector.shape_rejector.rejector_with_threshold import use as use_rejector_with_threshold
-from helper.utils import hellinger_distance,  distance, pearsons_correlation
+from helper.utils import distance
 import json
 
 
@@ -9,7 +8,6 @@ def use(X, candidate):
     # first_result = use_rejector_with_threshold(X, candidate)
     with open(f'rejector/clusters.json', 'r') as f:
         data = json.load(f)
-    print('X', X)
     F1_circle = data['circle']['F1']
     F2_circle = data['circle']['F2']
     circle_S = data['circle']['S']

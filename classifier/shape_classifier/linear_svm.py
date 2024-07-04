@@ -42,7 +42,7 @@ def use(X, candidate)-> dict:
     X = np.array(X)
     # get the right model
     joblib_file = 'classifier/shape_classifier/linear_svm_models/svm_model_20240622_225934.joblib'
-    
+    # joblib_file = 'classifier/shape_classifier/linear_svm_models/svm_model_20240704_042040.joblib'
     # Load the model
     loaded_clf = joblib.load(joblib_file)
      # Ensure X is a 2D array
@@ -60,7 +60,7 @@ def use(X, candidate)-> dict:
     # print('probability', probability)    
     # check if probability of label 0 is greater than 0.5
     
-    # if probability[0,0] > 0.8:
+    # if probability[0,0] > probability[0,1] and probability[0,0] > 0.8:
     #     return {'valid': {'circle': candidate}}
     # elif probability[0,1] > 0.8:
     #     return {'valid': {'rectangle': candidate}}

@@ -8,15 +8,28 @@ def convert_dict_to_nparray(points):
 
     
 def get_min_distance(stroke1:dict, stroke2:dict) -> float:
-#     
+#    
     """Calculate the minimum Euclidean distance between all point pairs of two strokes."""
     # min_distance:float = float('inf')
     # points_stroke1:list[dict] = next(iter(stroke1.values()))
     # points_stroke2:list[dict] = next(iter(stroke2.values()))
     s1 = convert_dict_to_nparray(stroke1)
     s2 = convert_dict_to_nparray(stroke2)
-    
+
     return distance.cdist(s1,s2).min(axis=1).min()
+
+def get_min_distance2(stroke1:dict, stroke2:dict) -> float:
+    s1 = convert_dict_to_nparray(stroke1)
+    s2 = convert_dict_to_nparray(stroke2)
+    # Calculate the distances between the single point in s1 and all points in s2
+    distances = distance.cdist(s1, s2)[0]
+    
+    # Find the minimum distance and the index of the closest point in s2
+    min_distance = distances.min()
+    min_index = distances.argmin()
+    closest_point = s2[min_index]
+    
+    return min_distance, closest_point
 
 def euclidean_distance(point1: dict, point2:dict) -> float:
     

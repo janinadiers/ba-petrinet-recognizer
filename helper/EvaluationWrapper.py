@@ -6,7 +6,7 @@ import datetime
 class EvaluationWrapper:
     def __init__(self, recognize:callable, group_connections:callable):
         self._recognize = recognize
-        self.group_connections = group_connections
+        self._group_connections = group_connections
         self.truth = None
         self.columns = ['circle', 'rectangle','no_shape', 'total', 'truth', 'accuracy']
         self.rows = ['circle', 'rectangle', 'diamond', 'ellipse', 'parallelogram', 'line', 'double circle', 'no_shape', 'total']
@@ -17,6 +17,22 @@ class EvaluationWrapper:
         self.times = []
         self.valid_shapes = 0
 
+    def get_truth_without_lines(self):
+        truth_without_lines = []
+        for dictionary in self.truth:
+            for shape_name, trace_ids in dictionary.items():
+                if shape_name != 'line':
+                    truth_without_lines.append({shape_name: trace_ids})
+        return truth_without_lines
+    
+    def get_lines(self):
+        lines = []
+        for dictionary in self.truth:
+            for shape_name, trace_ids in dictionary.items():
+                if shape_name == 'line':
+                    for trace_id in trace_ids:
+                        lines.append([trace_id])
+        return lines
 
     def get_amount_of_valid_shapes(self):
         return self.valid_shapes
@@ -72,20 +88,32 @@ class EvaluationWrapper:
                 self.matrix.at[row, 'accuracy'] = '-'  
     
     
-    def group_connections(self, shapes, unrecognized_strokes):
-        edges = self.group_connections(shapes, unrecognized_strokes)
+    def group_connections(self, shapes, content):
+        lines = self.get_lines()
+        line_strokes = [get_strokes_from_candidate(line, content)[0] for line in lines]
+        shapes = self.get_truth_without_lines()
+        shape_strokes = []
+        for shape in shapes:
+            shape_name = next(iter(shape))
+            shape_strokes.append({shape_name: get_strokes_from_candidate(shape[shape_name], content)})
+        edges = self._group_connections(shape_strokes, line_strokes)
+        print('edges', len(edges))
         truth_contains_edge = False
-        correctly_recognized_edges = 0
         for edge in edges:
+            print(len(edge['valid']['line']))
+            line_indices = [content.index(line) for line in edge['valid']['line']]
             for dictionary in self.truth:
                 for shape_name, trace_ids in dictionary.items():
-                    if set(trace_ids) == set(edge['valid']['line']):  
-                        print('>>>>>>>>>>>>>>>>>>truth contains edge!>>>>>>>>>>>>>>>>>>>>>>>>>', edge['valid'], shape_name)
+                    # find the indices of the line strokes in content
+                    
+                    print('line_indices', line_indices, trace_ids, shape_name)
+                    if set(trace_ids) == set(line_indices):  
+                        print('>>>>>>>>>>>>>>>>>>truth contains edge!>>>>>>>>>>>>>>>>>>>>>>>>>')
                         truth_contains_edge = True
                         # self.matrix.at[shape_name, 'line'] += 1
            
             if not truth_contains_edge:
-                print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<wrong recognition: no_shape was recognized as line!>>>>>>>>>>>>>>>>>>>>>', edge['valid'])
+                print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<wrong recognition: no_shape was recognized as line!>>>>>>>>>>>>>>>>>>>>>')
                 # self.matrix.at['no_shape', 'line'] += 1
             truth_contains_edge = False
            

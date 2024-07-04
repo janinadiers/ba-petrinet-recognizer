@@ -276,7 +276,6 @@ def hellinger_distance(P, Q):
     
     # Compute the Hellinger distance
     distance = np.sqrt(np.sum((np.sqrt(P) - np.sqrt(Q)) ** 2)) / np.sqrt(2)
-    print('distance', distance)
     return distance
 
 def get_strokes_from_candidate(candidate, strokes):
@@ -363,12 +362,11 @@ def plot_strokes(strokes, points=None):
     
     # Function to plot strokes correctly
 def plot_strokes_without_scala(strokes, points=None):
-    print(strokes)
    # Get the data range    
-    min_x, max_x, min_y, max_y = get_data_range(strokes)
+    # min_x, max_x, min_y, max_y = get_data_range(strokes)
     # Set minimum figure size
-    min_width = 5
-    min_height = 5
+    # min_width = 5
+    # min_height = 5
     # Calculate figure size dynamically
     # fig_width = max(min_width, max_x - min_x)
     # fig_height = max(min_height, max_y - min_y)
