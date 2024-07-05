@@ -70,13 +70,13 @@ result_obj = {
 }
  
 # write results into json file
-with open(f'rejector/clusters.json', 'a') as f:
-    json.dump(result_obj, f, indent=4)
+# with open(f'rejector/clusters.json', 'a') as f:
+#     json.dump(result_obj, f, indent=4)
 
 all_circle_features.extend(all_rectangle_features)
 # all_circle_features.extend(all_no_shape_features)   
 
-# visualize_clusters(all_circle_features, labels)
+visualize_clusters(all_circle_features, labels)
 
 
     

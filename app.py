@@ -57,7 +57,6 @@ def post_data():
     response_data = []
     
     for item in data:
-        print('hiier: ', item)
         response_data.append(item)
     # remove file from inkml_requests and inkml_results
     os.remove(f'inkml_requests/{time_stamp}.inkml')

@@ -76,7 +76,7 @@ parser.add_argument('--recognizer', dest='recognizer', type=str, nargs='?', acti
                     help='select a recognizer, random_mock_recognizer, perfect_mock_recognizer or shape_recognizer')
 parser.add_argument('--classifier', dest='classifier', type=str, nargs='?', action='store', default='linear_svm',
                     help='select a classifier, template_matching or linear_svm')
-parser.add_argument('--rejector', dest='rejector', type=str, nargs='?', action='store', default='rejector_with_threshold',
+parser.add_argument('--rejector', dest='rejector', type=str, nargs='?', action='store', default='one_class_svm',
                     help='select a rejector, like hellinger_plus_correlation')
 parser.add_argument('--other_ratio', dest='other_ratio', type=str, nargs='?', action='store',
                     help='scales input to another dimension')
@@ -160,23 +160,22 @@ for i, path in enumerate(file_paths):
     unrecognized_strokes = []
     candidates_already_checked = []
    
-    # for candidate in candidates:
-    #     # strokes_of_candidate = get_strokes_from_candidate(candidate, content)
-    #     # plot_strokes_without_scala(strokes_of_candidate)
-    #     # check if no values from the candidate are in recognized_strokes
-    #     # if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
-    #     recognizer_result, shape_no_shape_features, rectangle_features = recognizer({'use': REJECTORS[args.rejector], 'name':args.rejector},  CLASSIFIERS[args.classifier], candidate, resampled_content)
-    #     candidates_already_checked.append(candidate)
-    #     if not shape_no_shape_features:
-    #         shape_no_shape_features = shape_no_shape_features
-    #     if not rectangle_features:
-    #         rectangle_features = rectangle_features
-    #     if 'valid' in recognizer_result:
-    #         recognized_strokes.extend(candidate)
-    #         results.append(recognizer_result)
-    unrecognized_strokes = get_unrecognized_strokes(recognized_strokes, resampled_content)
-    edges = connection_localizer(results, unrecognized_strokes)
-    results.extend(edges)
+    for candidate in candidates:
+        # check if no values from the candidate are in recognized_strokes
+        # if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
+        recognizer_result, shape_no_shape_features, rectangle_features = recognizer({'use': REJECTORS[args.rejector], 'name':args.rejector},  CLASSIFIERS[args.classifier], candidate, resampled_content)
+        print('after feature extraction and recognizer')
+        candidates_already_checked.append(candidate)
+        if not shape_no_shape_features:
+            shape_no_shape_features = shape_no_shape_features
+        if not rectangle_features:
+            rectangle_features = rectangle_features
+        if 'valid' in recognizer_result:
+            recognized_strokes.extend(candidate)
+            results.append(recognizer_result)
+    # unrecognized_strokes = get_unrecognized_strokes(recognized_strokes, resampled_content)
+    # edges = connection_localizer(results, unrecognized_strokes)
+    # results.extend(edges)
     
     
     printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)

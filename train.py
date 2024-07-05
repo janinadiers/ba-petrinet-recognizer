@@ -2,6 +2,7 @@ from classifier.shape_classifier.template_matching import use as template_matchi
 from classifier.shape_classifier.linear_svm import train as linear_svm
 from classifier.shape_classifier.rbf_svm import train as rbf_svm
 from classifier.shape_classifier.one_class_rectangle_svm import train as one_class_svm_rectangle
+from classifier.shape_classifier.one_class_circle_svm import train as one_class_svm_circle
 from rejector.shape_rejector.hellinger_and_correlation import use as hellinger_plus_correlation
 from rejector.shape_rejector.linear_svm import train as linear_svm_rejector
 from rejector.shape_rejector.rbf_svm import train as rbf_svm_rejector
@@ -10,14 +11,15 @@ import argparse
 import os
 from helper.parsers import parse_strokes_from_inkml_file, parse_ground_truth
 from grouper.shape_grouper.optimized_grouper import group as grouper
-from helper.features import get_circle_rectangle_features, get_shape_no_shape_features
+from helper.features import get_circle_rectangle_features, get_shape_no_shape_features, get_hellinger_correlation_features
 from helper.normalizer import resample_strokes
 
 CLASSIFIERS = {
     'template_matching' : template_matching,
     'linear_svm' : linear_svm,
     'rbf_svm' : rbf_svm,
-    'one_class_svm_rectangle' : one_class_svm_rectangle
+    'one_class_svm_rectangle' : one_class_svm_rectangle,
+    'one_class_svm_circle' : one_class_svm_circle
 }
 
 REJECTORS = {
@@ -114,7 +116,7 @@ def prepare_one_class_classifier_data(path):
             for shape_name, trace_ids in dictionary.items():
                 if set(trace_ids) == set(candidate):
                     if shape_name == 'rectangle':
-                        result = get_circle_rectangle_features(candidate, resampled_content)
+                        result = get_hellinger_correlation_features(candidate, resampled_content)
                         if not feature_names:
                             feature_names = result['feature_names']
                                    
@@ -122,7 +124,7 @@ def prepare_one_class_classifier_data(path):
 
                     # print(shape_name)
                     # print('---------------------------')
-                    get_circle_rectangle_features(candidate, resampled_content)
+                    # get_hellinger_correlation_features(candidate, resampled_content)
                     # print('---------------------------')
     
     return features
@@ -164,6 +166,9 @@ for i, path in enumerate(file_paths):
         if args.classifier == 'one_class_svm_rectangle':
             features = prepare_one_class_classifier_data(path)
             all_features.extend(features)
+        elif args.classifier == 'one_class_svm_circle':
+            features = prepare_one_class_classifier_data(path)
+            all_features.extend(features)
         else:
             features, labels = prepare_classifier_data(path)
             all_features.extend(features)
@@ -182,6 +187,9 @@ if args.classifier:
         print('Invalid classifier. Exiting...')
         exit()
     elif args.classifier == 'one_class_svm_rectangle':
+        classifier = CLASSIFIERS[args.classifier]
+        classifier(all_features, feature_names)
+    elif args.classifier == 'one_class_svm_circle':
         classifier = CLASSIFIERS[args.classifier]
         classifier(all_features, feature_names)
     else:

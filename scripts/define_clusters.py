@@ -9,7 +9,16 @@ from helper.utils import distance
 from matplotlib.patches import Ellipse
 from helper.utils import get_strokes_from_candidate
 import math
+import networkx as nx
 
+
+def is_closed_graph(stroke):
+    G = nx.Graph()
+    for i in range(len(stroke) - 1):
+        point1 = (stroke[i]['x'], stroke[i]['y'])
+        point2 = (stroke[i + 1]['x'], stroke[i + 1]['y'])
+        G.add_edge(point1, point2)
+    return nx.is_eulerian(G) or nx.is_hamiltonian(G)
 
 def calculate_ellipse_parameters_n_dimensional(feature_vectors, cluster_center):
     furthest_point = max(feature_vectors, key=lambda vector: distance(vector, cluster_center))
@@ -71,14 +80,14 @@ def get_features(file_path, strokes, candidates)->dict:
     no_shape_features = []
    
     for circle in circles:
-        circle_features.append(get_hellinger_correlation_features(circle, strokes)['features'])
+        circle_features.append(get_circle_rectangle_features(circle, strokes)['features'])
     for rectangle in rectangles:
-        rectangle_features.append(get_hellinger_correlation_features(rectangle, strokes)['features'])
+        rectangle_features.append(get_circle_rectangle_features(rectangle, strokes)['features'])
     for ellipse in ellipses:
-        ellipse_features.append(get_hellinger_correlation_features(ellipse, strokes)['features'])
+        ellipse_features.append(get_circle_rectangle_features(ellipse, strokes)['features'])
     circle_features.extend(ellipse_features)
     # for no_shape in no_shapes:
-    #     no_shape_features.append(get_hellinger_correlation_features(no_shape, strokes)['features'])
+    #     no_shape_features.append(get_circle_rectangle_features(no_shape, strokes)['features'])
     return circle_features, rectangle_features
     # return circle_features, rectangle_features, no_shape_features
     
@@ -87,7 +96,7 @@ def visualize_clusters(X, labels):
 
     x_lim=(-1, 1)
     y_lim=(-1, 1)
-    print('X', X, labels)
+    # print('X', X, labels)
     # # transform the data to be within a specified range to avoid biasing the MDS results towards features with larger ranges.
     scaler = MinMaxScaler() 
     X_normalized = scaler.fit_transform(X)

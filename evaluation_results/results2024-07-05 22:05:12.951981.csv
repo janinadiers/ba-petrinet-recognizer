@@ -1,0 +1,16 @@
+,circle,rectangle,no_shape,total,truth,accuracy
+circle,266,0,13,279,279,95%
+rectangle,0,0,0,0,0,-
+diamond,0,0,0,0,0,-
+ellipse,0,0,0,0,0,-
+parallelogram,0,0,0,0,0,-
+line,2,0,793,795,795,99%
+double circle,75,0,58,133,133,43%
+no_shape,1828,5,26004,27837,27837,93%
+total,2171,5,26868,58088,29044,0
+# dataset: ['./__datasets__/FA_1.1/no_text/FA_Validation.txt']
+# grouper: optimized_grouper
+# classifier: linear_svm
+# rejector: one_class_svm
+# shape no shape features: closed_shape
+# circle rectangle features: number_of_convex_hull_verticesstandard_deviation_to_template_with_vertical_linesstandard_deviation_to_template_with_horizontal_linesdirectional_clusters

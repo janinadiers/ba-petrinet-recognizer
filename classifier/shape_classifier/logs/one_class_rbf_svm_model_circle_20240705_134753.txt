@@ -1,0 +1,6 @@
+features: ['is_closed_shape', 'closed_convex_hull', 'nearest_point_for_everey_edge_point']
+classifier: rbf_svm
+accuracy: 95.45454545454545%
+nu: 0.1
+gamma: 0.5
+random_state: 42

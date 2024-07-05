@@ -180,6 +180,8 @@ def order_strokes(strokes):
         ordered_strokes.append(closest_stroke)
         _strokes.pop(closest_index)
     return ordered_strokes
+
+
  
 
 def get_vertical_lines(stroke):

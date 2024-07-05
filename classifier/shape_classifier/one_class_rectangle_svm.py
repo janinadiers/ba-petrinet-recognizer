@@ -43,7 +43,7 @@ def train(X, feature_names):
     result = ['features: '+ str(feature_names), 'classifier: '+ 'rbf_svm', 'accuracy: '+ str(accuracy_test * 100) + '%', 'nu: 0.1', 'gamma: 0.5', 'random_state: 42']
 
     #save model configuration to logs
-    with open(f"classifier/shape_classifier/logs/one_class_rbf_svm_model_circle_{timestamp}.txt", 'w') as f:
+    with open(f"classifier/shape_classifier/logs/one_class_rbf_svm_model_rectangle_{timestamp}.txt", 'w') as f:
         for item in result:
             f.write(item + '\n')
 
@@ -51,7 +51,7 @@ def train(X, feature_names):
 def use(X, candidate)-> dict:
     X = np.array(X)
     
-    joblib_file = 'classifier/shape_classifier/one_class_rbf_svm_models/one_class_rbf_svm_model_rectangle_20240618_095016.joblib'
+    joblib_file = 'classifier/shape_classifier/one_class_rbf_svm_models/one_class_rbf_svm_model_rectangle_20240705_135449.joblib'
     
     loaded_clf = joblib.load(joblib_file)
      # Ensure X is a 2D array
@@ -64,27 +64,10 @@ def use(X, candidate)-> dict:
     
     if predicted_label[0] == -1:
         # print('outlier')
-        # return {'invalid': candidate}
-        return {'valid': {'circle': candidate}}
+        return {'invalid': candidate}
     else:
         # print('inlier')
         return {'valid': {'rectangle': candidate}}
     
-def plot_decision_boundary(clf, X):
-    decision_function_values = clf.decision_function(X)
-    
-    # Create a grid to plot the decision boundary
-    xx, yy = np.meshgrid(np.linspace(X[:, 0].min() - 1, X[:, 0].max() + 1, 500),
-                        np.linspace(X[:, 1].min() - 1, X[:, 1].max() + 1, 500))
 
-    # Get the decision function values for the grid
-    Z = clf.decision_function(np.c_[xx.ravel(), yy.ravel()])
-    Z = Z.reshape(xx.shape)
-
-    # Plot the decision boundary and margins
-    plt.contourf(xx, yy, Z, levels=np.linspace(Z.min(), 0, 7), cmap=plt.cm.PuBu)
-    plt.contourf(xx, yy, Z, levels=[0, Z.max()], colors='orange')
-    plt.scatter(X[:, 0], X[:, 1], c=y, edgecolors='k', linewidth=1, marker='o')
-    plt.contour(xx, yy, Z, levels=[0], linewidths=2, colors='k')
-    plt.show()
     
