@@ -49,7 +49,7 @@ def post_data():
         time.sleep(0.1)  # Sleep briefly to avoid busy-waiting
         
     data = None
-  
+    
     with open(f'inkml_results/{time_stamp}.json', 'r') as f:
         data = json.load(f)
         

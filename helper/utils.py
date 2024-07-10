@@ -334,10 +334,11 @@ def plot_strokes(strokes, points=None):
    
     # # Create the plot
     fig, ax = plt.subplots(figsize=(fig_width, fig_height))
-    for stroke in strokes:
-        x = [point['x'] for point in stroke]
-        y = [point['y'] for point in stroke]
-        ax.plot(x, y, 'bo-')
+    # for stroke in strokes:
+    #     for point in stroke:
+    #     # x = [point['x'] for point in stroke]
+    #     # y = [point['y'] for point in stroke]
+    #         ax.plot(point['x'], point['y'], 'bo')
 
     # Set the limits
     ax.set_xlim(min_x - 0.5, max_x + 0.5)
@@ -348,13 +349,17 @@ def plot_strokes(strokes, points=None):
         if len(stroke) == 0:
             continue
         _points = [(point['x'], point['y']) for point in stroke]  # Extract points for the current stroke
-        x, y = zip(*_points)  # Unpack the stroke into x and y coordinates
-        plt.plot(x, y, marker='o', linestyle='-', color='b')  # Plot the stroke
+        # x, y = zip(*_points)  # Unpack the stroke into x and y coordinates
+        for point in _points:
+            ax.plot(point[0], point[1], 'bo')
     # if points is not None plot the points
     if points is not None:
         _points = [(point['x'], point['y']) for point in points]  # Extract points for the current stroke
-        x, y = zip(*_points)  # Unpack the stroke into x and y coordinates
-        plt.plot(x, y, marker='o', linestyle='-', color='r')  # Plot the stroke
+        for point in _points:
+            ax.plot(point[0], point[1], 'ro')
+
+        # x, y = zip(*_points)  # Unpack the stroke into x and y coordinates
+        # plt.plot(x, y, marker='o', color='r')  # Plot the stroke
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.title('Stroke Visualization')

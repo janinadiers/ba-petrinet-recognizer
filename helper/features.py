@@ -19,7 +19,6 @@ import math
 
 
 def calculate_direction(point1, point2):
-    print('point1', point1)
     dx = point2['x'] - point1['x']
     dy = point2['y'] - point1['y']
     
@@ -38,7 +37,6 @@ def analyze_stroke_directions(stroke, tolerance=5):
         # # Normalize angle difference
         # if angle_diff > math.pi:
         #     angle_diff = 2 * math.pi - angle_diff
-        print('angle_diff_degrees: ', angle)
      # calculate up and down directions and calculate left and right directions
         if math.isclose(angle, 0, abs_tol=tolerance) or math.isclose(angle, 180, abs_tol=tolerance) or math.isclose(angle, -180, abs_tol=tolerance):
             amount_up_down_directions += 1
@@ -49,8 +47,7 @@ def analyze_stroke_directions(stroke, tolerance=5):
     #     print('hiiier: ', angle_diff_degrees)
     #     if 90 - tolerance <= angle_diff_degrees <= 90 + tolerance:
     #         perpendicular_changes += 1
-    print('UP DOWN DIRECTIONS: ', amount_up_down_directions)
-    print('LEFT RIGHT DIRECTIONS: ', amount_left_right_directions)
+   
     return amount_up_down_directions + amount_left_right_directions
 
 
@@ -325,8 +322,6 @@ def is_closed_shape(stroke, edge_point_positions=None):
             distances.append(distance(edge_point, point2))
         min_distances.append(min(distances))
         
-    # return np.mean(min_distances)
-    # return max(min_distances)
     return sum(min_distances)
 
 def is_closed_convex_hull(stroke):
@@ -594,13 +589,13 @@ def findparallel(strokes):
     return len(parallel_lines)
 
 def is_continuous(stroke, tolerance=1):
+    distances = []
     for i in range(len(stroke) - 1):
         point1 = stroke[i]
         point2 = stroke[i + 1]
         distance = np.sqrt((point1['x'] - point2['x'])**2 + (point1['y'] - point2['y'])**2)
-        if distance > tolerance:
-            return False
-    return True
+        distances.append(distance)
+    return max(distances)
 
 def get_edge_points(strokes_of_candidate):
     edge_point_positions = []
@@ -631,12 +626,14 @@ def get_shape_no_shape_features(candidate, strokes):
     # plot_strokes(translated_strokes, edge_points)
     
     has_only_duplicates = stroke_has_only_duplicates(stroke)
-    # bounding_box = get_bounding_box(stroke)
+   
     if (len(stroke) < 5 or has_only_duplicates):
         return {'feature_names': ['distance_between_stroke_edge_points'], 'features': None}
     closed_shape = is_closed_shape(stroke, edge_point_positions)
+    # aspect ratio
+    # compute_convex_hull_area_to_perimeter_ratio(stroke)
     
-    return {'feature_names': ['closed_shape'], 'features': [closed_shape]}
+    return {'feature_names': ['closed_convex_hull'], 'features': [closed_shape]}
 
 
 def get_circle_rectangle_features(candidate, strokes):
@@ -652,17 +649,19 @@ def get_circle_rectangle_features(candidate, strokes):
     if (len(stroke) < 5 or has_only_duplicates or bounding_box[4] == 0 or bounding_box[5] == 0):
         return {'feature_names': ['distance_between_stroke_edge_points'], 'features': None}
     number_of_convex_hull_vertices = get_number_of_convex_hull_vertices(stroke)
+    print('number_of_convex_hull_vertices', number_of_convex_hull_vertices)
     average_distance_to_template_with_vertical_lines =calculate_average_distance_to_template_shape_with_vertical_lines(strokes_of_candidate, stroke, candidate)
     average_distance_to_template_with_horizontal_lines = calculate_average_distance_to_template_shape_with_horizontal_lines(strokes_of_candidate, stroke, candidate)
-   
+    nearest_point_for_every_edge_point = find_nearest_point_for_everey_edge_point(stroke)
+
 
     # amount_of_strokes = len(strokes_of_candidate)
     direction_vectors = calculate_direction_vectors(stroke)
     labels = cluster_direction_vectors(direction_vectors, np.array([[point['x'], point['y']] for point in stroke]))
     # visualize_vectors(np.array([[point['x'], point['y']] for point in stroke]), direction_vectors, labels)
     # average_distance_to_template_shape_circle = calculate_average_min_distance_to_template_shape(stroke, candidate)[0]
-    return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'directional_clusters'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines, count_clusters(labels) ]}
-    # return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines]}
+    # return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'directional_clusters'], 'features': [number_of_convex_hull_vertices, nearest_point_for_every_edge_point]}
+    return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'direction_vectors'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines, count_clusters(labels)]}
 
     # return {'feature_names': ['directional_clusters'], 'features': [count_clusters(labels) ]}
     # return {'feature_names': ['is_closed_shape', ], 'features': [closed_shape] }

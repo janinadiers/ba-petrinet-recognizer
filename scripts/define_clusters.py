@@ -1,5 +1,5 @@
 from helper.parsers import parse_ground_truth
-from helper.features import get_circle_rectangle_features, get_hellinger_correlation_features
+from helper.features import get_circle_rectangle_features, get_hellinger_correlation_features, get_shape_no_shape_features
 import numpy as np
 from sklearn.manifold import MDS
 import matplotlib.pyplot as plt
@@ -9,7 +9,9 @@ from helper.utils import distance
 from matplotlib.patches import Ellipse
 from helper.utils import get_strokes_from_candidate
 import math
+import seaborn as sns
 import networkx as nx
+import pandas as pd
 
 
 def is_closed_graph(stroke):
@@ -87,23 +89,27 @@ def get_features(file_path, strokes, candidates)->dict:
         ellipse_features.append(get_circle_rectangle_features(ellipse, strokes)['features'])
     circle_features.extend(ellipse_features)
     # for no_shape in no_shapes:
-    #     no_shape_features.append(get_circle_rectangle_features(no_shape, strokes)['features'])
+    #     features = get_circle_rectangle_features(no_shape, strokes)['features']
+    #     no_shape_features.append(features)
     return circle_features, rectangle_features
     # return circle_features, rectangle_features, no_shape_features
     
 def visualize_clusters(X, labels):
   
 
-    x_lim=(-1, 1)
-    y_lim=(-1, 1)
+    for i, elem in enumerate(X):
+        if not isinstance(elem, (list, np.ndarray)):
+            X.remove(elem)
+            labels.remove(labels[i])
+    labels = np.array(labels)
     # print('X', X, labels)
     # # transform the data to be within a specified range to avoid biasing the MDS results towards features with larger ranges.
     scaler = MinMaxScaler() 
     X_normalized = scaler.fit_transform(X)
-    
      # Calculate cluster centers based on the normalized data
     unique_labels = np.unique(labels)
     cluster_centers = np.array([X_normalized[labels == label].mean(axis=0) for label in unique_labels])
+  
     
     combined_data = np.vstack([X_normalized, cluster_centers])
     dissimilarity_matrix = pairwise_distances(combined_data, metric='euclidean')
@@ -121,10 +127,14 @@ def visualize_clusters(X, labels):
     colors = ['green', 'blue']
     # shape_labels = ['circle', 'rectangle', 'no_shape']
     shape_labels = ['circle', 'rectangle']
+    
+     # Create a mapping from unique labels to color indices
+    label_to_color_index = {label: index for index, label in enumerate(unique_labels)}
+    
     for label in unique_labels:
         indices = np.where(labels == label)
         plt.scatter(cluster_transformed[indices, 0], cluster_transformed[indices, 1],
-                    c=colors[label], label=shape_labels[label], s=50, alpha=0.2)
+                    c=colors[label_to_color_index[label]], label=shape_labels[label_to_color_index[label]], s=50, alpha=0.2)
     
     
     # Plot the cluster centers and their respective circles
@@ -175,4 +185,38 @@ def visualize_clusters(X, labels):
     # Load the clusters from the file
     # with open('clusters.pkl', 'rb') as f:
     #     cluster_centers, labels = pickle.load(f)
+    
+    
+def visualize_feature_separation(values, labels):
+    
+    for i, elem in enumerate(values):
+        if not isinstance(elem, (list, np.ndarray)):
+           #elemnt ist none und soll entfernt werden
+            values.remove(elem)
+            labels.remove(labels[i])
+            
+    values = np.array(values)
+    labels = np.array(labels)
+    
+    # Erstellen Sie eine Farbkodierung für die Labels
+    unique_labels = np.unique(labels)
+    
+    colors = plt.cm.rainbow(np.linspace(0, 1, len(unique_labels)))
+  
+    color_dict = {label: color for label, color in zip(unique_labels, colors)}
+    
+    # Plotten Sie die Werte
+    plt.figure(figsize=(10, 6))
+    
+
+    for label in unique_labels:
+        indices = labels == label
+        plt.scatter(values[indices],np.arange(len(values))[indices], color=color_dict[label], label=label)
+    
+    plt.xlabel('Values')
+    plt.ylabel('Index')
+    plt.title('Scatter Plot of Values with Different Colors for Labels')
+    plt.legend(title='Labels')
+    plt.grid(True)
+    plt.show()
     

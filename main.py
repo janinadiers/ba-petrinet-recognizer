@@ -11,6 +11,7 @@ from classifier.shape_classifier.linear_svm import use as linear_svm
 from classifier.shape_classifier.rbf_svm import use as rbf_svm
 from classifier.shape_classifier.one_class_rectangle_svm import use as one_class_rectangle_svm
 from classifier.shape_classifier.classifier_with_thresholds import use as classifier_with_thresholds
+from classifier.shape_classifier.perfect_mock import use as perfect_mock_classifier
 from rejector.shape_rejector.threshold_and_ellipse import use as threshold_and_ellipse
 from rejector.shape_rejector.hellinger_and_correlation import use as hellinger_plus_correlation
 from rejector.shape_rejector.linear_svm import use as linear_svm_rejector
@@ -22,6 +23,7 @@ from helper.parsers import parse_strokes_from_inkml_file
 from helper.normalizer import resample_strokes
 from helper.normalizer import convert_coordinates
 from helper.utils import get_unrecognized_strokes
+from scripts.determine_best_closed_shape_threshold import get_threshold, next_threshold
 import os
 from helper.print_progress_bar import printProgressBar
 import datetime
@@ -48,7 +50,8 @@ CLASSIFIERS = {
     'linear_svm' : linear_svm,
     'rbf_svm' : rbf_svm,
     'one_class_rectangle_svm' : one_class_rectangle_svm,
-    'classifier_with_thresholds' : classifier_with_thresholds
+    'classifier_with_thresholds' : classifier_with_thresholds,
+    'perfect_mock_classifier' : perfect_mock_classifier
 }
 
 REJECTORS = {
@@ -76,7 +79,7 @@ parser.add_argument('--recognizer', dest='recognizer', type=str, nargs='?', acti
                     help='select a recognizer, random_mock_recognizer, perfect_mock_recognizer or shape_recognizer')
 parser.add_argument('--classifier', dest='classifier', type=str, nargs='?', action='store', default='linear_svm',
                     help='select a classifier, template_matching or linear_svm')
-parser.add_argument('--rejector', dest='rejector', type=str, nargs='?', action='store', default='one_class_svm',
+parser.add_argument('--rejector', dest='rejector', type=str, nargs='?', action='store', default='rejector_with_threshold',
                     help='select a rejector, like hellinger_plus_correlation')
 parser.add_argument('--other_ratio', dest='other_ratio', type=str, nargs='?', action='store',
                     help='scales input to another dimension')
@@ -108,14 +111,7 @@ def validate_args(args):
     
 validate_args(args)
 
-evaluationWrapper = None if args.production else EvaluationWrapper(RECOGNIZERS[args.recognizer], connection_grouper)
 
-recognizer = RECOGNIZERS[args.recognizer] if args.production else evaluationWrapper.recognize
-connection_localizer = connection_grouper if args.production else evaluationWrapper.group_connections
-grouper = GROUPERS[args.grouper]
-shape_no_shape_features = None
-rectangle_features = None
-circle_features = None
 
 file_paths = []
 if args.inkml:
@@ -138,13 +134,27 @@ printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
 resampled_content = None
 content = None
 
+# while get_threshold() < 1:
+    
+evaluationWrapper = None if args.production else EvaluationWrapper(RECOGNIZERS[args.recognizer], connection_grouper)
+recognizer = RECOGNIZERS[args.recognizer] if args.production else evaluationWrapper.recognize
+connection_localizer = connection_grouper if args.production else evaluationWrapper.group_connections
+grouper = GROUPERS[args.grouper]
+shape_no_shape_features = None
+rectangle_features = None
+circle_features = None
+
+# next_threshold()
+# print('WHILE Lopp: Threshold:', get_threshold())
 for i, path in enumerate(file_paths):
     # if evaluationWrapper.get_amount_of_valid_shapes() >= 1225:
     #     break
-    print('Processing file: ', path)
+    print('Processing file: ', path, i , 'of', len(file_paths))
+    printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
+    
+
     evaluationWrapper.setCurrentFilePath(path) if not args.production else None
     content = parse_strokes_from_inkml_file(path)
-    
     if args.other_ratio:
         ratio = args.other_ratio.split('/')
         converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
@@ -154,34 +164,40 @@ for i, path in enumerate(file_paths):
     else:
         resampled_content = resample_strokes(content)
         candidates = grouper(resampled_content)
-        
+    
+    
     results = []
     recognized_strokes = []
     unrecognized_strokes = []
     candidates_already_checked = []
-   
-    for candidate in candidates:
-        # check if no values from the candidate are in recognized_strokes
-        # if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
-        recognizer_result, shape_no_shape_features, rectangle_features = recognizer({'use': REJECTORS[args.rejector], 'name':args.rejector},  CLASSIFIERS[args.classifier], candidate, resampled_content)
-        print('after feature extraction and recognizer')
-        candidates_already_checked.append(candidate)
-        if not shape_no_shape_features:
-            shape_no_shape_features = shape_no_shape_features
-        if not rectangle_features:
-            rectangle_features = rectangle_features
-        if 'valid' in recognizer_result:
-            recognized_strokes.extend(candidate)
-            results.append(recognizer_result)
-    # unrecognized_strokes = get_unrecognized_strokes(recognized_strokes, resampled_content)
-    # edges = connection_localizer(results, unrecognized_strokes)
-    # results.extend(edges)
-    
-    
-    printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
-    
+
+    for i,candidate in enumerate(candidates):
         
+        # check if no values from the candidate are in recognized_strokes
+        if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
+            recognizer_result, shape_no_shape_features, rectangle_features = recognizer({'use': REJECTORS[args.rejector], 'name':args.rejector},  {'use': CLASSIFIERS[args.classifier], 'name': args.classifier}, candidate, resampled_content)
+            candidates_already_checked.append(candidate)
+            if not shape_no_shape_features:
+                shape_no_shape_features = shape_no_shape_features
+            if not rectangle_features:
+                rectangle_features = rectangle_features
+            if 'valid' in recognizer_result:
+                recognized_strokes.extend(candidate)
+                results.append(recognizer_result)
+    unrecognized_strokes = get_unrecognized_strokes(recognized_strokes, resampled_content)
+    shape_strokes = []
+  
+    for shape in results:
+        shape_strokes.append({'shape_name': list(shape['valid'].keys())[0], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
+    edges = connection_localizer(shape_strokes, unrecognized_strokes)
+    print('edges', len(edges))
+    # results.extend(edges)
+
+
+
+    
 if not args.production:
+    evaluationWrapper.set_amount_of_invalid_candidates(candidates)
     evaluationWrapper.save_time()
     evaluationWrapper.set_total()
     evaluationWrapper.set_accuracy()
@@ -199,6 +215,7 @@ if args.save == 'y':
         f.write('# rejector: ' + str(args.rejector) + '\n')
         f.write('# shape no shape features: '+ ''.join(shape_no_shape_features) +'\n')
         f.write('# circle rectangle features: '+ ''.join(rectangle_features) +'\n')
+        f.write('# rejector threshold: '+ str(get_threshold()) +'\n')
 
 if args.production:
     file_name = args.inkml[0].split('/')[-1].split('.')[0]
@@ -234,13 +251,16 @@ if args.production:
             shape_id = 'p' + str(id_counter)
         # line still has to be implemented 
         # x and y values are being adapted to the canvas size of the petri net editors from I love petri nets
-        result_obj = {'shape_name': shape_name,'min_x': min_x, 'min_y': min_y, 'max_x': max_x, 'max_y': max_y, 'width': width, 'height': height, 'shape_id': shape_id}
+        print('candidates', candidates)
+        result_obj = {'shape_name': shape_name,'min_x': min_x, 'min_y': min_y, 'max_x': max_x, 'max_y': max_y, 'width': width, 'height': height, 'shape_id': shape_id, 'candidates': candidates}
         
         with open(f'inkml_results/{file_name}.json', 'a') as f:
             json.dump(result_obj, f, indent=4)
             if id_counter < len(results) - 1:
                 f.write(',\n')
         id_counter += 1
+    
     with open(f'inkml_results/{file_name}.json', 'a') as f:
         f.write(']')
+        
     

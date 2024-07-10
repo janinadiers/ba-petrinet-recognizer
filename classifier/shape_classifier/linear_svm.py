@@ -53,9 +53,9 @@ def use(X, candidate)-> dict:
     predicted_label = loaded_clf.predict(X)
     # get probability of label 0
     probability = loaded_clf.predict_proba(X)
-    print(f'Predicted label: {predicted_label[0]}')
-    print(f'Probability of label 0: {probability[0,0] * 100:.2f}%')
-    print(f'Probability of label 1: {probability[0,1] * 100:.2f}%')
+    # print(f'Predicted label: {predicted_label[0]}')
+    # print(f'Probability of label 0: {probability[0,0] * 100:.2f}%')
+    # print(f'Probability of label 1: {probability[0,1] * 100:.2f}%')
     # # How can I check the probability of label 0 and label 1?
     # print('probability', probability)    
     # check if probability of label 0 is greater than 0.5
