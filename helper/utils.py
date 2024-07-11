@@ -231,7 +231,6 @@ def get_position_values(strokes_of_candidate):
     max_y = 0
     width = 0
     height = 0
-    print('strokes_of_candidate', strokes_of_candidate)
     for stroke in strokes_of_candidate:
         for point in stroke:
             if point['x'] < min_x:

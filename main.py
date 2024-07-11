@@ -187,10 +187,16 @@ for i, path in enumerate(file_paths):
     unrecognized_strokes = get_unrecognized_strokes(recognized_strokes, resampled_content)
     shape_strokes = []
     
-    for shape in results:
-        shape_strokes.append({'shape_name': list(shape['valid'].keys())[0], 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
+    for i, shape in enumerate(results):
+        shape_name = list(shape['valid'].keys())[0]
+        if shape_name == 'circle':
+            shape_strokes.append({'shape_name': shape_name , 'shape_id': 'p' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
+        elif shape_name == 'rectangle':
+            shape_strokes.append({'shape_name': shape_name , 'shape_id': 't' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
+
+            
     edges = connection_localizer(shape_strokes, unrecognized_strokes)
-    print('edges', edges)
+   
     results.extend(edges)
 
 
@@ -244,15 +250,12 @@ if args.production:
         if shape_name == 'line':
             source_min_x, source_min_y, source_max_x, source_max_y, source_width, source_height = get_position_values(strokes_of_source_candidate)
             target_min_x, target_min_y, target_max_x, target_max_y, target_width, target_height = get_position_values(strokes_of_target_candidate)
-            print('Werte für source von line: ', source_min_x, source_min_y, source_max_x, source_max_y)
             height_factor_source = 80 / (source_min_y + source_max_y)
             height_factor_target = 80 / (target_min_y + target_max_y)
-            result_obj = {'shape_name': shape_name, 'source_min_x': source_min_x, 'source_min_y': source_min_y, 'source_max_x': source_max_x, 'source_max_y': source_max_y, 'target_min_x': target_min_x , 'target_min_y': target_min_y, 'target_max_x': target_max_x, 'target_max_y': target_max_y, 'shape_id': shape_id}
+            result_obj = {'shape_name': shape_name, 'source_min_x': source_min_x, 'source_min_y': source_min_y, 'source_max_x': source_max_x, 'source_max_y': source_max_y, 'target_min_x': target_min_x , 'target_min_y': target_min_y, 'target_max_x': target_max_x, 'target_max_y': target_max_y, 'shape_id': shape_id, 'target_id': result['valid']['line']['target_id'], 'source_id': result['valid']['line']['source_id']}
         else:
             min_x, min_y, max_x, max_y, width, height = get_position_values(strokes_of_candidate)
-            print('Werte für source von source', min_x, min_y, max_x, max_y)
             result_obj = {'shape_name': shape_name,'min_x': min_x, 'min_y': min_y, 'max_x': max_x, 'max_y': max_y, 'width': width, 'height': height, 'shape_id': shape_id, 'candidates': candidates}
-        print('result_obj', result_obj)
         with open(f'inkml_results/{file_name}.json', 'a') as f:
             json.dump(result_obj, f, indent=4)
             if id_counter < len(results) - 1:
