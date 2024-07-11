@@ -113,20 +113,20 @@ class EvaluationWrapper:
         edges = self._group_connections(shape_strokes, unrecognized_strokes)
         
         truth_contains_edge = False
-        for edge in edges:
-            line_indices = [resampled_content.index(line) for line in edge['valid']['line']]
-            for dictionary in self.truth:
-                for shape_name, trace_ids in dictionary.items():
-                    # find the indices of the line strokes in content
-                    print('line_indices', line_indices, trace_ids, shape_name)
-                    if set(trace_ids) == set(line_indices):  
-                        print('>>>>>>>>>>>>>>>>>>truth contains edge!>>>>>>>>>>>>>>>>>>>>>>>>>')
-                        truth_contains_edge = True
+        # for edge in edges:
+        #     line_indices = [resampled_content.index(line) for line in edge['valid']['line']]
+        #     for dictionary in self.truth:
+        #         for shape_name, trace_ids in dictionary.items():
+        #             # find the indices of the line strokes in content
+        #             print('line_indices', line_indices, trace_ids, shape_name)
+        #             if set(trace_ids) == set(line_indices):  
+        #                 print('>>>>>>>>>>>>>>>>>>truth contains edge!>>>>>>>>>>>>>>>>>>>>>>>>>')
+        #                 truth_contains_edge = True
            
-            if not truth_contains_edge:
-                print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<wrong recognition: no_shape was recognized as line!>>>>>>>>>>>>>>>>>>>>>')
-            truth_contains_edge = False
-           
+        #     if not truth_contains_edge:
+        #         print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<wrong recognition: no_shape was recognized as line!>>>>>>>>>>>>>>>>>>>>>')
+        #     truth_contains_edge = False
+        print('edges', edges)   
         return edges
 
         

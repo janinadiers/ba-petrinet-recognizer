@@ -13,14 +13,12 @@ def get_min_distance(stroke1:dict, stroke2:dict) -> float:
     # min_distance:float = float('inf')
     # points_stroke1:list[dict] = next(iter(stroke1.values()))
     # points_stroke2:list[dict] = next(iter(stroke2.values()))
-    
     s1 = convert_dict_to_nparray(stroke1)
     s2 = convert_dict_to_nparray(stroke2)
   
     return distance.cdist(s1,s2).min(axis=1).min()
 
 def get_min_distance2(stroke1:dict, stroke2:dict) -> float:
-    print('get_min_distance2')
     s1 = convert_dict_to_nparray(stroke1)
     s2 = convert_dict_to_nparray(stroke2)
    

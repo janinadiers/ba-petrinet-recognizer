@@ -238,6 +238,7 @@ def reconstruct_strokes_from_combined_strokes(strokes, combined_strokes:list[dic
         start = edge_point_positions[i]
         end = edge_point_positions[i + 1]
         reconstructed_strokes.append(combined_strokes[start:end + 1])
+    print('reconstructed_strokes', reconstructed_strokes)
     return reconstructed_strokes
 
 def path_length(points):

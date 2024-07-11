@@ -186,16 +186,16 @@ for i, path in enumerate(file_paths):
                 results.append(recognizer_result)
     unrecognized_strokes = get_unrecognized_strokes(recognized_strokes, resampled_content)
     shape_strokes = []
-  
-    for shape in results:
-        shape_strokes.append({'shape_name': list(shape['valid'].keys())[0], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
-    edges = connection_localizer(shape_strokes, unrecognized_strokes)
-    print('edges', len(edges))
-    # results.extend(edges)
-
-
-
     
+    for shape in results:
+        shape_strokes.append({'shape_name': list(shape['valid'].keys())[0], 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
+    edges = connection_localizer(shape_strokes, unrecognized_strokes)
+    print('edges', edges)
+    results.extend(edges)
+
+
+
+# print('results: ', results)  
 if not args.production:
     evaluationWrapper.set_amount_of_invalid_candidates(candidates)
     evaluationWrapper.save_time()
@@ -217,6 +217,30 @@ if args.save == 'y':
         f.write('# circle rectangle features: '+ ''.join(rectangle_features) +'\n')
         f.write('# rejector threshold: '+ str(get_threshold()) +'\n')
 
+
+def get_position_values(strokes_of_candidate):
+    min_x = np.inf
+    min_y = np.inf
+    max_x = 0
+    max_y = 0
+    width = 0
+    height = 0
+    print('strokes_of_candidate', strokes_of_candidate)
+    for stroke in strokes_of_candidate:
+        for point in stroke:
+            if point['x'] < min_x:
+                min_x = point['x']
+            if point['y'] < min_y:
+                min_y = point['y']
+            if point['x'] > max_x:
+                max_x = point['x']
+            if point['y'] > max_y:
+                max_y = point['y']
+    width = max_x - min_x
+    height = max_y - min_y
+    return min_x, min_y, max_x, max_y, width, height
+    
+
 if args.production:
     file_name = args.inkml[0].split('/')[-1].split('.')[0]
     with open(f'inkml_results/{file_name}.json', 'a') as f:
@@ -225,40 +249,39 @@ if args.production:
     for result in results:
         shape_name = next(iter(result['valid']))
         candidates = result['valid'][shape_name]
-        strokes_of_candidate= get_strokes_from_candidate(candidates, content)
-        min_x = np.inf
-        min_y = np.inf
-        max_x = 0
-        max_y = 0
-        width = 0
-        height = 0
-        conversion_factor = 1000
-        for stroke in strokes_of_candidate:
-            for point in stroke:
-                if point['x'] < min_x:
-                    min_x = point['x']
-                if point['y'] < min_y:
-                    min_y = point['y']
-                if point['x'] > max_x:
-                    max_x = point['x']
-                if point['y'] > max_y:
-                    max_y = point['y']
-        width = max_x - min_x
-        height = max_y - min_y
+        if not shape_name == 'line':
+            strokes_of_candidate= get_strokes_from_candidate(candidates, content)
+        else:
+            strokes_of_source_candidate = get_strokes_from_candidate(result['valid']['line']['source'], content)
+            strokes_of_target_candidate = get_strokes_from_candidate(result['valid']['line']['target'], content)
+          
         if shape_name == 'rectangle':
             shape_id = 't' + str(id_counter)
         elif shape_name == 'circle':
             shape_id = 'p' + str(id_counter)
-        # line still has to be implemented 
+        elif shape_name == 'line':
+            shape_id = 'l' + str(id_counter)
+       
         # x and y values are being adapted to the canvas size of the petri net editors from I love petri nets
-        print('candidates', candidates)
-        result_obj = {'shape_name': shape_name,'min_x': min_x, 'min_y': min_y, 'max_x': max_x, 'max_y': max_y, 'width': width, 'height': height, 'shape_id': shape_id, 'candidates': candidates}
-        
+        if shape_name == 'line':
+            source_min_x, source_min_y, source_max_x, source_max_y, source_width, source_height = get_position_values(strokes_of_source_candidate)
+            target_min_x, target_min_y, target_max_x, target_max_y, target_width, target_height = get_position_values(strokes_of_target_candidate)
+            print('Werte für source von line: ', source_min_x, source_min_y, source_max_x, source_max_y)
+            height_factor_source = 80 / (source_min_y + source_max_y)
+            height_factor_target = 80 / (target_min_y + target_max_y)
+            result_obj = {'shape_name': shape_name, 'source_min_x': source_min_x, 'source_min_y': source_min_y, 'source_max_x': source_max_x, 'source_max_y': source_max_y, 'target_min_x': target_min_x , 'target_min_y': target_min_y, 'target_max_x': target_max_x, 'target_max_y': target_max_y, 'shape_id': shape_id}
+        else:
+            min_x, min_y, max_x, max_y, width, height = get_position_values(strokes_of_candidate)
+            print('Werte für source von source', min_x, min_y, max_x, max_y)
+            result_obj = {'shape_name': shape_name,'min_x': min_x, 'min_y': min_y, 'max_x': max_x, 'max_y': max_y, 'width': width, 'height': height, 'shape_id': shape_id, 'candidates': candidates}
+        print('result_obj', result_obj)
         with open(f'inkml_results/{file_name}.json', 'a') as f:
             json.dump(result_obj, f, indent=4)
             if id_counter < len(results) - 1:
                 f.write(',\n')
         id_counter += 1
+            
+        
     
     with open(f'inkml_results/{file_name}.json', 'a') as f:
         f.write(']')
