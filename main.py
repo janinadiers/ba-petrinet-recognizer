@@ -22,7 +22,7 @@ from helper.EvaluationWrapper import EvaluationWrapper
 from helper.parsers import parse_strokes_from_inkml_file
 from helper.normalizer import resample_strokes
 from helper.normalizer import convert_coordinates
-from helper.utils import get_unrecognized_strokes
+from helper.utils import get_unrecognized_strokes, get_position_values
 from scripts.determine_best_closed_shape_threshold import get_threshold, next_threshold
 import os
 from helper.print_progress_bar import printProgressBar
@@ -217,28 +217,6 @@ if args.save == 'y':
         f.write('# circle rectangle features: '+ ''.join(rectangle_features) +'\n')
         f.write('# rejector threshold: '+ str(get_threshold()) +'\n')
 
-
-def get_position_values(strokes_of_candidate):
-    min_x = np.inf
-    min_y = np.inf
-    max_x = 0
-    max_y = 0
-    width = 0
-    height = 0
-    print('strokes_of_candidate', strokes_of_candidate)
-    for stroke in strokes_of_candidate:
-        for point in stroke:
-            if point['x'] < min_x:
-                min_x = point['x']
-            if point['y'] < min_y:
-                min_y = point['y']
-            if point['x'] > max_x:
-                max_x = point['x']
-            if point['y'] > max_y:
-                max_y = point['y']
-    width = max_x - min_x
-    height = max_y - min_y
-    return min_x, min_y, max_x, max_y, width, height
     
 
 if args.production:

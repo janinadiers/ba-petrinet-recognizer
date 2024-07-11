@@ -224,6 +224,28 @@ def stroke_has_only_duplicates(stroke):
             return False
     return True
 
+def get_position_values(strokes_of_candidate):
+    min_x = np.inf
+    min_y = np.inf
+    max_x = 0
+    max_y = 0
+    width = 0
+    height = 0
+    print('strokes_of_candidate', strokes_of_candidate)
+    for stroke in strokes_of_candidate:
+        for point in stroke:
+            if point['x'] < min_x:
+                min_x = point['x']
+            if point['y'] < min_y:
+                min_y = point['y']
+            if point['x'] > max_x:
+                max_x = point['x']
+            if point['y'] > max_y:
+                max_y = point['y']
+    width = max_x - min_x
+    height = max_y - min_y
+    return min_x, min_y, max_x, max_y, width, height
+
 def reconstruct_strokes_from_combined_strokes(strokes, combined_strokes:list[dict]):
     edge_point_positions = []
     for idx, stroke in enumerate(strokes):
