@@ -3,6 +3,30 @@ from helper.utils import plot_strokes_without_scala, get_strokes_from_candidate,
 from grouper.shape_grouper.distance_calculators.distance_between_all_points import get_min_distance
 import numpy as np
 
+
+def determine_if_edge_is_part_of_shape(edge, shape):
+    min_x, min_y, max_x, max_y, width, height= get_position_values(shape['shape_strokes'])
+    shape_bounding_box = {'x': min_x, 'y': min_y, 'width': width, 'height': height}
+    
+    amount_of_points_in_bounding_box = get_amount_of_points_in_bounding_box(edge[0], shape_bounding_box)
+    print('amount_of_points_in_bounding_box: ', amount_of_points_in_bounding_box)
+    if amount_of_points_in_bounding_box > 3:
+        return True
+    else:
+        return False
+    
+            
+def filter_out_duplicate_edges(edges):
+    filtered_edges = []
+    shape_pairs = []
+    for edge in edges:
+        shape_pair = [edge['valid']['line']['source_id'], edge['valid']['line']['target_id']]
+        if shape_pair not in shape_pairs:
+            filtered_edges.append(edge)
+        shape_pairs.append(shape_pair)
+    return filtered_edges
+   
+
 def determine_shape_at_arrow_head(bounding_box_stroke, shape1, shape2):
     # check which shape is closer at the bounding box
     minimum_distance1 = np.inf
@@ -24,21 +48,33 @@ def determine_shape_at_arrow_head(bounding_box_stroke, shape1, shape2):
 def edge_combines_two_shapes(edge, shapes):
     shape1 = None
     shape2 = None
-    distance_threshold = 6000
     
-    relative_distance_threshold = 0.1
     # Berechne relativen distance Threshold: Dabei ist der Threshold abhängig von der Breite der Shape
     for shape in shapes:
         min_x, min_y, max_x, max_y, width, height= get_position_values(shape['shape_strokes'])
-        distance_threshold = width
+        if width < height:
+            # distance_threshold = width /2
+            distance_threshold = width
+        else:
+            # distance_threshold = height/2
+            distance_threshold = height
         if get_min_distance(edge[0], shape['shape_strokes'][0]) < distance_threshold:
+            # edge_is_part_of_shape = determine_if_edge_is_part_of_shape(edge, shape)
+            # if edge_is_part_of_shape:
+            #     return False, None, None
             shape1 = shape
     for shape in shapes:
         if shape == shape1:
             continue
         min_x, min_y, max_x, max_y, width, height= get_position_values(shape['shape_strokes'])
-        distance_threshold = width
+        if width < height:
+            distance_threshold = width /2
+        else:
+            distance_threshold = height /2
         if get_min_distance(edge[-1], shape['shape_strokes'][0]) < distance_threshold:
+            # edge_is_part_of_shape = determine_if_edge_is_part_of_shape(edge, shape)
+            # if edge_is_part_of_shape:
+            #     return False, None, None
             shape2 = shape
     if shape1 and shape2:
         return True, shape1, shape2
@@ -82,7 +118,7 @@ def create_edge(edge, shape1, shape2, unrecognized_strokes) -> dict:
         unrecognized_stroke_in_bounding_box1 = unrecognized_stroke_in_bounding_box(stroke, bounding_box1)
         unrecognized_stroke_in_bounding_box2 = unrecognized_stroke_in_bounding_box(stroke, bounding_box2)
         # plot_strokes_without_scala(edge + shape2['shape_strokes'] + [stroke], [{'x': bounding_box1['x'], 'y': bounding_box1['y']},{'x': bounding_box1['x'] + bounding_box1['width'], 'y': bounding_box1['y'] + bounding_box1['height']},{'x': bounding_box1['x'] + bounding_box1['width'], 'y': bounding_box1['y']}, {'x': bounding_box1['x'], 'y': bounding_box1['y'] + bounding_box1['height']}, {'x': bounding_box2['x'], 'y': bounding_box2['y']},{'x': bounding_box2['x'] + bounding_box2['width'], 'y': bounding_box2['y'] + bounding_box2['height']},{'x': bounding_box2['x'] + bounding_box2['width'], 'y': bounding_box2['y']}, {'x': bounding_box2['x'], 'y': bounding_box2['y'] + bounding_box2['height']}])
-
+        
         if unrecognized_stroke_in_bounding_box1:
             density1 += get_amount_of_points_in_bounding_box(stroke, bounding_box1)
         if unrecognized_stroke_in_bounding_box2:
@@ -92,21 +128,21 @@ def create_edge(edge, shape1, shape2, unrecognized_strokes) -> dict:
         bounding_box_stroke1 = [edge[0][0]]
         closest_shape_to_arrow_head = determine_shape_at_arrow_head(bounding_box_stroke1, shape1, shape2)
         if closest_shape_to_arrow_head == shape1:
-            print('shape1 is target')
-            return {'valid': {'line': {'source': shape2['shape_candidates'], 'source_id': shape2['shape_id'], 'target': shape1['shape_candidates'], 'target_id': shape1['shape_id']}}}
+            # print('shape1 is target')
+            return {'valid': {'line': {'source': shape2['shape_candidates'], 'source_id': shape2['shape_id'], 'target': shape1['shape_candidates'], 'target_id': shape1['shape_id'], 'stroke': edge[0]}}}
         else:
-            print('shape2 is target')
-            return {'valid': {'line': {'source': shape1['shape_candidates'], 'source_id': shape1['shape_id'], 'target': shape2['shape_candidates'], 'target_id': shape2['shape_id']}}}
+            # print('shape2 is target')
+            return {'valid': {'line': {'source': shape1['shape_candidates'], 'source_id': shape1['shape_id'], 'target': shape2['shape_candidates'], 'target_id': shape2['shape_id'], 'stroke': edge[0]}}}
 
     else:
         bounding_box_stroke2 = [edge[0][-1]]
         closest_shape_to_arrow_head = determine_shape_at_arrow_head(bounding_box_stroke2, shape1, shape2)
         if closest_shape_to_arrow_head == shape1:
-            print('shape1 is target')
-            return {'valid': {'line': {'source': shape2['shape_candidates'], 'source_id': shape2['shape_id'], 'target': shape1['shape_candidates'], 'target_id': shape1['shape_id']}}}
+            # print('shape1 is target')
+            return {'valid': {'line': {'source': shape2['shape_candidates'], 'source_id': shape2['shape_id'], 'target': shape1['shape_candidates'], 'target_id': shape1['shape_id'], 'stroke': edge[0]}}}
         else:
-            print('shape2 is target')
-            return {'valid': {'line': {'source': shape1['shape_candidates'], 'source_id': shape1['shape_id'], 'target': shape2['shape_candidates'], 'target_id': shape2['shape_id']}}}
+            # print('shape2 is target')
+            return {'valid': {'line': {'source': shape1['shape_candidates'], 'source_id': shape1['shape_id'], 'target': shape2['shape_candidates'], 'target_id': shape2['shape_id'], 'stroke': edge[0]}}}
 
 
    
@@ -118,7 +154,7 @@ def group(shapes:list[dict], unrecognized_strokes) -> list[dict]:
     for unrecognized_stroke in _unrecognized_strokes:
         edge = [unrecognized_stroke]
         combines_two_shapes, shape1, shape2 = edge_combines_two_shapes(edge, shapes)
-        
+        print('combines_two_shapes: ', combines_two_shapes)
         if combines_two_shapes:
             # create only an edge if both shapes are different classes
             # if shape1['shape_name'] == shape2['shape_name']:
@@ -126,8 +162,8 @@ def group(shapes:list[dict], unrecognized_strokes) -> list[dict]:
             valid_edge = create_edge(edge, shape1, shape2, _unrecognized_strokes)
             valid_edges.append(valid_edge)
              
-                 
-    return valid_edges
+    filtered_edges = filter_out_duplicate_edges(valid_edges)          
+    return filtered_edges
                
                 
             

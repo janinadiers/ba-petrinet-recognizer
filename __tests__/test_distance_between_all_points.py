@@ -1,6 +1,8 @@
 import unittest
-from distance_calculators.distance_between_all_points import get_min_distance, initialize_adjacency_matrix_with_distance, get_max_dist, median
+from grouper.shape_grouper.distance_calculators.distance_between_all_points import get_min_distance, initialize_adjacency_matrix_with_distance, get_max_dist, median
 import numpy as np
+from helper.parsers import parse_strokes_from_inkml_file
+from helper.normalizer import resample_strokes
 
 
 class TestDistanceBetweenAllPointsMethods(unittest.TestCase):
@@ -18,7 +20,22 @@ class TestDistanceBetweenAllPointsMethods(unittest.TestCase):
         self.assertEqual(float("{:.2f}".format(get_min_distance(stroke1, stroke3))), 5.0)
         self.assertEqual(float("{:.2f}".format(get_min_distance(stroke2, stroke4))), 2.83)
         
-    
+    def test_get_min_distance2(self):
+        strokes = parse_strokes_from_inkml_file('./__datasets__/FC_1.0/no_text/no_junk/writer015_fc_012b.inkml')
+        resampled_strokes = resample_strokes(strokes)
+        stroke15 = resampled_strokes[15]
+        stroke16 = resampled_strokes[16]
+        stroke17 = resampled_strokes[17]
+        distance1 = get_min_distance(stroke15, stroke16)
+        distance2 = get_min_distance(stroke15, stroke17)
+        distance3 = get_min_distance(stroke16, stroke17)
+        print('distance1', distance1)
+        print('distance2', distance2)
+        print('distance3', distance3)
+        
+
+        
+        
     def test_median(self):
         lst = [1, 2, 3, 4, 5]
         self.assertEqual(median(lst), 3)

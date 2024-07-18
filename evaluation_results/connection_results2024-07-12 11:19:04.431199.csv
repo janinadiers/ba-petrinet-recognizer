@@ -1,0 +1,10 @@
+,line,truth,accuracy
+line,2751,3234,85.06493506493507%
+no_shape,8,0,0
+# dataset: ['./__datasets__/FC_1.0/no_text/FC_Train.txt', './__datasets__/FC_1.0/no_text/FC_Validation.txt']
+# grouper: optimized_grouper
+# classifier: linear_svm
+# rejector: rejector_with_threshold
+# shape no shape features: closed_convex_hull
+# circle rectangle features: number_of_convex_hull_verticesstandard_deviation_to_template_with_vertical_linesstandard_deviation_to_template_with_horizontal_linesdirection_vectors
+# rejector threshold: 0

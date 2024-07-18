@@ -3,7 +3,8 @@ from helper.print_progress_bar import printProgressBar
 from helper.parsers import parse_strokes_from_inkml_file
 import numpy as np
 
-files = ['__datasets__/FA_1.1/no_text/FA_Test.txt', '__datasets__/FA_1.1/no_text/FA_Train.txt','__datasets__/FA_1.1/no_text/FA_Validation.txt', '__datasets__/FC_1.0/no_text/FC_Test.txt', '__datasets__/FC_1.0/no_text/FC_Train.txt', '__datasets__/FC_1.0/no_text/FC_Validation.txt']
+files = ['__datasets__/FC_1.0/no_text/FC_Test.txt', '__datasets__/FC_1.0/no_text/FC_Train.txt', '__datasets__/FC_1.0/no_text/FC_Validation.txt']
+# files = ['__datasets__/FA_1.1/no_text/FA_Test.txt', '__datasets__/FA_1.1/no_text/FA_Train.txt','__datasets__/FA_1.1/no_text/FA_Validation.txt']
 
 file_paths = []
 max_x = 0

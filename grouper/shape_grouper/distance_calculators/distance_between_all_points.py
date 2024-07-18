@@ -15,7 +15,7 @@ def get_min_distance(stroke1:dict, stroke2:dict) -> float:
     # points_stroke2:list[dict] = next(iter(stroke2.values()))
     s1 = convert_dict_to_nparray(stroke1)
     s2 = convert_dict_to_nparray(stroke2)
-  
+    
     return distance.cdist(s1,s2).min(axis=1).min()
 
 def get_min_distance2(stroke1:dict, stroke2:dict) -> float:
@@ -88,7 +88,7 @@ def initialize_adjacency_matrix(strokes:list[dict]) -> np.ndarray:
     num_strokes:int = len(strokes)
     matrix:np.ndarray = np.zeros((num_strokes, num_strokes), dtype=float)
     # 800 scheint eine gute Größe zwischen Accuracy und erzeugten Kandidaten zu sein
-    max_dist:int= 800
+    max_dist:int= 1400
     # Iterate over all pairs of strokes and determine if they are neighbors
     for i in range(num_strokes):
         matrix[i, i] = 1

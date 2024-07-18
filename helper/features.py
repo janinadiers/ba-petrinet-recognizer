@@ -649,7 +649,6 @@ def get_circle_rectangle_features(candidate, strokes):
     if (len(stroke) < 5 or has_only_duplicates or bounding_box[4] == 0 or bounding_box[5] == 0):
         return {'feature_names': ['distance_between_stroke_edge_points'], 'features': None}
     number_of_convex_hull_vertices = get_number_of_convex_hull_vertices(stroke)
-    print('number_of_convex_hull_vertices', number_of_convex_hull_vertices)
     average_distance_to_template_with_vertical_lines =calculate_average_distance_to_template_shape_with_vertical_lines(strokes_of_candidate, stroke, candidate)
     average_distance_to_template_with_horizontal_lines = calculate_average_distance_to_template_shape_with_horizontal_lines(strokes_of_candidate, stroke, candidate)
     nearest_point_for_every_edge_point = find_nearest_point_for_everey_edge_point(stroke)

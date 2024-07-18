@@ -18,7 +18,8 @@ def post_data():
     
     inkml = input_data.get('inkML')
     canvas_size = input_data.get('canvasSize')
-
+    print('canvas_size: ', canvas_size)
+    print('inkml: ', inkml)
     # response_data = {
     #     'received': input_data
     # }

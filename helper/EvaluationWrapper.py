@@ -1,6 +1,6 @@
 from helper.parsers import parse_ground_truth, parse_strokes_from_inkml_file
 import pandas as pd
-from helper.utils import plot_strokes, get_strokes_from_candidate
+from helper.utils import plot_strokes, get_strokes_from_candidate, plot_strokes_without_scala
 from helper.normalizer import scale, translate_to_origin
 from helper.normalizer import resample_strokes
 import datetime
@@ -11,8 +11,10 @@ class EvaluationWrapper:
         self.truth = None
         self.columns = ['circle', 'rectangle','no_shape', 'total', 'truth', 'accuracy']
         self.rows = ['circle', 'rectangle', 'diamond', 'ellipse', 'parallelogram', 'line', 'double circle', 'no_shape', 'total']
+        self.rows2 = ['line', 'no_shape']
+        self.columns2 = ['line', 'truth', 'accuracy']
         self.matrix = pd.DataFrame(0, index=self.rows, columns=self.columns)
-        self._candidates = []
+        self.matrix2 = pd.DataFrame(0, index=self.rows2, columns=self.columns2)
         self.recognizer_calls = 0
         self.start_time = None
         self.times = []
@@ -49,6 +51,11 @@ class EvaluationWrapper:
         print('recognizer calls: ', self.recognizer_calls)
         print('average time: ', self.calculate_average_time())
         return self.matrix.to_string()
+    
+    def get_connection_evaluation(self):
+        self.matrix2.at['line', 'accuracy'] = str((self.matrix2['line']['line']) / (self.matrix2.loc['line']['truth']) * 100) + '%'
+        return self.matrix2.to_string()
+    
 
     def save_time(self):
         self.times.append(datetime.datetime.now() - self.start_time)
@@ -63,7 +70,7 @@ class EvaluationWrapper:
         self.start_time = datetime.datetime.now()
         
     
-    def set_amount_of_invalid_candidates(self, candidates):
+    def set_amount_of_invalid_candidates(self, candidates: list):
         for candidate in candidates:
             truth_contains_candidate = False
             for dictionary in self.truth:
@@ -81,7 +88,6 @@ class EvaluationWrapper:
             self.matrix.at[row, 'total'] = self.matrix.at[row, 'circle'] + self.matrix.at[row, 'rectangle'] + self.matrix.at[row, 'no_shape']
         for column in self.columns:
             self.matrix[column] = pd.to_numeric(self.matrix[column], errors='coerce')
-            print(self.matrix[column])
         for column in self.columns:
             self.matrix.at['total', column] = self.matrix[column].sum()
         self.matrix.at['total', 'total'] = self.matrix['total'].sum()
@@ -101,32 +107,69 @@ class EvaluationWrapper:
                         amount_parallelogram_as_no_shape = int((self.matrix.at[row, 'no_shape'] / self.matrix.at[row, 'truth']) * 100)
                         self.matrix.at[row, 'accuracy'] = str(amount_parallelogram_as_rectangle + amount_parallelogram_as_no_shape) + '%'
                     else:
-                        self.matrix.at[row, 'accuracy'] = str(int((self.matrix.at[row, 'no_shape'] / self.matrix.at[row, 'truth']) * 100)) + '%'
+                        self.matrix.at[row, 'accuracy'] = str(int(((self.matrix.at[row, 'truth'] - (self.matrix.at[row, 'rectangle'] + self.matrix.at[row, 'circle'])) / self.matrix.at[row, 'truth']) * 100)) + '%'
             else:
                 self.matrix.at[row, 'accuracy'] = '-'  
     
     
     def group_connections(self, shape_strokes, unrecognized_strokes):
+        
         content = parse_strokes_from_inkml_file(self.file_path)
         resampled_content = resample_strokes(content)
+        
+        for dictionary in self.truth:
+            for shape_name, trace_ids in dictionary.items():
+                if shape_name == 'line':
+                    self.matrix2.at['line', 'truth'] += 1
         
         edges = self._group_connections(shape_strokes, unrecognized_strokes)
         
         truth_contains_edge = False
-        # for edge in edges:
-        #     line_indices = [resampled_content.index(line) for line in edge['valid']['line']]
-        #     for dictionary in self.truth:
-        #         for shape_name, trace_ids in dictionary.items():
-        #             # find the indices of the line strokes in content
-        #             print('line_indices', line_indices, trace_ids, shape_name)
-        #             if set(trace_ids) == set(line_indices):  
-        #                 print('>>>>>>>>>>>>>>>>>>truth contains edge!>>>>>>>>>>>>>>>>>>>>>>>>>')
-        #                 truth_contains_edge = True
-           
-        #     if not truth_contains_edge:
-        #         print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<wrong recognition: no_shape was recognized as line!>>>>>>>>>>>>>>>>>>>>>')
-        #     truth_contains_edge = False
-        print('edges', edges)   
+        amount_of_lines = 0
+        amount_of_edges = len(edges)
+        
+        for dictionary in self.truth:
+            for shape_name, trace_ids in dictionary.items():
+                if shape_name == 'line':
+                    amount_of_lines += 1
+        
+        for edge in edges:
+            line_index = [resampled_content.index(edge['valid']['line']['stroke'])]
+            for dictionary in self.truth:
+                for shape_name, trace_ids in dictionary.items():
+                    if shape_name == 'line' and set(line_index).issubset(set(trace_ids)):
+                        # # get source strokes
+                        # source_strokes = get_strokes_from_candidate(edge['valid']['line']['source'], content)
+                        # # # get target strokes
+                        # target_strokes = get_strokes_from_candidate(edge['valid']['line']['target'], content)
+                        # # # plot source strokes
+                        # plot_strokes_without_scala(source_strokes + target_strokes, edge['valid']['line']['stroke'])
+                        # plot_strokes_without_scala(content)
+                        truth_contains_edge = True
+                        self.matrix2.at['line', 'line'] += 1   
+                        
+            if not truth_contains_edge and 'valid' in edge:
+                # # zeige mir diesen case
+                # # get source strokes
+                # source_strokes = get_strokes_from_candidate(edge['valid']['line']['source'], content)
+                # # get target strokes
+                # target_strokes = get_strokes_from_candidate(edge['valid']['line']['target'], content)
+                # # plot source strokes
+                # # plot_strokes_without_scala(source_strokes + target_strokes, edge['valid']['line']['stroke'])
+                # # plot_strokes_without_scala(content)
+                self.matrix2.at['no_shape', 'line'] += 1
+        if amount_of_lines != amount_of_edges:
+            # # zeige mir diesen case
+            # # get source strokes
+            source_strokes = get_strokes_from_candidate(edge['valid']['line']['source'], content)
+            # # get target strokes
+            target_strokes = get_strokes_from_candidate(edge['valid']['line']['target'], content)
+            # # plot source strokes
+            plot_strokes_without_scala(source_strokes + target_strokes, edge['valid']['line']['stroke'])
+            # # plot_strokes_without_scala(content)
+            
+
+        
         return edges
 
         
@@ -135,24 +178,15 @@ class EvaluationWrapper:
         self.recognizer_calls += 1
         recognizer_result = self._recognize(rejector, classifier, candidate, strokes, self.truth)
         truth_contains_candidate = False
-        
-        self._candidates.append(candidate)
         for dictionary in self.truth:
             for shape_name, trace_ids in dictionary.items():
                 if set(trace_ids) == set(candidate):  
                     self.valid_shapes += 1
-                    # print('>>>>>>>>>>>>>>>>>>truth contains candidate!>>>>>>>>>>>>>>>>>>>>>>>>>', candidate, shape_name)
                     truth_contains_candidate = True
                     if 'valid' in recognizer_result[0]:
                         shape_name_recognizer_result = next(iter(recognizer_result[0]['valid']))
                         self.matrix.at[shape_name, shape_name_recognizer_result] += 1
                     else:
-                        # if shape_name == 'circle' or shape_name == 'rectangle' or shape_name == 'ellipse':
-                            # print('>>>>>>>>>>>>>>>>>>wrong rejection!>>>>>>>>>>>>>>>>>>>>>>>>>', shape_name)
-                            # strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
-                            # scaled_strokes = scale(strokes_of_candidate)
-                            # translated_strokes = translate_to_origin(scaled_strokes)
-                            # plot_strokes([translated_strokes[0]])
                             
                         self.matrix.at[shape_name, 'no_shape'] += 1
         
@@ -161,12 +195,8 @@ class EvaluationWrapper:
             
         elif not truth_contains_candidate and 'valid' in recognizer_result[0]:
             shape_name_recognizer_result = next(iter(recognizer_result[0]['valid']))
-            # print('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<wrong recognition: no_shape was recognized!>>>>>>>>>>>>>>>>>>>>>', shape_name_recognizer_result)
             self.matrix.at['no_shape', shape_name_recognizer_result] += 1
-            # strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
-            # scaled_strokes = scale(strokes_of_candidate)
-            # translated_strokes = translate_to_origin(scaled_strokes)
-            # plot_strokes([translated_strokes[0]])
+           
        
         return recognizer_result
         
