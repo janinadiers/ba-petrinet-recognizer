@@ -23,34 +23,33 @@ def scale(strokes: list[dict]) -> list[dict]:
 
 def convert_coordinates(strokes, canvas_width, canvas_height):
     
+    # Das ist die Canvas Größe des FC dataset
     dataset_canvas_width = 59414
     dataset_canvas_height = 49756
     
     # calculate the bounding box for all points
-    # min_x = min([point['x'] for stroke in strokes for point in stroke])
-    # min_y = min([point['y'] for stroke in strokes for point in stroke])
-    min_x = 0
-    min_y = 0
+    min_x = min([point['x'] for stroke in strokes for point in stroke])
+    min_y = min([point['y'] for stroke in strokes for point in stroke])
     # max_x = max([point['x'] for stroke in strokes for point in stroke])
     # max_y = max([point['y'] for stroke in strokes for point in stroke])
     
     # # Scaling for the entire drawing
-    # width = max_x - min_x;
-    # height = max_y - min_y;
-    scaleX = dataset_canvas_width / canvas_width;
-    scaleY = dataset_canvas_height / canvas_height;
+    # canvas_width = max_x - min_x;
+    # canvas_height = max_y - min_y;
+    scaleX = dataset_canvas_width / canvas_width ;  
+    scaleY =  dataset_canvas_height/ canvas_height;
     scale = min(scaleX, scaleY);
     
     # mittig setzen
-    offsetX = (dataset_canvas_width - canvas_width * scale) / 2;
-    offsetY = (dataset_canvas_height - canvas_height * scale) / 2;
+    # offsetX = (dataset_canvas_width - canvas_width * scale) / 2;
+    # offsetY = (dataset_canvas_height - canvas_height * scale) / 2;
     
     # Normalize the coordinates
     converted_strokes = []
     for stroke in strokes:
         normalized_stroke = []
         for point in stroke:
-            normalized_stroke.append({'x': (point['x']- min_x) * scale + offsetX, 'y': (point['y'] - min_y) * scale + offsetY})
+            normalized_stroke.append({'x': (point['x']- min_x) * scale, 'y': (point['y'] - min_y) * scale })
         converted_strokes.append(normalized_stroke)
     return converted_strokes
  

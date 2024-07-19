@@ -13,10 +13,10 @@ def recognize(rejector:callable, classifier:callable, candidate:list[int], strok
         return {'invalid': candidate}, feature_vector_shape_no_shape['feature_names'], feature_vector_circle_rectangle['feature_names']
     if feature_vector_shape_no_shape['features'] == None:
         return {'invalid': candidate}, feature_vector_shape_no_shape['feature_names'], feature_vector_circle_rectangle['feature_names']
-    if rejector['name'] == 'rejector_with_threshold':
-        candidate_is_valid_shape = rejector['use'](feature_vector_shape_no_shape['features'], candidate)
+    # if rejector['name'] == 'rejector_with_threshold':
+    #     candidate_is_valid_shape = rejector['use'](feature_vector_shape_no_shape['features'], candidate)
     # else:
-        # candidate_is_valid_shape = rejector['use'](feature_vector_hellinger_correlation['features'], candidate)
+    candidate_is_valid_shape = rejector['use'](feature_vector_shape_no_shape['features'], candidate, expected_shapes)
     if 'invalid' in candidate_is_valid_shape:
         return {'invalid': candidate}, feature_vector_shape_no_shape['feature_names'], feature_vector_circle_rectangle['feature_names']
     # hellinger_and_correlation_result = hellinger_and_correlation(feature_vector_hellinger_correlation['features'], candidate)

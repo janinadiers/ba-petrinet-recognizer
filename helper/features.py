@@ -661,7 +661,7 @@ def get_circle_rectangle_features(candidate, strokes):
     # average_distance_to_template_shape_circle = calculate_average_min_distance_to_template_shape(stroke, candidate)[0]
     # return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'directional_clusters'], 'features': [number_of_convex_hull_vertices, nearest_point_for_every_edge_point]}
     return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'direction_vectors'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines, count_clusters(labels)]}
-
+    # return {'feature_names': ['number_of_convex_hull_vertices'], 'features': [number_of_convex_hull_vertices]}
     # return {'feature_names': ['directional_clusters'], 'features': [count_clusters(labels) ]}
     # return {'feature_names': ['is_closed_shape', ], 'features': [closed_shape] }
     # return {'feature_names': ['directional_clusters'], 'features': [count_clusters(labels)]}

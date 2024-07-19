@@ -18,24 +18,30 @@ def post_data():
     
     inkml = input_data.get('inkML')
     canvas_size = input_data.get('canvasSize')
-    print('canvas_size: ', canvas_size)
-    print('inkml: ', inkml)
+    # print('inkml: ', inkml)
     # response_data = {
     #     'received': input_data
     # }
     time_stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    print('time_stamp: ', time_stamp)
     with open(f'inkml_requests/{time_stamp}.inkml', 'w') as f:
         f.write(str(inkml))
-    # Command to execute the script
-    command = [
-        'python', 'main.py',
-        '--inkml', f'inkml_requests/{time_stamp}.inkml',
-        '--other_ratio', f'{canvas_size}',
-        '--production', 'True'
-    ]
+    print('after writing inkml file', f'inkml_requests/{time_stamp}.inkml')
+    try:
+        # Command to execute the script
+        command = [
+            'python', 'main.py',
+            '--inkml', f'inkml_requests/{time_stamp}.inkml',
+            '--other_ratio', f'{canvas_size}',
+            '--production', 'True'
+        ]
+        # Run the command
+        result = subprocess.run(command, capture_output=True, text=True) 
+        print(result.stdout)
+        print(result.stderr)
+    except Exception as e:
+        print(f"An error occurred: {e}")
     
-    # Run the command
-    result = subprocess.run(command, capture_output=True, text=True)   
     
     # Capture the output and error
     output = result.stdout
@@ -54,7 +60,7 @@ def post_data():
     with open(f'inkml_results/{time_stamp}.json', 'r') as f:
         data = json.load(f)
         
-        print('data: ', data)
+        # print('data: ', data)
     response_data = []
     
     for item in data:

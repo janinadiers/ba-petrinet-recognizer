@@ -51,7 +51,7 @@ def train(X, feature_names):
 def use(X, candidate)-> dict:
     X = np.array(X)
     
-    joblib_file = 'classifier/shape_classifier/one_class_rbf_svm_models/one_class_rbf_svm_model_rectangle_20240705_135449.joblib'
+    joblib_file = 'classifier/shape_classifier/one_class_rbf_svm_models/one_class_rbf_svm_model_rectangle_20240718_154258.joblib'
     
     loaded_clf = joblib.load(joblib_file)
      # Ensure X is a 2D array

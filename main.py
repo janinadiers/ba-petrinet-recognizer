@@ -20,7 +20,7 @@ from rejector.shape_rejector.rejector_with_threshold import use as rejector_with
 from rejector.shape_rejector.one_class_svm import use as one_class_svm
 from rejector.shape_rejector.perfect_mock import use as perfect_mock_rejector
 from helper.EvaluationWrapper import EvaluationWrapper
-from helper.parsers import parse_strokes_from_inkml_file, parse_ground_truth
+from helper.parsers import parse_strokes_from_inkml_file, parse_ground_truth, parse_ratio_from_inkml_file
 from helper.normalizer import resample_strokes
 from helper.normalizer import convert_coordinates
 from helper.utils import get_unrecognized_strokes, get_position_values, plot_strokes_without_scala
@@ -69,10 +69,13 @@ REJECTORS = {
 def _toGlobalPath(path: str):
     return glob(path, recursive=True)
 
-parser = argparse.ArgumentParser(description='Petrinet recognizer 0.1.')
-
+parser = argparse.ArgumentParser(description='Petrinet recognizer 1.0.')
+#parser.add_argument('--files', dest='files', nargs='+',
+                   #help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt'])
+#parser.add_argument('--files', dest='files', nargs='+',
+                    #help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FC_1.0/no_text/no_junk/FC_Train.txt', './__datasets__/FC_1.0/no_text/no_junk/FC_Validation.txt'])
 parser.add_argument('--files', dest='files', nargs='+',
-                    help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt'])
+                    help='glob to textfile(s) containing inkml file names', default=['./__datasets__/PN_1.0/PN_Test.txt'])
 parser.add_argument('--inkml', dest='inkml', type=_toGlobalPath, nargs='?', action='store', default='',
                     help='glob to inkml file(s)')
 parser.add_argument('--grouper', dest='grouper', type=str, nargs='?', action='store', default='optimized_grouper',
@@ -150,15 +153,12 @@ files_wo_es_nicht_geklappt_hat = []
 # next_threshold()
 # print('WHILE Lopp: Threshold:', get_threshold())
 for i, path in enumerate(file_paths):
-    # if evaluationWrapper.get_amount_of_valid_shapes() >= 1225:
-    #     break
     print('Processing file: ', path, i , 'of', len(file_paths))
     printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
     
 
     evaluationWrapper.setCurrentFilePath(path) if not args.production else None
     content = parse_strokes_from_inkml_file(path)
-    
     if args.other_ratio:
         ratio = args.other_ratio.split('/')
         converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
@@ -166,8 +166,21 @@ for i, path in enumerate(file_paths):
         candidates = grouper(resampled_content)
         
     else:
-        resampled_content = resample_strokes(content)
-        candidates = grouper(resampled_content)
+        if 'FC' in path:
+            ratio = [59414,49756]
+            converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
+            resampled_content = resample_strokes(converted_strokes)
+            candidates = grouper(resampled_content)
+        elif 'FA' in path:
+            ratio = [48484,26442]
+            converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
+            resampled_content = resample_strokes(converted_strokes)
+            candidates = grouper(resampled_content)
+        elif 'PN' in path:
+            ratio = parse_ratio_from_inkml_file(path)
+            converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
+            resampled_content = resample_strokes(converted_strokes)
+            candidates = grouper(resampled_content)
     
     if not args.production:
         evaluationWrapper.set_amount_of_invalid_candidates(candidates)
@@ -176,9 +189,7 @@ for i, path in enumerate(file_paths):
     recognized_strokes = []
     unrecognized_strokes = []
     candidates_already_checked = []
-    print('Number of candidates:', len(candidates), len(content))
     for i,candidate in enumerate(candidates):
-        
         # check if no values from the candidate are in recognized_strokes
         if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
             recognizer_result, shape_no_shape_features, rectangle_features = recognizer({'use': REJECTORS[args.rejector], 'name':args.rejector},  {'use': CLASSIFIERS[args.classifier], 'name': args.classifier}, candidate, resampled_content)
@@ -192,7 +203,7 @@ for i, path in enumerate(file_paths):
                 results.append(recognizer_result)
     unrecognized_strokes = get_unrecognized_strokes(recognized_strokes, resampled_content)
     evaluationWrapper.save_time() if not args.production else None
-    # shape_strokes = []
+    shape_strokes = []
     
     # truth = parse_ground_truth(path)
     # for dictionary in truth:
@@ -212,27 +223,25 @@ for i, path in enumerate(file_paths):
                 
                 
     #             exit()
-    # for i, shape in enumerate(results):
-    #     shape_name = list(shape['valid'].keys())[0]
-    #     if shape_name == 'circle':
-    #         shape_strokes.append({'shape_name': shape_name , 'shape_id': 'p' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
-    #     elif shape_name == 'rectangle':
-    #         shape_strokes.append({'shape_name': shape_name , 'shape_id': 't' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
+    for i, shape in enumerate(results):
+        shape_name = list(shape['valid'].keys())[0]
+        if shape_name == 'circle':
+            shape_strokes.append({'shape_name': shape_name , 'shape_id': 'p' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
+        elif shape_name == 'rectangle':
+            shape_strokes.append({'shape_name': shape_name , 'shape_id': 't' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
 
             
-    # edges = connection_localizer(shape_strokes, unrecognized_strokes)
+    edges = connection_localizer(shape_strokes, unrecognized_strokes)
    
-    # results.extend(edges)
+    results.extend(edges)
 
 
 if not args.production:
     evaluationWrapper.set_total()
     evaluationWrapper.set_accuracy()
     print(evaluationWrapper)
-    for x in files_wo_es_nicht_geklappt_hat:
-        print(x)
-    # print()
-    # print(evaluationWrapper.get_connection_evaluation())
+    print()
+    print(evaluationWrapper.get_connection_evaluation())
     
 
 if args.save == 'y':

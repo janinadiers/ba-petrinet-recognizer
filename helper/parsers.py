@@ -1,5 +1,23 @@
 import xml.etree.ElementTree as ET
 
+def parse_ratio_from_inkml_file(file_path: str)-> list:
+    # Parse the XML file
+    tree:ET.ElementTree = ET.parse(file_path)
+    root:ET.Element = tree.getroot()
+    namespaces = {'inkml': 'http://www.w3.org/2003/InkML'}
+    ratio = []
+    width = 0
+    for traceFormat in root.findall('traceFormat', namespaces):
+        for annotation in traceFormat.findall('annotation', namespaces):
+            if annotation.attrib['type'] == 'canvasWidth':
+                width = int(annotation.text)
+            elif annotation.attrib['type'] == 'canvasHeight':
+                height = int(annotation.text)
+        
+     
+    ratio = [width, height]
+    return ratio
+
 def parse_strokes_from_inkml_file(file_path: str)-> list[dict]:
     # Parse the XML file
     tree:ET.ElementTree = ET.parse(file_path)
@@ -36,11 +54,11 @@ def parse_ground_truth(file_path: str)-> list[dict]:
             annotations = traceGroup.findall("annotation[@type='truth']", namespaces)
             traceViews = traceGroup.findall('traceView', namespaces)
             
-            if annotations[0].text == 'state' or annotations[0].text == 'connection':
+            if annotations[0].text == 'state' or annotations[0].text == 'connection' or annotations[0].text == 'place':
                 new_entry = {'circle' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
                 shapes.append(new_entry)
                 
-            elif annotations[0].text == 'process':
+            elif annotations[0].text == 'process' or annotations[0].text == 'transition':
                 new_entry = {'rectangle' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
                 shapes.append(new_entry)
             elif annotations[0].text == 'final state':

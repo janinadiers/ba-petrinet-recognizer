@@ -1,7 +1,7 @@
-from helper.parsers import parse_ground_truth, parse_strokes_from_inkml_file
+from helper.parsers import parse_ground_truth, parse_strokes_from_inkml_file, parse_ratio_from_inkml_file
 import pandas as pd
 from helper.utils import plot_strokes, get_strokes_from_candidate, plot_strokes_without_scala
-from helper.normalizer import scale, translate_to_origin
+from helper.normalizer import scale, translate_to_origin, convert_coordinates
 from helper.normalizer import resample_strokes
 import datetime
 class EvaluationWrapper:
@@ -111,11 +111,22 @@ class EvaluationWrapper:
             else:
                 self.matrix.at[row, 'accuracy'] = '-'  
     
+    def get_ratio(self):
+        if 'FC' in self.file_path:
+            ratio = [59414,49756]
+        elif 'FA' in self.file_path:
+            ratio = [48484,26442]
+        elif 'PN' in self.file_path:
+            ratio = parse_ratio_from_inkml_file(self.file_path)
+        return ratio
+            
     
     def group_connections(self, shape_strokes, unrecognized_strokes):
         
         content = parse_strokes_from_inkml_file(self.file_path)
-        resampled_content = resample_strokes(content)
+        ratio = self.get_ratio()
+        converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
+        resampled_content = resample_strokes(converted_strokes)
         
         for dictionary in self.truth:
             for shape_name, trace_ids in dictionary.items():
@@ -134,6 +145,7 @@ class EvaluationWrapper:
                     amount_of_lines += 1
         
         for edge in edges:
+            print('edge: ', edge['valid']['line'])
             line_index = [resampled_content.index(edge['valid']['line']['stroke'])]
             for dictionary in self.truth:
                 for shape_name, trace_ids in dictionary.items():
@@ -158,15 +170,15 @@ class EvaluationWrapper:
                 # # plot_strokes_without_scala(source_strokes + target_strokes, edge['valid']['line']['stroke'])
                 # # plot_strokes_without_scala(content)
                 self.matrix2.at['no_shape', 'line'] += 1
-        if amount_of_lines != amount_of_edges:
-            # # zeige mir diesen case
-            # # get source strokes
-            source_strokes = get_strokes_from_candidate(edge['valid']['line']['source'], content)
-            # # get target strokes
-            target_strokes = get_strokes_from_candidate(edge['valid']['line']['target'], content)
-            # # plot source strokes
-            plot_strokes_without_scala(source_strokes + target_strokes, edge['valid']['line']['stroke'])
-            # # plot_strokes_without_scala(content)
+        # if amount_of_lines != amount_of_edges:
+        #     # # zeige mir diesen case
+        #     # # get source strokes
+        #     source_strokes = get_strokes_from_candidate(edge['valid']['line']['source'], content)
+        #     # # get target strokes
+        #     target_strokes = get_strokes_from_candidate(edge['valid']['line']['target'], content)
+        #     # # plot source strokes
+        #     plot_strokes_without_scala(source_strokes + target_strokes, edge['valid']['line']['stroke'])
+        #     # # plot_strokes_without_scala(content)
             
 
         
@@ -186,8 +198,7 @@ class EvaluationWrapper:
                     if 'valid' in recognizer_result[0]:
                         shape_name_recognizer_result = next(iter(recognizer_result[0]['valid']))
                         self.matrix.at[shape_name, shape_name_recognizer_result] += 1
-                    else:
-                            
+                    else:  
                         self.matrix.at[shape_name, 'no_shape'] += 1
         
         if not truth_contains_candidate and not 'valid' in recognizer_result[0]:

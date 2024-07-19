@@ -154,7 +154,6 @@ def group(shapes:list[dict], unrecognized_strokes) -> list[dict]:
     for unrecognized_stroke in _unrecognized_strokes:
         edge = [unrecognized_stroke]
         combines_two_shapes, shape1, shape2 = edge_combines_two_shapes(edge, shapes)
-        print('combines_two_shapes: ', combines_two_shapes)
         if combines_two_shapes:
             # create only an edge if both shapes are different classes
             # if shape1['shape_name'] == shape2['shape_name']:
