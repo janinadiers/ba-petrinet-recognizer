@@ -88,7 +88,7 @@ def initialize_adjacency_matrix(strokes:list[dict]) -> np.ndarray:
     num_strokes:int = len(strokes)
     matrix:np.ndarray = np.zeros((num_strokes, num_strokes), dtype=float)
     # 800 scheint eine gute Größe zwischen Accuracy und erzeugten Kandidaten zu sein
-    max_dist:int= 600
+    max_dist:int= 1300
     # Iterate over all pairs of strokes and determine if they are neighbors
     for i in range(num_strokes):
         matrix[i, i] = 1

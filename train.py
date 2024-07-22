@@ -8,7 +8,7 @@ from rejector.shape_rejector.linear_svm import train as linear_svm_rejector
 from rejector.shape_rejector.rbf_svm import train as rbf_svm_rejector
 import argparse 
 import os
-from helper.parsers import parse_strokes_from_inkml_file, parse_ground_truth
+from helper.parsers import parse_strokes_from_inkml_file, parse_ground_truth, parse_ratio_from_inkml_file
 from grouper.shape_grouper.optimized_grouper import group as grouper
 from helper.features import get_circle_rectangle_features, get_shape_no_shape_features, get_hellinger_correlation_features
 from helper.normalizer import resample_strokes, convert_coordinates
@@ -53,6 +53,11 @@ def prepare_classifier_data(path):
         converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
         resampled_content = resample_strokes(converted_strokes)
         candidates = grouper(resampled_content)
+    if 'PN' in path:
+        ratio = parse_ratio_from_inkml_file(path)
+        converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
+        resampled_content = resample_strokes(converted_strokes)
+        candidates = grouper(resampled_content)
     truth = parse_ground_truth(path)
     features = []
     labels = []
@@ -87,6 +92,11 @@ def prepare_rejector_data(path):
         candidates = grouper(resampled_content)
     if 'FA' in path:
         ratio = [48484,26442]
+        converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
+        resampled_content = resample_strokes(converted_strokes)
+        candidates = grouper(resampled_content)
+    if 'PN' in path:
+        ratio = parse_ratio_from_inkml_file(path)
         converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
         resampled_content = resample_strokes(converted_strokes)
         candidates = grouper(resampled_content)
@@ -131,6 +141,11 @@ def prepare_one_class_classifier_data(path):
         converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
         resampled_content = resample_strokes(converted_strokes)
         candidates = grouper(resampled_content)
+    if 'PN' in path:
+        ratio = parse_ratio_from_inkml_file(path)
+        converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
+        resampled_content = resample_strokes(converted_strokes)
+        candidates = grouper(resampled_content)
 
     truth = parse_ground_truth(path)
     features = []
@@ -164,6 +179,11 @@ def prepare_one_class_rejector_data(path):
         candidates = grouper(resampled_content)
     if 'FA' in path:
         ratio = [48484,26442]
+        converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
+        resampled_content = resample_strokes(converted_strokes)
+        candidates = grouper(resampled_content)
+    if 'PN' in path:
+        ratio = parse_ratio_from_inkml_file(path)
         converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
         resampled_content = resample_strokes(converted_strokes)
         candidates = grouper(resampled_content)

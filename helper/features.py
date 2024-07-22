@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 from shapely.geometry import Polygon
 import networkx as nx
 import math
+import random
 
 
 
@@ -275,19 +276,23 @@ def get_convexity(stroke):
     # Create a LineString from the points to calculate the perimeter
     linestring = LineString(points)
     shape_perimeter = linestring.length
-    
-    # Compute the convex hull
-    hull = ConvexHull(points)
-    hull_points = points[hull.vertices]
-    
-    # Create a Polygon from the hull points to calculate the convex hull perimeter
-    hull_polygon = Polygon(hull_points)
-    hull_perimeter = hull_polygon.length
-    
-    # Calculate convexity
-    convexity = hull_perimeter / shape_perimeter
-    
-    return convexity
+    try:
+        # Compute the convex hull
+        hull = ConvexHull(points)
+        hull_points = points[hull.vertices]
+        
+        # Create a Polygon from the hull points to calculate the convex hull perimeter
+        hull_polygon = Polygon(hull_points)
+        hull_perimeter = hull_polygon.length
+        
+        # Calculate convexity
+        convexity = hull_perimeter / shape_perimeter
+        
+        return convexity
+    except Exception as e:
+        print("Convex hull could not be computed.", e)
+        # Vermutlich handelt es sich in diesem Fall um eine Linie
+        return 2
 
 # def compute_convex_hull(points):
 #     hull = ConvexHull(points)
@@ -309,6 +314,7 @@ def get_convexity(stroke):
 
 
 def is_closed_shape(stroke, edge_point_positions=None):
+    print('is_closed_shape')
     _stroke = copy.deepcopy(stroke)
     edge_points = []
     for edge_point_position in edge_point_positions:
@@ -630,14 +636,18 @@ def get_shape_no_shape_features(candidate, strokes):
     if (len(stroke) < 5 or has_only_duplicates):
         return {'feature_names': ['distance_between_stroke_edge_points'], 'features': None}
     closed_shape = is_closed_shape(stroke, edge_point_positions)
-    # aspect ratio
-    # compute_convex_hull_area_to_perimeter_ratio(stroke)
-    
-    return {'feature_names': ['closed_convex_hull'], 'features': [closed_shape]}
+    aspect_ratio = get_aspect_ratio(stroke)
+    convex_hull_area_to_perimeter_ratio = compute_convex_hull_area_to_perimeter_ratio(stroke)
+    convex_hull_perimeter_to_area_ratio = compute_convex_hull_perimeter_to_area_ratio(stroke)
+    convexity = get_convexity(stroke)
+    total_stroke_length_to_diagonal_length = compute_total_stroke_length_to_diagonal_length(stroke)
+    return {'feature_names': ['closed_shape'], 'features': [closed_shape]}
 
 
 def get_circle_rectangle_features(candidate, strokes):
     strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
+    edge_point_positions = get_edge_points(strokes_of_candidate)
+    edge_points = []
     scaled_strokes = scale(strokes_of_candidate)
     
     translated_strokes = translate_to_origin(scaled_strokes)
@@ -652,16 +662,19 @@ def get_circle_rectangle_features(candidate, strokes):
     average_distance_to_template_with_vertical_lines =calculate_average_distance_to_template_shape_with_vertical_lines(strokes_of_candidate, stroke, candidate)
     average_distance_to_template_with_horizontal_lines = calculate_average_distance_to_template_shape_with_horizontal_lines(strokes_of_candidate, stroke, candidate)
     nearest_point_for_every_edge_point = find_nearest_point_for_everey_edge_point(stroke)
-
-
-    # amount_of_strokes = len(strokes_of_candidate)
+    closed_convex_hull = is_closed_convex_hull(stroke)
+    nearest_point_for_every_edge_point = find_nearest_point_for_everey_edge_point(stroke)
+    total_stroke_length_to_diagonal_length = compute_total_stroke_length_to_diagonal_length(stroke)
+    amount_of_strokes = len(strokes_of_candidate)
     direction_vectors = calculate_direction_vectors(stroke)
+    # closed_shape = is_closed_shape(stroke, edge_point_positions)
     labels = cluster_direction_vectors(direction_vectors, np.array([[point['x'], point['y']] for point in stroke]))
     # visualize_vectors(np.array([[point['x'], point['y']] for point in stroke]), direction_vectors, labels)
     # average_distance_to_template_shape_circle = calculate_average_min_distance_to_template_shape(stroke, candidate)[0]
     # return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'directional_clusters'], 'features': [number_of_convex_hull_vertices, nearest_point_for_every_edge_point]}
-    return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'direction_vectors'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines, count_clusters(labels)]}
-    # return {'feature_names': ['number_of_convex_hull_vertices'], 'features': [number_of_convex_hull_vertices]}
+    # return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'direction_vectors'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines, count_clusters(labels)]}
+    # print('candidate: ', candidate, closed_convex_hull, nearest_point_for_every_edge_point)
+    return {'feature_names': ['closed_convex_hull', 'nearest_point_for_every_edge_point', 'number_of_convex_hull_vertices'], 'features': [closed_convex_hull, nearest_point_for_every_edge_point, number_of_convex_hull_vertices]}
     # return {'feature_names': ['directional_clusters'], 'features': [count_clusters(labels) ]}
     # return {'feature_names': ['is_closed_shape', ], 'features': [closed_shape] }
     # return {'feature_names': ['directional_clusters'], 'features': [count_clusters(labels)]}

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ink>
+  <traceFormat>
+    <channel name="X" type="integer" />
+    <channel name="Y" type="integer" />
+    <annotation type="canvasWidth">1066</annotation>
+    <annotation type="canvasHeight">748</annotation>
+  </traceFormat>
+  <trace id="0">
+    319 236.125,    315 237.125,    306 248.125,    305 258.125,    310 267.125,    318 271.125,    325 272.125,    339 268.125,    346 261.125,    349 251.125,    347 242.125,    340 235.125,    333 232.125,    325 232.125,    318 236.125,    313 238.125,  </trace>
+  <trace id="1">
+    415 223.125,    415 224.125,    412 232.125,    411 242.125,    412 250.125,    414 254.125,    416 256.125,  </trace>
+  <trace id="2">
+    413 228.125,    415 227.125,    420 225.125,    431 220.125,    439 218.125,    444 217.125,    447 218.125,    449 224.125,    451 235.125,    451 246.125,    451 254.125,    451 259.125,    451 261.125,    451 260.125,    450 260.125,  </trace>
+  <trace id="3">
+    408 256.125,    409 256.125,    411 256.125,    415 256.125,    419 256.125,    426 256.125,    434 255.125,    444 254.125,    451 253.125,  </trace>
+  <trace id="4">
+    351 249.125,    350 250.125,    352 250.125,    354 249.125,    362 247.125,    372 245.125,    381 244.125,    395 241.125,    404 240.125,    411 239.125,    415 238.125,  </trace>
+  <trace id="5">
+    396 234.125,    398 234.125,    403 234.125,    407 234.125,    409 236.125,    410 239.125,    407 243.125,    402 247.125,    400 248.125,  </trace>
+  <trace id="6">
+    526 162.125,    523 161.125,    521 161.125,    514 160.125,    505 161.125,    497 166.125,    492 173.125,    491 182.125,    496 189.125,    504 193.125,    515 193.125,    523 191.125,    535 182.125,    539 176.125,    540 166.125,    535 159.125,    527 157.125,    520 159.125,    515 161.125,  </trace>
+  <trace id="7">
+    531 275.125,    532 274.125,    532 273.125,    532 271.125,    531 268.125,    528 267.125,    523 268.125,    517 273.125,    513 283.125,    513 296.125,    516 305.125,    523 309.125,    533 309.125,    542 306.125,    548 300.125,    551 292.125,    549 285.125,    543 278.125,    535 272.125,    527 271.125,    520 272.125,  </trace>
+  <trace id="8">
+    452 249.125,    453 249.125,    454 249.125,    454 250.125,    456 254.125,    461 259.125,    476 273.125,    488 282.125,    499 287.125,    508 291.125,    512 294.125,    514 295.125,    516 294.125,  </trace>
+  <trace id="9">
+    495 274.125,    496 274.125,    500 275.125,    504 277.125,    509 281.125,    513 286.125,    514 292.125,    512 296.125,    507 298.125,    502 299.125,    498 299.125,  </trace>
+  <trace id="10">
+    446 228.125,    445 229.125,    443 229.125,    442 229.125,    444 228.125,    446 226.125,    451 221.125,    458 215.125,    469 208.125,    477 202.125,    482 197.125,    487 193.125,    490 191.125,  </trace>
+  <trace id="11">
+    474 189.125,    475 189.125,    476 189.125,    477 189.125,    481 188.125,    486 188.125,    490 189.125,    492 192.125,    491 196.125,    488 202.125,    487 204.125,  </trace>
+  <trace id="12">
+    627 203.125,    627 212.125,    627 230.125,    628 241.125,    628 242.125,    626 241.125,    625 240.125,  </trace>
+  <trace id="13">
+    625 206.125,    624 205.125,    630 202.125,    636 200.125,    641 199.125,    645 199.125,    649 202.125,    654 209.125,    656 217.125,    656 226.125,    655 234.125,    655 239.125,    656 243.125,    656 244.125,  </trace>
+  <trace id="14">
+    622 245.125,    624 244.125,    632 243.125,    646 241.125,    657 241.125,    661 242.125,  </trace>
+  <trace id="15">
+    541 178.125,    543 179.125,    548 182.125,    557 188.125,    567 194.125,    577 198.125,    586 201.125,    595 206.125,    602 209.125,    606 211.125,    607 211.125,  </trace>
+  <trace id="16">
+    595 205.125,    597 205.125,    598 205.125,    600 205.125,    605 207.125,    610 209.125,    613 211.125,    617 214.125,    617 215.125,    617 216.125,    614 218.125,    610 220.125,    604 221.125,  </trace>
+  <trace id="17">
+    545 299.125,    546 296.125,    549 294.125,    558 289.125,    568 283.125,    579 274.125,    588 268.125,    597 263.125,    605 259.125,    609 256.125,    616 252.125,  </trace>
+  <trace id="18">
+    605 244.125,    608 244.125,    614 243.125,    620 242.125,    623 243.125,    623 248.125,    619 255.125,    615 261.125,    614 264.125,  </trace>
+  <trace id="19">
+    764 218.125,    764 217.125,  </trace>
+  <trace id="20">
+    769 215.125,    769 214.125,    766 213.125,    762 213.125,    756 213.125,    749 214.125,    743 216.125,    740 221.125,    738 228.125,    739 235.125,    745 240.125,    753 242.125,    763 242.125,    772 240.125,    778 236.125,    780 230.125,    779 225.125,    774 214.125,    768 210.125,    759 208.125,    753 209.125,  </trace>
+  <trace id="21">
+    655 227.125,    654 227.125,    654 228.125,    656 228.125,    662 229.125,    672 230.125,    686 232.125,    701 233.125,    716 232.125,    729 231.125,    737 230.125,    743 231.125,  </trace>
+  <trace id="22">
+    728 221.125,    729 221.125,    736 225.125,    739 228.125,    739 232.125,    737 238.125,    733 244.125,    728 248.125,    727 249.125,  </trace>
+<symbols>
+    <annotation type="truth">Annotation Tool 1.0</annotation>
+    <traceGroup id="0">
+      <annotation type="truth">arrow</annotation>
+      <traceView traceDataRef="4" />
+      <traceView traceDataRef="5" />
+      <head>
+        <traceView traceDataRef="5" />
+      </head>
+      <shaft>
+        <traceView traceDataRef="4" />
+      </shaft>
+    </traceGroup>
+    <traceGroup id="1">
+      <annotation type="truth">arrow</annotation>
+      <traceView traceDataRef="8" />
+      <traceView traceDataRef="9" />
+      <head>
+        <traceView traceDataRef="9" />
+      </head>
+      <shaft>
+        <traceView traceDataRef="8" />
+      </shaft>
+    </traceGroup>
+    <traceGroup id="2">
+      <annotation type="truth">arrow</annotation>
+      <traceView traceDataRef="10" />
+      <traceView traceDataRef="11" />
+      <head>
+        <traceView traceDataRef="11" />
+      </head>
+      <shaft>
+        <traceView traceDataRef="10" />
+      </shaft>
+    </traceGroup>
+    <traceGroup id="3">
+      <annotation type="truth">arrow</annotation>
+      <traceView traceDataRef="15" />
+      <traceView traceDataRef="16" />
+      <head>
+        <traceView traceDataRef="16" />
+      </head>
+      <shaft>
+        <traceView traceDataRef="15" />
+      </shaft>
+    </traceGroup>
+    <traceGroup id="4">
+      <annotation type="truth">arrow</annotation>
+      <traceView traceDataRef="17" />
+      <traceView traceDataRef="18" />
+      <head>
+        <traceView traceDataRef="18" />
+      </head>
+      <shaft>
+        <traceView traceDataRef="17" />
+      </shaft>
+    </traceGroup>
+    <traceGroup id="5">
+      <annotation type="truth">arrow</annotation>
+      <traceView traceDataRef="21" />
+      <traceView traceDataRef="22" />
+      <head>
+        <traceView traceDataRef="22" />
+      </head>
+      <shaft>
+        <traceView traceDataRef="21" />
+      </shaft>
+    </traceGroup>
+    <traceGroup id="6">
+      <annotation type="truth">place</annotation>
+      <traceView traceDataRef="0" />
+    </traceGroup>
+    <traceGroup id="7">
+      <annotation type="truth">place</annotation>
+      <traceView traceDataRef="6" />
+    </traceGroup>
+    <traceGroup id="8">
+      <annotation type="truth">place</annotation>
+      <traceView traceDataRef="7" />
+    </traceGroup>
+    <traceGroup id="9">
+      <annotation type="truth">place</annotation>
+      <traceView traceDataRef="20" />
+    </traceGroup>
+    <traceGroup id="10">
+      <annotation type="truth">transition</annotation>
+      <traceView traceDataRef="1" />
+      <traceView traceDataRef="2" />
+      <traceView traceDataRef="3" />
+    </traceGroup>
+    <traceGroup id="11">
+      <annotation type="truth">transition</annotation>
+      <traceView traceDataRef="12" />
+      <traceView traceDataRef="13" />
+      <traceView traceDataRef="14" />
+    </traceGroup>
+  </symbols>
+</ink>

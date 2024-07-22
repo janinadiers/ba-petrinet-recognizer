@@ -41,8 +41,9 @@ def train(X, y, feature_names):
 def use(X, candidate)-> dict:
     X = np.array(X)
     # get the right model
-    joblib_file = 'classifier/shape_classifier/linear_svm_models/svm_model_20240622_225934.joblib'
-    # joblib_file = 'classifier/shape_classifier/linear_svm_models/svm_model_20240704_042040.joblib'
+    # joblib_file = 'classifier/shape_classifier/linear_svm_models/svm_model_20240622_225934.joblib'
+    joblib_file = 'classifier/shape_classifier/linear_svm_models/svm_model_20240721_200012.joblib'
+
     # Load the model
     loaded_clf = joblib.load(joblib_file)
      # Ensure X is a 2D array

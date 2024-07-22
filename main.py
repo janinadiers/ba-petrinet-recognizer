@@ -23,7 +23,7 @@ from helper.EvaluationWrapper import EvaluationWrapper
 from helper.parsers import parse_strokes_from_inkml_file, parse_ground_truth, parse_ratio_from_inkml_file
 from helper.normalizer import resample_strokes
 from helper.normalizer import convert_coordinates
-from helper.utils import get_unrecognized_strokes, get_position_values, plot_strokes_without_scala
+from helper.utils import get_unrecognized_strokes, get_bounding_box, plot_strokes_without_scala
 from scripts.determine_best_closed_shape_threshold import get_threshold, next_threshold
 import os
 from helper.print_progress_bar import printProgressBar
@@ -70,12 +70,12 @@ def _toGlobalPath(path: str):
     return glob(path, recursive=True)
 
 parser = argparse.ArgumentParser(description='Petrinet recognizer 1.0.')
-#parser.add_argument('--files', dest='files', nargs='+',
-                   #help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt'])
-#parser.add_argument('--files', dest='files', nargs='+',
-                    #help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FC_1.0/no_text/no_junk/FC_Train.txt', './__datasets__/FC_1.0/no_text/no_junk/FC_Validation.txt'])
 parser.add_argument('--files', dest='files', nargs='+',
-                    help='glob to textfile(s) containing inkml file names', default=['./__datasets__/PN_1.0/PN_Test.txt'])
+                   help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt'])
+# parser.add_argument('--files', dest='files', nargs='+',
+                    # help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FC_1.0/no_text/no_junk/FC_Train.txt', './__datasets__/FC_1.0/no_text/no_junk/FC_Validation.txt'])
+# parser.add_argument('--files', dest='files', nargs='+',
+                    # help='glob to textfile(s) containing inkml file names', default=['./__datasets__/PN_1.0/PN_Test.txt'])
 parser.add_argument('--inkml', dest='inkml', type=_toGlobalPath, nargs='?', action='store', default='',
                     help='glob to inkml file(s)')
 parser.add_argument('--grouper', dest='grouper', type=str, nargs='?', action='store', default='optimized_grouper',
@@ -189,6 +189,7 @@ for i, path in enumerate(file_paths):
     recognized_strokes = []
     unrecognized_strokes = []
     candidates_already_checked = []
+    edges = []
     for i,candidate in enumerate(candidates):
         # check if no values from the candidate are in recognized_strokes
         if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
@@ -230,9 +231,11 @@ for i, path in enumerate(file_paths):
         elif shape_name == 'rectangle':
             shape_strokes.append({'shape_name': shape_name , 'shape_id': 't' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
 
-            
+       
     edges = connection_localizer(shape_strokes, unrecognized_strokes)
-   
+    print('Edges:', len(edges))
+    for edge in edges:
+        print('Edge:', edge['valid']['line']['source'], edge['valid']['line']['target'])
     results.extend(edges)
 
 
@@ -292,14 +295,24 @@ if args.production:
        
         # x and y values are being adapted to the canvas size of the petri net editors from I love petri nets
         if shape_name == 'line':
-            source_min_x, source_min_y, source_max_x, source_max_y, source_width, source_height = get_position_values(strokes_of_source_candidate)
-            target_min_x, target_min_y, target_max_x, target_max_y, target_width, target_height = get_position_values(strokes_of_target_candidate)
+            combined_strokes_of_source_candidate = []
+            combined_strokes_of_target_candidate = []
+            for stroke in strokes_of_source_candidate:
+                combined_strokes_of_source_candidate.extend(stroke)
+            for stroke in strokes_of_target_candidate:
+                combined_strokes_of_target_candidate.extend(stroke)
+                
+            source_min_x, source_min_y, source_max_x, source_max_y, source_width, source_height = get_bounding_box(combined_strokes_of_source_candidate)
+            target_min_x, target_min_y, target_max_x, target_max_y, target_width, target_height = get_bounding_box(combined_strokes_of_target_candidate)
             height_factor_source = 80 / (source_min_y + source_max_y)
             height_factor_target = 80 / (target_min_y + target_max_y)
             line_candidate = [resampled_content.index(result['valid']['line']['stroke'])]
             result_obj = {'shape_name': shape_name, 'source_min_x': source_min_x, 'source_min_y': source_min_y, 'source_max_x': source_max_x, 'source_max_y': source_max_y, 'target_min_x': target_min_x , 'target_min_y': target_min_y, 'target_max_x': target_max_x, 'target_max_y': target_max_y, 'shape_id': shape_id, 'target_id': result['valid']['line']['target_id'], 'source_id': result['valid']['line']['source_id'], 'candidate': line_candidate}
         else:
-            min_x, min_y, max_x, max_y, width, height = get_position_values(strokes_of_candidate)
+            combined_strokes_of_candidate = []
+            for stroke in strokes_of_candidate:
+                combined_strokes_of_candidate.extend(stroke)
+            min_x, min_y, max_x, max_y, width, height = get_bounding_box(combined_strokes_of_candidate)
             result_obj = {'shape_name': shape_name,'min_x': min_x, 'min_y': min_y, 'max_x': max_x, 'max_y': max_y, 'width': width, 'height': height, 'shape_id': shape_id, 'candidates': candidates}
         with open(f'inkml_results/{file_name}.json', 'a') as f:
             json.dump(result_obj, f, indent=4)

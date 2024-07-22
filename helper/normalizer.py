@@ -5,7 +5,6 @@ from helper.utils import distance, path_length
 # Die Skalierung ist notwendig, um die Punkte auf eine einheitliche Größe zu bringen, sodass die Punkte in einem einheitlichen Koordinatensystem liegen
 def scale(strokes: list[dict]) -> list[dict]:
     _points = [point for stroke in strokes for point in stroke]
-    # _points = copy.deepcopy(points[0])
     xmin = min(point['x'] for point in _points)
     xmax = max(point['x'] for point in _points)
     ymin = min(point['y'] for point in _points)
@@ -64,17 +63,11 @@ def resample_strokes(strokes: list[dict]) -> list[dict]:
     return resampled_strokes          
  
 
-# n = 80 default
 def resample(points, n=80):
     if len(points) < 2:
         return points
    
     total_length = path_length(points)
-    
-    # Calculate the number of points based on the total length and a factor
-    # num_points = max(int(total_length * length_factor), base_num_points) 
-    # n = total_length / (num_points - 1)
-    
     
     I = total_length / (n - 1)
   

@@ -1,7 +1,6 @@
 from helper.parsers import parse_ground_truth, parse_strokes_from_inkml_file, parse_ratio_from_inkml_file
 import pandas as pd
-from helper.utils import plot_strokes, get_strokes_from_candidate, plot_strokes_without_scala
-from helper.normalizer import scale, translate_to_origin, convert_coordinates
+from helper.normalizer import convert_coordinates
 from helper.normalizer import resample_strokes
 import datetime
 class EvaluationWrapper:
@@ -20,6 +19,7 @@ class EvaluationWrapper:
         self.times = []
         self.valid_shapes = 0
         self.file_path = None
+        
 
     def get_truth_without_lines(self):
         truth_without_lines = []

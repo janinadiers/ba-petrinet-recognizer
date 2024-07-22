@@ -1,11 +1,11 @@
 import copy
-from helper.utils import plot_strokes_without_scala, get_strokes_from_candidate, get_position_values
+from helper.utils import plot_strokes_without_scala, get_strokes_from_candidate, get_bounding_box
 from grouper.shape_grouper.distance_calculators.distance_between_all_points import get_min_distance
 import numpy as np
 
 
 def determine_if_edge_is_part_of_shape(edge, shape):
-    min_x, min_y, max_x, max_y, width, height= get_position_values(shape['shape_strokes'])
+    min_x, min_y, max_x, max_y, width, height= get_bounding_box(shape['shape_strokes'])
     shape_bounding_box = {'x': min_x, 'y': min_y, 'width': width, 'height': height}
     
     amount_of_points_in_bounding_box = get_amount_of_points_in_bounding_box(edge[0], shape_bounding_box)
@@ -51,30 +51,39 @@ def edge_combines_two_shapes(edge, shapes):
     
     # Berechne relativen distance Threshold: Dabei ist der Threshold abhängig von der Breite der Shape
     for shape in shapes:
-        min_x, min_y, max_x, max_y, width, height= get_position_values(shape['shape_strokes'])
+        combined_shape_strokes = []
+        for shape_stroke in shape['shape_strokes']:
+            combined_shape_strokes.extend(shape_stroke)
+        min_x, min_y, max_x, max_y, width, height= get_bounding_box(combined_shape_strokes)
         if width < height:
-            # distance_threshold = width /2
             distance_threshold = width
         else:
-            # distance_threshold = height/2
-            distance_threshold = height
-        if get_min_distance(edge[0], shape['shape_strokes'][0]) < distance_threshold:
-            # edge_is_part_of_shape = determine_if_edge_is_part_of_shape(edge, shape)
-            # if edge_is_part_of_shape:
-            #     return False, None, None
+            distance_threshold = height 
+        print('distance_threshold: ', distance_threshold, 'distance', get_min_distance(edge[0], combined_shape_strokes))
+        # plot_strokes_without_scala(edge + shape['shape_strokes'])
+
+        if get_min_distance(edge[0], combined_shape_strokes) < distance_threshold:
             shape1 = shape
+        
+    if shape1 == None:        
+        return False, None, None
+    
     for shape in shapes:
         if shape == shape1:
             continue
-        min_x, min_y, max_x, max_y, width, height= get_position_values(shape['shape_strokes'])
+        combined_shape_strokes = []
+        for shape_stroke in shape['shape_strokes']:
+            combined_shape_strokes.extend(shape_stroke)
+        min_x, min_y, max_x, max_y, width, height= get_bounding_box(combined_shape_strokes)
+
         if width < height:
-            distance_threshold = width /2
+            distance_threshold = width 
         else:
-            distance_threshold = height /2
-        if get_min_distance(edge[-1], shape['shape_strokes'][0]) < distance_threshold:
-            # edge_is_part_of_shape = determine_if_edge_is_part_of_shape(edge, shape)
-            # if edge_is_part_of_shape:
-            #     return False, None, None
+            distance_threshold = height 
+
+        # plot_strokes_without_scala(edge + shape['shape_strokes'])
+
+        if get_min_distance(edge[0],combined_shape_strokes) < distance_threshold:
             shape2 = shape
     if shape1 and shape2:
         return True, shape1, shape2
@@ -150,14 +159,18 @@ def create_edge(edge, shape1, shape2, unrecognized_strokes) -> dict:
 def group(shapes:list[dict], unrecognized_strokes) -> list[dict]:
     valid_edges = []
     _unrecognized_strokes = copy.deepcopy(unrecognized_strokes)
-    
-    for unrecognized_stroke in _unrecognized_strokes:
+
+    for idx,unrecognized_stroke in enumerate(_unrecognized_strokes):
+        print('unrecognized_stroke index: ', idx)
         edge = [unrecognized_stroke]
+        # plot_strokes_without_scala(_unrecognized_strokes, unrecognized_stroke)
         combines_two_shapes, shape1, shape2 = edge_combines_two_shapes(edge, shapes)
+        print('combines_two_shapes: ', combines_two_shapes)
+        
         if combines_two_shapes:
             # create only an edge if both shapes are different classes
-            # if shape1['shape_name'] == shape2['shape_name']:
-            #     continue
+            if shape1['shape_name'] == shape2['shape_name']:
+                print('Both shapes are the same class')
             valid_edge = create_edge(edge, shape1, shape2, _unrecognized_strokes)
             valid_edges.append(valid_edge)
              

@@ -1,0 +1,6 @@
+features: ['closed_convex_hull', 'nearest_point_for_every_edge_point']
+classifier: linear_svm
+accuracy: 97.4559686888454%
+C: 3.0
+random_state: 42
+class_weight:balanced, probability: True

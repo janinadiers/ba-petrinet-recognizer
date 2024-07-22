@@ -1,7 +1,6 @@
 import numpy as np
 import networkx as nx
 from grouper.shape_grouper.distance_calculators.distance_between_all_points import initialize_adjacency_matrix
-from matplotlib import pyplot as plt
 
 def sort_by_length(strokes:list[dict]) -> list[dict]:
     strokes.sort(key=lambda x: len(x))
@@ -9,34 +8,17 @@ def sort_by_length(strokes:list[dict]) -> list[dict]:
     
 def get_all_simple_cycles(adj_matrix):
     G = nx.Graph()
-    print('optimized grouper')
-    # Benachbarte Strokes hinzufügen
+    # Benachbarte Striche hinzufügen
     for i in range(len(adj_matrix)):
         for j in range(i , len(adj_matrix[i])):
             if adj_matrix[i][j] == 1:
                 G.add_edge(i, j)
     
-    # if G.has_edge(18, 19):
-    #     print("Edge 18 -> 19 successfully added.")
-    # else:
-    #     print("Edge 18 -> 19 was not added.")   
-        
-    # # Check for connectivity from 19 to 18
-    # if nx.has_path(G, 19, 18):
-    #     print("There is a path from 19 back to 18.")
-    # else:
-    #     print("There is no path from 19 back to 18.")   
-        
-    # Print all edges
-    # print("Edges in the graph:", G.edges())
-    # Finde alle einfachen Zyklen
     to_directed = G.to_directed()
     simple_cycles = nx.simple_cycles(to_directed, length_bound=8)
-    # Store unique cycles
     unique_cycles = []
     seen = set()
     for cycle in simple_cycles:
-        # Sort the cycle to canonical form and use a tuple to make it hashable
         normalized_cycle = tuple(sorted(cycle))
         if normalized_cycle not in seen:
             seen.add(normalized_cycle)
