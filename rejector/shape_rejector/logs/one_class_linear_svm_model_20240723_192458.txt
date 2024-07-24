@@ -1,0 +1,5 @@
+features: ['closed_shape']
+classifier: linear_svm
+accuracy: 93.9297124600639%
+nu: 0.05
+gamma: auto

@@ -1,4 +1,4 @@
-from helper.utils import hellinger_distance,  distance, pearsons_correlation
+from helper.utils import hellinger_distance,  distance, pearsons_correlation, cosine_similarity
 import json
 
 
@@ -18,8 +18,10 @@ def use(X, candidate):
     pearsons_correlation_circle = pearsons_correlation(X, cluster_center_circle)
     hellinger_distance_rectangle = hellinger_distance(X, cluster_center_rectangle)
     pearsons_correlation_rectangle = pearsons_correlation(X, cluster_center_rectangle)
+    cosine_similarity_circle = cosine_similarity(X, cluster_center_circle)
+    cosine_similarity_rectangle = cosine_similarity(X, cluster_center_rectangle)
     
-    if hellinger_distance_circle < F1_circle_distance_to_center and hellinger_distance_rectangle < F1_rectangle_distance_to_center and pearsons_correlation_circle > similarity_circle and pearsons_correlation_rectangle > similarity_rectangle:
+    if hellinger_distance_circle < F1_circle_distance_to_center and hellinger_distance_rectangle < F1_rectangle_distance_to_center and cosine_similarity_circle > similarity_circle and cosine_similarity_rectangle > similarity_rectangle:
         return {'valid': candidate}
     else:
         return {'invalid': candidate}

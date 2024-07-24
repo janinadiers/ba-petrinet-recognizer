@@ -6,7 +6,7 @@ def use(X, candidate, expected_shapes)-> dict:
     # ursprünglich 0.4
     # threshold = get_threshold()
     print('HIIIWE', X[0], candidate)
-    if X[0] < 1:
+    if X[0] < 0.8:
         return {'valid': candidate}
     else:
         return {'invalid': candidate}

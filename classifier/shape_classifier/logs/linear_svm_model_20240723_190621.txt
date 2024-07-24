@@ -1,0 +1,6 @@
+features: ['number_of_convex_hull_vertices_to_amount_of_points_ratio', 'nearest_point_for_every_edge_point', 'number_of_convex_hull_vertices', 'directional_clusters', 'template', 'total_stroke_length_to_diagonal_length']
+classifier: linear_svm
+accuracy: 98.13559322033898%
+C: 3.0
+random_state: 42
+class_weight:balanced, probability: True

@@ -197,6 +197,10 @@ class EvaluationWrapper:
                     truth_contains_candidate = True
                     if 'valid' in recognizer_result[0]:
                         shape_name_recognizer_result = next(iter(recognizer_result[0]['valid']))
+                        # if not shape_name == shape_name_recognizer_result:
+                        #     print('shape not correctly recognized', self.file_path, shape_name_recognizer_result, candidate)
+                        #     exit()
+                        
                         self.matrix.at[shape_name, shape_name_recognizer_result] += 1
                     else:  
                         self.matrix.at[shape_name, 'no_shape'] += 1

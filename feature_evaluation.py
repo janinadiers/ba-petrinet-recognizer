@@ -133,7 +133,7 @@ def prepare_data2(path):
                     
                    
 file_paths = []
-files = ['./__datasets__/FC_1.0/no_text/FC_Train.txt', './__datasets__/FC_1.0/no_text/FC_Validation.txt', './__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt', './__datasets__/PN_1.0/PN_Test.txt']
+files = ['./__datasets__/FC_1.0/no_text/FC_Train.txt', './__datasets__/FC_1.0/no_text/FC_Validation.txt','./__datasets__/PN_1.0/PN_Test.txt']
 all_features = []
 all_labels = []
 
@@ -146,7 +146,7 @@ for name_file_path in files:
                     file_paths.append(os.path.dirname(name_file_path) + '/' + line)
 for i, path in enumerate(file_paths):
     print(f"Processing file {i + 1}/{len(file_paths)}: {path}")
-    features, labels = prepare_data(path)
+    features, labels = prepare_data2(path)
     all_features.extend(features)
     all_labels.extend(labels)
 print('all features', all_features)

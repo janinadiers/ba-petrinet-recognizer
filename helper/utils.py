@@ -3,6 +3,7 @@ import copy
 # from helper.normalizer import distance
 import matplotlib.pyplot as plt
 import math
+from sklearn.metrics.pairwise import cosine_similarity
 
 def combine_strokes(grouped_ids:list[int], strokes:list[dict]):
     combined_strokes = []  
@@ -263,6 +264,13 @@ def pearsons_correlation(x, y):
     # Calculate Pearson's correlation coefficient
     print('x', x, 'y', y)
     return np.corrcoef(x, y)[0, 1]
+
+def cosine_similarity(x, y):
+    if isinstance(x, dict):
+        x = [x['x'],x['y']] 
+        y = [y['x'],y['y']]
+    # A value closer to 1 indicates that the vectors are more similar.
+    return cosine_similarity([x], [y])[0][0]
 
 
 def hellinger_distance(P, Q):

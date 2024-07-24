@@ -69,7 +69,15 @@ def post_data():
     os.remove(f'inkml_requests/{time_stamp}.inkml')
     os.remove(f'inkml_results/{time_stamp}.json')
     
-    return jsonify({'received': input_data, 'result': response_data})
+    # Create the response object
+    response = jsonify({'received': input_data, 'result': response_data})
+    
+    # Set headers to prevent caching
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    
+    return response
   
 
 if __name__ == '__main__':

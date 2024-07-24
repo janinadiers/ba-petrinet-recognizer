@@ -58,8 +58,7 @@ def edge_combines_two_shapes(edge, shapes):
         if width < height:
             distance_threshold = width
         else:
-            distance_threshold = height 
-        print('distance_threshold: ', distance_threshold, 'distance', get_min_distance(edge[0], combined_shape_strokes))
+            distance_threshold = height
         # plot_strokes_without_scala(edge + shape['shape_strokes'])
 
         if get_min_distance(edge[0], combined_shape_strokes) < distance_threshold:
@@ -104,26 +103,28 @@ def get_amount_of_points_in_bounding_box(stroke, bounding_box) -> int:
     return amount_of_points
     
 def create_edge(edge, shape1, shape2, unrecognized_strokes) -> dict:
+    center_bounding_box1 = {'x': edge[0][0]['x'], 'y': edge[0][0]['y'], 'width': 2000, 'height': 1800}
+    center_bounding_box2 = {'x': edge[0][-1]['x'], 'y': edge[0][-1]['y'], 'width': 2000, 'height': 1800}
     
-    if edge[0][0]['x'] < edge[0][-1]['x']:
-        bounding_box1 = {'x': edge[0][0]['x'], 'y': edge[0][0]['y'] - 900, 'width': 2100, 'height': 2200}
-        bounding_box2 = {'x': edge[0][-1]['x'] - 2000, 'y': edge[0][-1]['y'] - 900, 'width': 2100, 'height': 2200}
-    else:
-        bounding_box1 = {'x': edge[0][0]['x'] - 2000, 'y': edge[0][0]['y'] - 900, 'width': 2100, 'height': 2200}
-        bounding_box2 = {'x': edge[0][-1]['x'], 'y': edge[0][-1]['y'] - 900, 'width': 2100, 'height': 2200}
-    # Gute stelle zum plotten
+    # if edge[0][0]['x'] < edge[0][-1]['x']:
+    bounding_box1 = {'x': center_bounding_box1['x'] - 1000, 'y': center_bounding_box1['y'] - 1000, 'width': 2000, 'height': 2000}
+    bounding_box2 = {'x': center_bounding_box2['x'] - 1000, 'y': center_bounding_box2['y'] - 1000, 'width': 2000, 'height': 2000}
+    # else:
+    #     bounding_box1 = {'x': center_bounding_box1['x'] + 1000, 'y': center_bounding_box1['y'] - 1000, 'width': 2000, 'height': 2000}
+    #     bounding_box2 = {'x': center_bounding_box2['x'] - 1000, 'y': center_bounding_box2['y'] - 1000, 'width': 2000, 'height': 2000}
+    # # Gute stelle zum plotten
     # plot_strokes_without_scala(edge + shape1['shape_strokes'] + shape2['shape_strokes'] + unrecognized_strokes, [{'x': bounding_box1['x'], 'y': bounding_box1['y']},{'x': bounding_box1['x'] + bounding_box1['width'], 'y': bounding_box1['y'] + bounding_box1['height']},{'x': bounding_box1['x'] + bounding_box1['width'], 'y': bounding_box1['y']}, {'x': bounding_box1['x'], 'y': bounding_box1['y'] + bounding_box1['height']}, {'x': bounding_box2['x'], 'y': bounding_box2['y']},{'x': bounding_box2['x'] + bounding_box2['width'], 'y': bounding_box2['y'] + bounding_box2['height']},{'x': bounding_box2['x'] + bounding_box2['width'], 'y': bounding_box2['y']}, {'x': bounding_box2['x'], 'y': bounding_box2['y'] + bounding_box2['height']}])
     # plot_strokes_without_scala(shape1['shape_strokes'] + shape2['shape_strokes'] + unrecognized_strokes, [edge[0][0]])
     # plot_strokes_without_scala(shape1['shape_strokes'] + shape2['shape_strokes'] + unrecognized_strokes, [edge[0][-1]])
 
     density1 = 0
     density2 = 0
-    unrecognized_strokes_without_edge = []
-    for stroke in unrecognized_strokes:
-        if stroke != edge[0]:
-            unrecognized_strokes_without_edge.append(stroke)
+    # unrecognized_strokes_without_edge = []
+    # for stroke in unrecognized_strokes:
+    #     if stroke != edge[0]:
+    #         unrecognized_strokes_without_edge.append(stroke)
 
-    for stroke in unrecognized_strokes_without_edge:
+    for stroke in unrecognized_strokes:
         unrecognized_stroke_in_bounding_box1 = unrecognized_stroke_in_bounding_box(stroke, bounding_box1)
         unrecognized_stroke_in_bounding_box2 = unrecognized_stroke_in_bounding_box(stroke, bounding_box2)
         # plot_strokes_without_scala(edge + shape2['shape_strokes'] + [stroke], [{'x': bounding_box1['x'], 'y': bounding_box1['y']},{'x': bounding_box1['x'] + bounding_box1['width'], 'y': bounding_box1['y'] + bounding_box1['height']},{'x': bounding_box1['x'] + bounding_box1['width'], 'y': bounding_box1['y']}, {'x': bounding_box1['x'], 'y': bounding_box1['y'] + bounding_box1['height']}, {'x': bounding_box2['x'], 'y': bounding_box2['y']},{'x': bounding_box2['x'] + bounding_box2['width'], 'y': bounding_box2['y'] + bounding_box2['height']},{'x': bounding_box2['x'] + bounding_box2['width'], 'y': bounding_box2['y']}, {'x': bounding_box2['x'], 'y': bounding_box2['y'] + bounding_box2['height']}])

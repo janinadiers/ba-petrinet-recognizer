@@ -62,7 +62,8 @@ REJECTORS = {
     'rejector_with_threshold' : rejector_with_threshold,
     'one_class_svm' : one_class_svm,
     'hellinger_plus_correlation' : hellinger_plus_correlation,
-    'perfect_mock_rejector' : perfect_mock_rejector
+    'perfect_mock_rejector' : perfect_mock_rejector,
+    'one_class_svm': one_class_svm
 }
     
 
@@ -71,7 +72,7 @@ def _toGlobalPath(path: str):
 
 parser = argparse.ArgumentParser(description='Petrinet recognizer 1.0.')
 parser.add_argument('--files', dest='files', nargs='+',
-                   help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt'])
+                help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt'])
 # parser.add_argument('--files', dest='files', nargs='+',
                     # help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FC_1.0/no_text/no_junk/FC_Train.txt', './__datasets__/FC_1.0/no_text/no_junk/FC_Validation.txt'])
 # parser.add_argument('--files', dest='files', nargs='+',
@@ -205,7 +206,8 @@ for i, path in enumerate(file_paths):
     unrecognized_strokes = get_unrecognized_strokes(recognized_strokes, resampled_content)
     evaluationWrapper.save_time() if not args.production else None
     shape_strokes = []
-    
+  
+       
     # truth = parse_ground_truth(path)
     # for dictionary in truth:
     #     for shape_name, trace_ids in dictionary.items():
@@ -224,27 +226,27 @@ for i, path in enumerate(file_paths):
                 
                 
     #             exit()
-    for i, shape in enumerate(results):
-        shape_name = list(shape['valid'].keys())[0]
-        if shape_name == 'circle':
-            shape_strokes.append({'shape_name': shape_name , 'shape_id': 'p' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
-        elif shape_name == 'rectangle':
-            shape_strokes.append({'shape_name': shape_name , 'shape_id': 't' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
+    # for i, shape in enumerate(results):
+    #     shape_name = list(shape['valid'].keys())[0]
+    #     if shape_name == 'circle':
+    #         shape_strokes.append({'shape_name': shape_name , 'shape_id': 'p' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
+    #     elif shape_name == 'rectangle':
+    #         shape_strokes.append({'shape_name': shape_name , 'shape_id': 't' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
 
        
-    edges = connection_localizer(shape_strokes, unrecognized_strokes)
-    print('Edges:', len(edges))
-    for edge in edges:
-        print('Edge:', edge['valid']['line']['source'], edge['valid']['line']['target'])
-    results.extend(edges)
+    # edges = connection_localizer(shape_strokes, unrecognized_strokes)
+    # print('Edges:', len(edges))
+    # for edge in edges:
+    #     print('Edge:', edge['valid']['line']['source'], edge['valid']['line']['target'])
+    # results.extend(edges)
 
 
 if not args.production:
     evaluationWrapper.set_total()
     evaluationWrapper.set_accuracy()
     print(evaluationWrapper)
-    print()
-    print(evaluationWrapper.get_connection_evaluation())
+    # print()
+    # print(evaluationWrapper.get_connection_evaluation())
     
 
 if args.save == 'y':

@@ -16,8 +16,54 @@ from shapely.geometry import Polygon
 import networkx as nx
 import math
 import random
+import cv2
 
+def area_comparison(stroke):
+    points = np.array([(point['x']*1000, point['y']*1000) for point in stroke], dtype=np.int32)
+    hull = cv2.convexHull(points)
+    hull_area = cv2.contourArea(hull)
+    contour_area = cv2.contourArea(points)
+    if hull_area > contour_area:
+        return contour_area / hull_area
 
+    
+
+def get_convexity_defects(stroke):
+
+    points = np.array([(point['x']*1000, point['y']*1000) for point in stroke], dtype=np.int32)
+    epsilon = 0.01 * cv2.arcLength(points, True)
+    approx_contour = cv2.approxPolyDP(points, epsilon, True)
+    print('approx_contour', approx_contour)
+    # Epsilon is a parameter to control the approximation accuracy
+    
+    # Ensure points array is not empty
+    if points.size == 0:
+        raise ValueError("The input points array is empty")
+    
+    
+   
+    # Find the convex hull indices
+    hull = cv2.convexHull(approx_contour, returnPoints= False)
+    # approx_contour = approx_contour.reshape((-1, 1, 2))
+
+    # Ensure the convex hull has enough points (at least 3) to form defects
+    print('len hull', len(hull))
+    print('len points', len(approx_contour))
+    if len(hull) < 3:
+        print("The convex hull has less than 3 points.")
+        return 0
+    try:
+        # Find the convexity defects
+        defects = cv2.convexityDefects(approx_contour, hull)
+        return defects
+    except Exception as e:
+        print("Convexity defects could not be computed.", e)
+        return 0
+
+def count_defects(defects):
+    if defects is None or type(defects) == int:
+        return 0
+    return defects.shape[0]
 
 def calculate_direction(point1, point2):
     dx = point2['x'] - point1['x']
@@ -174,41 +220,6 @@ def calculate_angle_between_vectors(v1, v2):
     
     return angle_degrees
 
-def count_180_degree_angles(direction_vectors):
-    count = 0
-    degree_vector = [1, 0]
-    for i in range(len(direction_vectors) - 1):
-        angle = calculate_angle_between_vectors(direction_vectors[i], degree_vector)
-        if angle < 2:
-           count += 1
-    return count
-
-def count_minus_180_degree_angles(direction_vectors):
-    count = 0
-    degree_vector = [-1, 0]
-    for i in range(len(direction_vectors) - 1):
-        angle = calculate_angle_between_vectors(direction_vectors[i], degree_vector)
-        if angle < 2:
-           count += 1
-    return count
-
-def count_90_degree_angles(direction_vectors):
-    count = 0
-    degree_vector = [0, 1]
-    for i in range(len(direction_vectors) - 1):
-        angle = calculate_angle_between_vectors(direction_vectors[i], degree_vector)
-        if angle < 2:
-           count += 1
-    return count
-
-def count_minus_90_degree_angles(direction_vectors):
-    count = 0
-    degree_vector = [0, -1]
-    for i in range(len(direction_vectors) - 1):
-        angle = calculate_angle_between_vectors(direction_vectors[i], degree_vector)
-        if angle < 2:
-           count += 1
-    return count
 
 def cluster_direction_vectors(direction_vectors, points, eps=0.05, min_samples=12):
     # remove nan values
@@ -249,6 +260,8 @@ def get_aspect_ratio(stroke):
     bounding_box = get_bounding_box(stroke)
     width = bounding_box[4]
     height = bounding_box[5]
+    if height == 0:
+        return 0
     return width / height
 
 
@@ -314,7 +327,6 @@ def get_convexity(stroke):
 
 
 def is_closed_shape(stroke, edge_point_positions=None):
-    print('is_closed_shape')
     _stroke = copy.deepcopy(stroke)
     edge_points = []
     for edge_point_position in edge_point_positions:
@@ -330,7 +342,7 @@ def is_closed_shape(stroke, edge_point_positions=None):
         
     return sum(min_distances)
 
-def is_closed_convex_hull(stroke):
+def get_number_of_convex_hull_vertices_to_amount_of_points_ratio(stroke):
     points = np.array([(point['x'], point['y']) for point in stroke])
     try:
         hull = ConvexHull(points)
@@ -402,13 +414,9 @@ def compute_total_stroke_length_to_diagonal_length(stroke):
     
     return total_stroke_length / diagonal_length
 
-def is_closed_graph(stroke):
-    G = nx.Graph()
-    for i in range(len(stroke) - 1):
-        point1 = (stroke[i]['x'], stroke[i]['y'])
-        point2 = (stroke[i + 1]['x'], stroke[i + 1]['y'])
-        G.add_edge(point1, point2)
-    return nx.is_eulerian(G)
+
+# def get_convexity_defects(stroke):
+#     convexityDefects = cv2.convexityDefects(contour, convexhull)
 
 def calculate_average_distance_to_template_shape_with_vertical_lines(strokes, stroke, candidate):
    
@@ -578,30 +586,6 @@ def get_cluster_amount(stroke):
         amount_cluster+=1
     return amount_cluster
 
-def findparallel(strokes):
-
-    parallel_lines = []
-    for i in range(len(strokes)):
-        for j in range(len(strokes)):
-            if (i == j):continue
-            if (abs(strokes[i][0]['y'] - strokes[j][0]['y']) < 0.1):          
-                #You've found a parallel line!
-                parallel_lines.append((i,j))
-            if (abs(strokes[i][0]['x'] - strokes[j][0]['x']) < 0.1):          
-                #You've found a parallel line!
-                parallel_lines.append((i,j))
-
-
-    return len(parallel_lines)
-
-def is_continuous(stroke, tolerance=1):
-    distances = []
-    for i in range(len(stroke) - 1):
-        point1 = stroke[i]
-        point2 = stroke[i + 1]
-        distance = np.sqrt((point1['x'] - point2['x'])**2 + (point1['y'] - point2['y'])**2)
-        distances.append(distance)
-    return max(distances)
 
 def get_edge_points(strokes_of_candidate):
     edge_point_positions = []
@@ -628,7 +612,7 @@ def get_shape_no_shape_features(candidate, strokes):
     stroke = translated_strokes[0]   
     for edge_point_position in edge_point_positions:
         edge_points.append(stroke[edge_point_position])
-    # print(edge_points)
+    
     # plot_strokes(translated_strokes, edge_points)
     
     has_only_duplicates = stroke_has_only_duplicates(stroke)
@@ -636,18 +620,21 @@ def get_shape_no_shape_features(candidate, strokes):
     if (len(stroke) < 5 or has_only_duplicates):
         return {'feature_names': ['distance_between_stroke_edge_points'], 'features': None}
     closed_shape = is_closed_shape(stroke, edge_point_positions)
-    aspect_ratio = get_aspect_ratio(stroke)
-    convex_hull_area_to_perimeter_ratio = compute_convex_hull_area_to_perimeter_ratio(stroke)
-    convex_hull_perimeter_to_area_ratio = compute_convex_hull_perimeter_to_area_ratio(stroke)
-    convexity = get_convexity(stroke)
-    total_stroke_length_to_diagonal_length = compute_total_stroke_length_to_diagonal_length(stroke)
+    # defects = get_convexity_defects(stroke)
+    # print('area comparison: ', area_comparison(stroke))
+    # print(defects is None or len(defects) == 0)
+    # aspect_ratio = get_aspect_ratio(stroke)
+    # convex_hull_area_to_perimeter_ratio = compute_convex_hull_area_to_perimeter_ratio(stroke)
+    # convex_hull_perimeter_to_area_ratio = compute_convex_hull_perimeter_to_area_ratio(stroke)
+    # convexity = get_convexity(stroke)
+    # total_stroke_length_to_diagonal_length = compute_total_stroke_length_to_diagonal_length(stroke)
     return {'feature_names': ['closed_shape'], 'features': [closed_shape]}
 
 
 def get_circle_rectangle_features(candidate, strokes):
     strokes_of_candidate = get_strokes_from_candidate(candidate, strokes)
-    edge_point_positions = get_edge_points(strokes_of_candidate)
-    edge_points = []
+    # edge_point_positions = get_edge_points(strokes_of_candidate)
+    # edge_points = []
     scaled_strokes = scale(strokes_of_candidate)
     
     translated_strokes = translate_to_origin(scaled_strokes)
@@ -662,21 +649,20 @@ def get_circle_rectangle_features(candidate, strokes):
     average_distance_to_template_with_vertical_lines =calculate_average_distance_to_template_shape_with_vertical_lines(strokes_of_candidate, stroke, candidate)
     average_distance_to_template_with_horizontal_lines = calculate_average_distance_to_template_shape_with_horizontal_lines(strokes_of_candidate, stroke, candidate)
     nearest_point_for_every_edge_point = find_nearest_point_for_everey_edge_point(stroke)
-    closed_convex_hull = is_closed_convex_hull(stroke)
-    nearest_point_for_every_edge_point = find_nearest_point_for_everey_edge_point(stroke)
+    number_of_convex_hull_vertices_to_amount_of_points_ratio = get_number_of_convex_hull_vertices_to_amount_of_points_ratio(stroke)
     total_stroke_length_to_diagonal_length = compute_total_stroke_length_to_diagonal_length(stroke)
-    amount_of_strokes = len(strokes_of_candidate)
+    # amount_of_strokes = len(strokes_of_candidate)
     direction_vectors = calculate_direction_vectors(stroke)
-    # closed_shape = is_closed_shape(stroke, edge_point_positions)
+    # closed_shape = amount_of_convex_hull_vertices_to_amount_of_points_ratio(stroke, edge_point_positions)
     labels = cluster_direction_vectors(direction_vectors, np.array([[point['x'], point['y']] for point in stroke]))
     # visualize_vectors(np.array([[point['x'], point['y']] for point in stroke]), direction_vectors, labels)
     # average_distance_to_template_shape_circle = calculate_average_min_distance_to_template_shape(stroke, candidate)[0]
     # return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'directional_clusters'], 'features': [number_of_convex_hull_vertices, nearest_point_for_every_edge_point]}
     # return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'direction_vectors'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines, count_clusters(labels)]}
     # print('candidate: ', candidate, closed_convex_hull, nearest_point_for_every_edge_point)
-    return {'feature_names': ['closed_convex_hull', 'nearest_point_for_every_edge_point', 'number_of_convex_hull_vertices'], 'features': [closed_convex_hull, nearest_point_for_every_edge_point, number_of_convex_hull_vertices]}
+    return {'feature_names': ['number_of_convex_hull_vertices_to_amount_of_points_ratio', 'nearest_point_for_every_edge_point', 'number_of_convex_hull_vertices', 'directional_clusters', 'template', 'total_stroke_length_to_diagonal_length'], 'features': [number_of_convex_hull_vertices_to_amount_of_points_ratio,nearest_point_for_every_edge_point,number_of_convex_hull_vertices, count_clusters(labels), average_distance_to_template_with_horizontal_lines + average_distance_to_template_with_vertical_lines, total_stroke_length_to_diagonal_length]}
     # return {'feature_names': ['directional_clusters'], 'features': [count_clusters(labels) ]}
-    # return {'feature_names': ['is_closed_shape', ], 'features': [closed_shape] }
+    # return {'feature_names': ['amount_of_convex_hull_vertices_to_amount_of_points_ratio', ], 'features': [closed_shape] }
     # return {'feature_names': ['directional_clusters'], 'features': [count_clusters(labels)]}
 
 def get_hellinger_correlation_features(candidate, strokes):
@@ -694,8 +680,8 @@ def get_hellinger_correlation_features(candidate, strokes):
         return {'feature_names': ['distance_between_stroke_edge_points'], 'features': None}
    
     closed_shape_sum = is_closed_shape(stroke, edge_point_positions)
-    closed_convex_hull = is_closed_convex_hull(stroke)
+    number_of_convex_hull_vertices_to_amount_of_points_ratio = get_number_of_convex_hull_vertices_to_amount_of_points_ratio(stroke)
     nearest_point_for_everey_edge_point = find_nearest_point_for_everey_edge_point(stroke)
    
-    return {'feature_names': ['is_closed_shape', 'closed_convex_hull', 'nearest_point_for_everey_edge_point'], 'features': [closed_shape_sum, closed_convex_hull, nearest_point_for_everey_edge_point]}
+    return {'feature_names': ['is_closed_shape', 'number_of_convex_hull_vertices_to_amount_of_points_ratio', 'nearest_point_for_everey_edge_point'], 'features': [closed_shape_sum, number_of_convex_hull_vertices_to_amount_of_points_ratio, nearest_point_for_everey_edge_point]}
 

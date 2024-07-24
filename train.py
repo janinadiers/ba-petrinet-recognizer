@@ -6,6 +6,7 @@ from classifier.shape_classifier.one_class_circle_svm import train as one_class_
 from rejector.shape_rejector.hellinger_and_correlation import use as hellinger_plus_correlation
 from rejector.shape_rejector.linear_svm import train as linear_svm_rejector
 from rejector.shape_rejector.rbf_svm import train as rbf_svm_rejector
+from rejector.shape_rejector.one_class_svm import train as one_class_svm
 import argparse 
 import os
 from helper.parsers import parse_strokes_from_inkml_file, parse_ground_truth, parse_ratio_from_inkml_file
@@ -24,7 +25,8 @@ CLASSIFIERS = {
 REJECTORS = {
     'hellinger_plus_correlation' : hellinger_plus_correlation,
     'linear_svm' : linear_svm_rejector,
-    'rbf_svm' : rbf_svm_rejector
+    'rbf_svm' : rbf_svm_rejector,
+    'one_class_svm' : one_class_svm
     
 }
 
@@ -170,6 +172,7 @@ def prepare_one_class_classifier_data(path):
     
     
 def prepare_one_class_rejector_data(path):
+    print('prepare_one_class_rejector_data')
     global feature_names
     content = parse_strokes_from_inkml_file(path)
     if 'FC' in path:
@@ -193,6 +196,8 @@ def prepare_one_class_rejector_data(path):
         for dictionary in truth:
             for shape_name, trace_ids in dictionary.items():
                 if set(trace_ids) == set(candidate):
+                    if shape_name == 'line':
+                        continue
                     result = get_shape_no_shape_features(candidate, resampled_content)
                     if not feature_names:
                         feature_names = result['feature_names']     
@@ -202,7 +207,7 @@ def prepare_one_class_rejector_data(path):
                    
 args = parser.parse_args()
 file_paths = []
-files = ['./__datasets__/FC_1.0/no_text/FC_Train.txt', './__datasets__/FC_1.0/no_text/FC_Validation.txt', './__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt']
+files = ['./__datasets__/FC_1.0/no_text/FC_Train.txt', './__datasets__/FC_1.0/no_text/FC_Validation.txt', './__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt', './__datasets__/PN_1.0/PN_Test.txt']
 all_features = []
 all_labels = []
 
