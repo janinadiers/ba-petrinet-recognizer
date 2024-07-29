@@ -71,12 +71,12 @@ def _toGlobalPath(path: str):
     return glob(path, recursive=True)
 
 parser = argparse.ArgumentParser(description='Petrinet recognizer 1.0.')
-parser.add_argument('--files', dest='files', nargs='+',
-                help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt'])
+# parser.add_argument('--files', dest='files', nargs='+',
+                # help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt'])
 # parser.add_argument('--files', dest='files', nargs='+',
                     # help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FC_1.0/no_text/no_junk/FC_Train.txt', './__datasets__/FC_1.0/no_text/no_junk/FC_Validation.txt'])
-# parser.add_argument('--files', dest='files', nargs='+',
-                    # help='glob to textfile(s) containing inkml file names', default=['./__datasets__/PN_1.0/PN_Test.txt'])
+parser.add_argument('--files', dest='files', nargs='+',
+                    help='glob to textfile(s) containing inkml file names', default=['./__datasets__/PN_1.0/PN_Test.txt'])
 parser.add_argument('--inkml', dest='inkml', type=_toGlobalPath, nargs='?', action='store', default='',
                     help='glob to inkml file(s)')
 parser.add_argument('--grouper', dest='grouper', type=str, nargs='?', action='store', default='optimized_grouper',
@@ -191,10 +191,11 @@ for i, path in enumerate(file_paths):
     candidates_already_checked = []
     edges = []
     for i,candidate in enumerate(candidates):
-        # for dictionary in evaluationWrapper.get_truth():
+        # for dictionary in evaluationWrapper.truth:
         #     for shape_name, trace_ids in dictionary.items():
         #         if set(trace_ids) == set(candidate):
         #             if shape_name == 'ellipse' or shape_name == 'circle' or shape_name == 'rectangle':
+                        
         # check if no values from the candidate are in recognized_strokes
         if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
             recognizer_result, shape_no_shape_features, rectangle_features = recognizer({'use': REJECTORS[args.rejector], 'name':args.rejector},  {'use': CLASSIFIERS[args.classifier], 'name': args.classifier}, candidate, resampled_content)
@@ -229,17 +230,17 @@ for i, path in enumerate(file_paths):
                 
                 
                 # exit()
-    for i, shape in enumerate(results):
-        shape_name = list(shape['valid'].keys())[0]
-        if shape_name == 'circle':
-            shape_strokes.append({'shape_name': shape_name , 'shape_id': 'p' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
-        elif shape_name == 'rectangle':
-            shape_strokes.append({'shape_name': shape_name , 'shape_id': 't' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
+    # for i, shape in enumerate(results):
+    #     shape_name = list(shape['valid'].keys())[0]
+    #     if shape_name == 'circle':
+    #         shape_strokes.append({'shape_name': shape_name , 'shape_id': 'p' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
+    #     elif shape_name == 'rectangle':
+    #         shape_strokes.append({'shape_name': shape_name , 'shape_id': 't' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
 
        
-    edges = connection_localizer(shape_strokes, unrecognized_strokes)
+    # edges = connection_localizer(shape_strokes, unrecognized_strokes)
    
-    results.extend(edges)
+    # results.extend(edges)
 
 
 if not args.production:

@@ -644,23 +644,23 @@ def get_circle_rectangle_features(candidate, strokes):
     bounding_box = get_bounding_box(stroke)
     if (len(stroke) < 5 or has_only_duplicates or bounding_box[4] == 0 or bounding_box[5] == 0):
         return {'feature_names': ['distance_between_stroke_edge_points'], 'features': None}
-    number_of_convex_hull_vertices = get_number_of_convex_hull_vertices(stroke)
-    average_distance_to_template_with_vertical_lines =calculate_average_distance_to_template_shape_with_vertical_lines(strokes_of_candidate, stroke, candidate)
-    average_distance_to_template_with_horizontal_lines = calculate_average_distance_to_template_shape_with_horizontal_lines(strokes_of_candidate, stroke, candidate)
+    # number_of_convex_hull_vertices = get_number_of_convex_hull_vertices(stroke)
+    # average_distance_to_template_with_vertical_lines =calculate_average_distance_to_template_shape_with_vertical_lines(strokes_of_candidate, stroke, candidate)
+    # average_distance_to_template_with_horizontal_lines = calculate_average_distance_to_template_shape_with_horizontal_lines(strokes_of_candidate, stroke, candidate)
     nearest_point_for_every_edge_point = find_nearest_point_for_everey_edge_point(stroke)
     number_of_convex_hull_vertices_to_amount_of_points_ratio = get_number_of_convex_hull_vertices_to_amount_of_points_ratio(stroke)
-    total_stroke_length_to_diagonal_length = compute_total_stroke_length_to_diagonal_length(stroke)
+    # total_stroke_length_to_diagonal_length = compute_total_stroke_length_to_diagonal_length(stroke)
     # amount_of_strokes = len(strokes_of_candidate)
-    direction_vectors = calculate_direction_vectors(stroke)
+    # direction_vectors = calculate_direction_vectors(stroke)
     # closed_shape = amount_of_convex_hull_vertices_to_amount_of_points_ratio(stroke, edge_point_positions)
-    labels = cluster_direction_vectors(direction_vectors, np.array([[point['x'], point['y']] for point in stroke]))
+    # labels = cluster_direction_vectors(direction_vectors, np.array([[point['x'], point['y']] for point in stroke]))
     # visualize_vectors(np.array([[point['x'], point['y']] for point in stroke]), direction_vectors, labels)
     # average_distance_to_template_shape_circle = calculate_average_min_distance_to_template_shape(stroke, candidate)[0]
     # return {'feature_names': ['amount_of_convex_hull_vertices_to_amount_of_points_ratio','nearest_point_for_every_edge_point' ,'directional_clusters', 'template'], 'features': [number_of_convex_hull_vertices_to_amount_of_points_ratio, nearest_point_for_every_edge_point, count_clusters(labels), average_distance_to_template_with_vertical_lines + average_distance_to_template_with_horizontal_lines]}
     # return {'feature_names': ['template'], 'features': [average_distance_to_template_with_vertical_lines + average_distance_to_template_with_horizontal_lines]}
     # print('candidate: ', candidate, closed_convex_hull, nearest_point_for_every_edge_point)
     # return {'feature_names': ['nearest_point_for_every_edge_point'], 'features': [nearest_point_for_every_edge_point]}
-    return {'feature_names': ['number_of_convex_hull_vertices_to_amount_of_points_ratio', 'template', 'directional_clusters'], 'features': [number_of_convex_hull_vertices_to_amount_of_points_ratio, average_distance_to_template_with_horizontal_lines + average_distance_to_template_with_vertical_lines ,count_clusters(labels)] }
+    return {'feature_names': ['number_of_convex_hull_vertices_to_amount_of_points_ratio', 'nearest_point_for_every_edge_point'], 'features': [number_of_convex_hull_vertices_to_amount_of_points_ratio, nearest_point_for_every_edge_point] }
     # return {'feature_names': ['directional_clusters'], 'features': [count_clusters(labels)]}
 
 def get_hellinger_correlation_features(candidate, strokes):

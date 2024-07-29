@@ -1,6 +1,0 @@
-features: ['amount_of_convex_hull_vertices_to_amount_of_points_ratio']
-classifier: one_class_svm
-nu: 0.01
-c: 3.0
-kernel: linear
-circle

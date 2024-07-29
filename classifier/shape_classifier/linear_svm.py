@@ -57,8 +57,8 @@ def use(X, candidate)-> dict:
     # get the right model
     # joblib_file = 'classifier/shape_classifier/linear_svm_models/svm_model_20240622_225934.joblib'
     
-    joblib_file = 'classifier/shape_classifier/linear_svm_models/svm_model_20240729_122224.joblib'
-    scaler_file = 'classifier/shape_classifier/scalers/linear_svm_scaler_20240729_122224.joblib'
+    joblib_file = 'classifier/shape_classifier/linear_svm_models/svm_model_20240729_131054.joblib'
+    scaler_file = 'classifier/shape_classifier/scalers/linear_svm_scaler_20240729_131054.joblib'
     loaded_clf = joblib.load(joblib_file)
     loaded_scaler = joblib.load(scaler_file)
     print('X', len(X), X)
