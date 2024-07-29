@@ -1,6 +1,0 @@
-features: ['closed_shape']
-rejector: linear_svm
-accuracy: 72.40847014383263%
-C: 3.0
-random_state: 42
-class_weight:balanced

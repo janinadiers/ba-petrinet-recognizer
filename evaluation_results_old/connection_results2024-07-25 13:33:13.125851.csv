@@ -1,0 +1,10 @@
+,line,truth,accuracy
+line,615,2043,30%
+no_shape,3,0,0
+# dataset: ['./__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt']
+# grouper: optimized_grouper
+# classifier: linear_svm
+# rejector: rejector_with_threshold
+# shape no shape features: 
+# circle rectangle features: 
+# rejector threshold: 0

@@ -3,7 +3,6 @@ import copy
 # from helper.normalizer import distance
 import matplotlib.pyplot as plt
 import math
-from sklearn.metrics.pairwise import cosine_similarity
 
 def combine_strokes(grouped_ids:list[int], strokes:list[dict]):
     combined_strokes = []  
@@ -265,20 +264,14 @@ def pearsons_correlation(x, y):
     print('x', x, 'y', y)
     return np.corrcoef(x, y)[0, 1]
 
-def cosine_similarity(x, y):
-    if isinstance(x, dict):
-        x = [x['x'],x['y']] 
-        y = [y['x'],y['y']]
-    # A value closer to 1 indicates that the vectors are more similar.
-    return cosine_similarity([x], [y])[0][0]
 
 
 def hellinger_distance(P, Q):
     print('P', P)
     print('Q', Q)
-    if isinstance(P, dict):
-        P = [P['x'],P['y']]
-        Q = [Q['x'],Q['y']]
+    # if isinstance(P, dict):
+    #     P = [P['x'],P['y']]
+    #     Q = [Q['x'],Q['y']]
     # Ensure P and Q are numpy arrays
     P = np.array(P)
     Q = np.array(Q)
@@ -398,12 +391,13 @@ def plot_strokes_without_scala(strokes, points=None):
             continue
         _points = [(point['x'], point['y']) for point in stroke]  # Extract points for the current stroke
         x, y = zip(*_points)  # Unpack the stroke into x and y coordinates
-        plt.plot(x, y, marker='o', linestyle='-', color='b')  # Plot the stroke
+        # plt.plot(x, y, marker='o', linestyle='-', color='b')  # Plot the stroke
+        ax.plot(x, y, 'bo')
     # if points is not None plot the points
     if points is not None:
         _points = [(point['x'], point['y']) for point in points]  # Extract points for the current stroke
         x, y = zip(*_points)  # Unpack the stroke into x and y coordinates
-        plt.plot(x, y, marker='o', linestyle='-', color='r')  # Plot the stroke
+        ax.plot(x, y, 'ro')  # Plot the stroke
     plt.xlabel('X')
     plt.ylabel('Y')
     plt.title('Stroke Visualization')

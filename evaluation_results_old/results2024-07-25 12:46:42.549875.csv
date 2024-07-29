@@ -1,0 +1,17 @@
+,circle,rectangle,no_shape,total,truth,accuracy
+circle,269,0,0,269,270,99%
+rectangle,1,235,13,249,920,25%
+diamond,35,16,80,131,544,90%
+ellipse,477,1,41,519,643,74%
+parallelogram,0,142,33,175,865,19%
+line,178,2543,248,2969,3234,15%
+double circle,0,0,0,0,0,-
+no_shape,3881,4446,2455,10782,379516,97%
+total,4841,7383,2870,30188,385992,0
+# dataset: ['./__datasets__/FC_1.0/no_text/no_junk/FC_Train.txt', './__datasets__/FC_1.0/no_text/no_junk/FC_Validation.txt']
+# grouper: optimized_grouper
+# classifier: linear_svm
+# rejector: Konfidenz des Klassifikators
+# shape no shape features: closed_shape
+# circle rectangle features: [number_of_convex_hull_vertices_to_amount_of_points_ratio, nearest_point_for_every_edge_point, number_of_convex_hull_vertices, directional_clusters, template]
+# rejector threshold:

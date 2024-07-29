@@ -19,6 +19,8 @@ class EvaluationWrapper:
         self.times = []
         self.valid_shapes = 0
         self.file_path = None
+        self.shaft_strokes_more_than_1 = 0
+        self.threshold = 3
         
 
     def get_truth_without_lines(self):
@@ -28,6 +30,45 @@ class EvaluationWrapper:
                 if shape_name != 'line':
                     truth_without_lines.append({shape_name: trace_ids})
         return truth_without_lines
+    
+    def get_false_positives(self):
+        candidate_amount_not_rejected = 0
+        amount_invalid_candidates = 0
+        amount_valid_shapes = 0
+        for row in self.rows:
+            if row == 'no_shape':
+                candidate_amount_not_rejected += self.matrix.at[row, 'truth'] - self.matrix.at[row, 'no_shape']
+                amount_invalid_candidates += self.matrix.at[row, 'truth']
+            if row == 'circle' or row == 'ellipse':
+                amount_valid_shapes += self.matrix.at[row, 'circle']
+            if row == 'rectangle':
+                amount_valid_shapes += self.matrix.at[row, 'rectangle']
+        return (candidate_amount_not_rejected - amount_valid_shapes) / amount_invalid_candidates
+    
+    def get_false_negatives(self):
+        amount_valid_shapes = 0
+        amount_reognized_shapes = 0
+        for column in self.columns:
+            if column == 'circle' or column == 'rectangle' or column == 'ellipse':
+                amount_valid_shapes += self.matrix.at[column, 'truth']
+                amount_reognized_shapes += self.matrix.at[column, column]
+        return 1 - (amount_reognized_shapes / amount_valid_shapes)
+    
+    def get_true_negatives(self):
+        amount_no_shapes = self.matrix.at['no_shape', 'truth']
+        amount_no_shapes_recognized = self.matrix.at['no_shape', 'no_shape']
+        return amount_no_shapes_recognized / amount_no_shapes
+    
+ 
+    def get_false_positive_rate(self):
+        false_positives = self.get_false_positives()
+        true_negatives = self.get_true_negatives()
+        return false_positives / (false_positives + true_negatives)
+    
+    def get_false_negative_rate(self):
+        false_negatives = self.get_false_negatives()
+        true_negatives = self.get_true_negatives()
+        return false_negatives / (false_negatives + true_negatives)
     
     def get_lines(self):
         lines = []
@@ -50,10 +91,11 @@ class EvaluationWrapper:
     def __str__(self):
         print('recognizer calls: ', self.recognizer_calls)
         print('average time: ', self.calculate_average_time())
+        print('shafts with more than 1 stroke: ', self.shaft_strokes_more_than_1)
         return self.matrix.to_string()
     
     def get_connection_evaluation(self):
-        self.matrix2.at['line', 'accuracy'] = str((self.matrix2['line']['line']) / (self.matrix2.loc['line']['truth']) * 100) + '%'
+        self.matrix2.at['line', 'accuracy'] = str(int((self.matrix2['line']['line'] / self.matrix2.loc['line']['truth']) * 100)) + '%'
         return self.matrix2.to_string()
     
 
@@ -149,7 +191,12 @@ class EvaluationWrapper:
             line_index = [resampled_content.index(edge['valid']['line']['stroke'])]
             for dictionary in self.truth:
                 for shape_name, trace_ids in dictionary.items():
-                    if shape_name == 'line' and set(line_index).issubset(set(trace_ids)):
+                   
+                    
+                    if shape_name == 'line' and set(line_index) == set(trace_ids):
+                        print('trace_ids: ', len(trace_ids), trace_ids)
+                        if len(trace_ids) > 1:
+                            self.shaft_strokes_more_than_1 += 1
                         # # get source strokes
                         # source_strokes = get_strokes_from_candidate(edge['valid']['line']['source'], content)
                         # # # get target strokes

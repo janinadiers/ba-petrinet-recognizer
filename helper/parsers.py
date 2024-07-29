@@ -53,6 +53,7 @@ def parse_ground_truth(file_path: str)-> list[dict]:
         for traceGroup in traceGroups:
             annotations = traceGroup.findall("annotation[@type='truth']", namespaces)
             traceViews = traceGroup.findall('traceView', namespaces)
+            shaft = traceGroup.findall("shaft", namespaces)
             
             if annotations[0].text == 'state' or annotations[0].text == 'connection' or annotations[0].text == 'place':
                 new_entry = {'circle' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
@@ -74,7 +75,13 @@ def parse_ground_truth(file_path: str)-> list[dict]:
                 new_entry = {'ellipse' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
                 shapes.append(new_entry)
             elif annotations[0].text == 'arrow':
-                new_entry = {'line' :[int(traceView.attrib['traceDataRef']) for traceView in traceViews] }
+                # Hier auch noch separieren zwischen Schaft und Kopf
+                shafts = []
+                for element in shaft:
+                    elems = element.findall('traceView', namespaces)
+                    for elem in elems:
+                        shafts.append(elem)
+                new_entry = {'line' :[int(item.attrib['traceDataRef']) for item in shafts] }
                 shapes.append(new_entry)
                 
     return shapes

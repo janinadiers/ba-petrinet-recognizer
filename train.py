@@ -3,7 +3,7 @@ from classifier.shape_classifier.linear_svm import train as linear_svm
 from classifier.shape_classifier.rbf_svm import train as rbf_svm
 from classifier.shape_classifier.one_class_rectangle_svm import train as one_class_svm_rectangle
 from classifier.shape_classifier.one_class_circle_svm import train as one_class_svm_circle
-from rejector.shape_rejector.hellinger_and_correlation import use as hellinger_plus_correlation
+from rejector.shape_rejector.hellinger_and_cosine import use as hellinger_plus_correlation
 from rejector.shape_rejector.linear_svm import train as linear_svm_rejector
 from rejector.shape_rejector.rbf_svm import train as rbf_svm_rejector
 from rejector.shape_rejector.one_class_svm import train as one_class_svm
@@ -55,11 +55,11 @@ def prepare_classifier_data(path):
         converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
         resampled_content = resample_strokes(converted_strokes)
         candidates = grouper(resampled_content)
-    if 'PN' in path:
-        ratio = parse_ratio_from_inkml_file(path)
-        converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
-        resampled_content = resample_strokes(converted_strokes)
-        candidates = grouper(resampled_content)
+    # if 'PN' in path:
+    #     ratio = parse_ratio_from_inkml_file(path)
+    #     converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
+    #     resampled_content = resample_strokes(converted_strokes)
+    #     candidates = grouper(resampled_content)
     truth = parse_ground_truth(path)
     features = []
     labels = []
@@ -97,11 +97,11 @@ def prepare_rejector_data(path):
         converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
         resampled_content = resample_strokes(converted_strokes)
         candidates = grouper(resampled_content)
-    if 'PN' in path:
-        ratio = parse_ratio_from_inkml_file(path)
-        converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
-        resampled_content = resample_strokes(converted_strokes)
-        candidates = grouper(resampled_content)
+    # if 'PN' in path:
+    #     ratio = parse_ratio_from_inkml_file(path)
+    #     converted_strokes = convert_coordinates(content, float(ratio[0]), float(ratio[1]))
+    #     resampled_content = resample_strokes(converted_strokes)
+    #     candidates = grouper(resampled_content)
    
     truth = parse_ground_truth(path)
     features = []
@@ -196,18 +196,18 @@ def prepare_one_class_rejector_data(path):
         for dictionary in truth:
             for shape_name, trace_ids in dictionary.items():
                 if set(trace_ids) == set(candidate):
-                    if shape_name == 'line':
-                        continue
-                    result = get_shape_no_shape_features(candidate, resampled_content)
-                    if not feature_names:
-                        feature_names = result['feature_names']     
-                    features.append(result['features'])
+                    if shape_name == 'circle':
+                        result = get_circle_rectangle_features(candidate, resampled_content)
+                        features.append(result['features'])
+                        if not feature_names:
+                            feature_names = result['feature_names']     
+                    
     return features
                     
                    
 args = parser.parse_args()
 file_paths = []
-files = ['./__datasets__/FC_1.0/no_text/FC_Train.txt', './__datasets__/FC_1.0/no_text/FC_Validation.txt', './__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt', './__datasets__/PN_1.0/PN_Test.txt']
+files = ['./__datasets__/FC_1.0/no_text/FC_Train.txt', './__datasets__/FC_1.0/no_text/FC_Validation.txt', './__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt']
 all_features = []
 all_labels = []
 

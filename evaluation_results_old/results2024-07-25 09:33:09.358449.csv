@@ -1,0 +1,17 @@
+,circle,rectangle,no_shape,total,truth,accuracy
+circle,259,0,11,270,270,95%
+rectangle,0,908,11,919,920,98%
+diamond,0,0,543,543,544,100%
+ellipse,639,0,4,643,643,99%
+parallelogram,0,0,863,863,865,99%
+line,0,0,3182,3182,3234,100%
+double circle,0,0,0,0,0,-
+no_shape,0,0,107916,107916,379516,100%
+total,898,908,112530,228672,385992,0
+# dataset: ['./__datasets__/FC_1.0/no_text/no_junk/FC_Train.txt', './__datasets__/FC_1.0/no_text/no_junk/FC_Validation.txt']
+# grouper: optimized_grouper
+# classifier: perfect_mock_classifier
+# rejector: rejector_with_threshold
+# shape no shape features: closed_shape
+# circle rectangle features: 
+# rejector threshold: 0.7

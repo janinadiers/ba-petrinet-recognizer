@@ -1,0 +1,17 @@
+,circle,rectangle,no_shape,total,truth,accuracy
+circle,197,3,13,213,213,92%
+rectangle,15,83,16,114,183,45%
+diamond,0,0,0,0,0,-
+ellipse,0,0,0,0,0,-
+parallelogram,0,0,0,0,0,-
+line,89,251,76,416,417,18%
+double circle,0,0,0,0,0,-
+no_shape,148,304,234,686,5148,91%
+total,449,641,339,2858,5961,0
+# dataset: ['./__datasets__/PN_1.0/PN_Test.txt']
+# grouper: optimized_grouper
+# classifier: linear_svm
+# rejector: Konfidenz des Klassifikators
+# shape no shape features: closed_shape
+# circle rectangle features: [number_of_convex_hull_vertices_to_amount_of_points_ratio, nearest_point_for_every_edge_point, number_of_convex_hull_vertices, directional_clusters,template]
+# rejector threshold:

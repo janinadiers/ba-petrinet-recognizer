@@ -57,51 +57,59 @@ def get_all_strokes_with_label(label:str, truth:dict)->list:
             strokes.append(item[label])
     return strokes
 
-def get_all_no_shapes(truth:dict, candidates)->list:
+def get_all_no_shapes(truth: dict, candidates: list) -> list:
+    # Erstelle ein Set von Frohen Trace IDs für schnelles Nachschlagen
+    truth_trace_id_sets = {frozenset(trace_ids) for dictionary in truth for trace_ids in dictionary.values()}
+    
     strokes = []
     for candidate in candidates:
-        candidate_in_truth = False
-        for dictionary in truth:
-            for shape_name, trace_ids in dictionary.items():
-                if set(trace_ids) == set(candidate): 
-                    candidate_in_truth = True
-        if not candidate_in_truth:
+        candidate_set = frozenset(candidate)
+        if candidate_set not in truth_trace_id_sets:
             strokes.append(candidate)
+    
     return strokes
                     
 
-def get_features(file_path, strokes, candidates)->dict:
+def get_features(file_path, strokes, candidates) -> dict:
+    # Parsing ground truth data
     truth = parse_ground_truth(file_path)
+    
+    # Getting all strokes with respective labels
     circles = get_all_strokes_with_label('circle', truth)
     ellipses = get_all_strokes_with_label('ellipse', truth)
     rectangles = get_all_strokes_with_label('rectangle', truth)
     # no_shapes = get_all_no_shapes(truth, candidates)
+    
+    # Initialize feature lists
     circle_features = []
     rectangle_features = []
-    ellipse_features = []
-    no_shape_features = []
+    # no_shape_features = []
    
-    for circle in circles:
-        circle_features.append(get_circle_rectangle_features(circle, strokes)['features'])
+    # Process circle and ellipse features
+    for shape in circles + ellipses:
+        circle_features.append(get_circle_rectangle_features(shape, strokes)['features'])
+    
+    # Process rectangle features
     for rectangle in rectangles:
         rectangle_features.append(get_circle_rectangle_features(rectangle, strokes)['features'])
-    for ellipse in ellipses:
-        ellipse_features.append(get_circle_rectangle_features(ellipse, strokes)['features'])
-    circle_features.extend(ellipse_features)
+    
+    # Process no_shape features
     # for no_shape in no_shapes:
-    #     features = get_circle_rectangle_features(no_shape, strokes)['features']
-    #     no_shape_features.append(features)
+    #     no_shape_features.append(get_shape_no_shape_features(no_shape, strokes)['features'])
+    
+    # Return the features
     return circle_features, rectangle_features
     # return circle_features, rectangle_features, no_shape_features
     
 def visualize_clusters(X, labels):
   
-
+    print('visualize clusters')
     for i, elem in enumerate(X):
         if not isinstance(elem, (list, np.ndarray)):
             X.remove(elem)
             labels.remove(labels[i])
     labels = np.array(labels)
+ 
     # print('X', X, labels)
     # # transform the data to be within a specified range to avoid biasing the MDS results towards features with larger ranges.
     scaler = MinMaxScaler() 
@@ -109,19 +117,19 @@ def visualize_clusters(X, labels):
      # Calculate cluster centers based on the normalized data
     unique_labels = np.unique(labels)
     cluster_centers = np.array([X_normalized[labels == label].mean(axis=0) for label in unique_labels])
-  
+    print('cluster_centers', cluster_centers)
     
     combined_data = np.vstack([X_normalized, cluster_centers])
     dissimilarity_matrix = pairwise_distances(combined_data, metric='euclidean')
-
+    print('dissimilarity_matrix ready')
     # Apply MDS
     mds = MDS(n_components=2, dissimilarity='precomputed', random_state=42)
     combined_transformed = mds.fit_transform(dissimilarity_matrix)
-    
+    print('combined_transformed', X)
     # Separate transformed data points and cluster centers
     cluster_transformed = combined_transformed[:len(X)]
     cluster_centers_transformed = combined_transformed[len(X):]
-   
+    print('cluster_transformed')
     plt.figure(figsize=(10, 8))
     # colors = ['green', 'blue', 'red']
     colors = ['green', 'blue']
@@ -130,7 +138,7 @@ def visualize_clusters(X, labels):
     
      # Create a mapping from unique labels to color indices
     label_to_color_index = {label: index for index, label in enumerate(unique_labels)}
-    
+    print('label_to_color_index', label_to_color_index)
     for label in unique_labels:
         indices = np.where(labels == label)
         plt.scatter(cluster_transformed[indices, 0], cluster_transformed[indices, 1],
@@ -138,36 +146,36 @@ def visualize_clusters(X, labels):
     
     
     # Plot the cluster centers and their respective circles
-    for center_transformed, label in zip(cluster_centers_transformed, unique_labels):
-        plt.scatter(center_transformed[0], center_transformed[1],
-                    c='black', marker='x', s=100, linewidths=3)
+    # for center_transformed, label in zip(cluster_centers_transformed, unique_labels):
+    #     plt.scatter(center_transformed[0], center_transformed[1],
+    #                 c='black', marker='x', s=100, linewidths=3)
         
         # Calculate radius as the maximum distance from the center to points in the cluster
-        cluster_indices = np.where(labels == label)
-        cluster_points_transformed = cluster_transformed[cluster_indices]
-        # furthest_point = find_furthest_point(cluster_points_transformed, center_transformed)
-        F1, F2, S, angle = calculate_ellipse_parameters_n_dimensional(cluster_points_transformed, center_transformed  )
-        radius = np.max(np.linalg.norm(cluster_points_transformed - center_transformed, axis=1))
-        # Find the location of the other end of the semi-major axis and consider it as F2.
-        a = S / 2
+        # cluster_indices = np.where(labels == label)
+        # cluster_points_transformed = cluster_transformed[cluster_indices]
+        # # furthest_point = find_furthest_point(cluster_points_transformed, center_transformed)
+        # F1, F2, S, angle = calculate_ellipse_parameters_n_dimensional(cluster_points_transformed, center_transformed  )
+        # radius = np.max(np.linalg.norm(cluster_points_transformed - center_transformed, axis=1))
+        # # Find the location of the other end of the semi-major axis and consider it as F2.
+        # a = S / 2
     
-        # Distance between foci
-        d = distance(F1, F2)
+        # # Distance between foci
+        # d = distance(F1, F2)
         
-        # Semi-minor axis
-        b = np.sqrt(a**2 - (d / 2)**2)
-        ellipse = Ellipse((center_transformed[0], center_transformed[1]), width=d, height=2 * b, angle=angle, lw=2, fc='None', color='r', fill=False, linestyle='--')
-        circle = plt.Circle((center_transformed[0], center_transformed[1]), radius,
-                            color='r', fill=False)
-        point1 = plt.Circle((F1[0], F1[1]), 0.01, color='black')
-        point2 = plt.Circle((F2[0], F2[1]), 0.01, color='black')
-        plt.gca().add_patch(ellipse)
-        plt.gca().add_patch(circle)
-        plt.gca().add_patch(point1)
-        plt.gca().add_patch(point2)
-        circle = plt.Circle((center_transformed[0], center_transformed[1]), radius,
-                            color='r', fill=False, linestyle='--')
-        plt.gca().add_patch(circle)   
+        # # Semi-minor axis
+        # b = np.sqrt(a**2 - (d / 2)**2)
+        # ellipse = Ellipse((center_transformed[0], center_transformed[1]), width=d, height=2 * b, angle=angle, lw=2, fc='None', color='r', fill=False, linestyle='--')
+        # circle = plt.Circle((center_transformed[0], center_transformed[1]), radius,
+        #                     color='r', fill=False)
+        # point1 = plt.Circle((F1[0], F1[1]), 0.01, color='black')
+        # point2 = plt.Circle((F2[0], F2[1]), 0.01, color='black')
+        # plt.gca().add_patch(ellipse)
+        # plt.gca().add_patch(circle)
+        # plt.gca().add_patch(point1)
+        # plt.gca().add_patch(point2)
+        # circle = plt.Circle((center_transformed[0], center_transformed[1]), radius,
+        #                     color='r', fill=False, linestyle='--')
+        # plt.gca().add_patch(circle)   
     
     # Set fixed limits for x and y axes
     # plt.xlim(x_lim)

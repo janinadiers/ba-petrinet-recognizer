@@ -1,0 +1,10 @@
+,line,truth,accuracy
+line,379,417,90%
+no_shape,6,0,0
+# dataset: ['./__datasets__/PN_1.0/PN_Test.txt']
+# grouper: optimized_grouper
+# classifier: linear_svm
+# rejector: rejector_with_threshold
+# shape no shape features: 
+# circle rectangle features: 
+# rejector threshold: 0

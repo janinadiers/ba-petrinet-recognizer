@@ -338,8 +338,7 @@ def is_closed_shape(stroke, edge_point_positions=None):
             if edge_point == point2:
                 continue
             distances.append(distance(edge_point, point2))
-        min_distances.append(min(distances))
-        
+        min_distances.append(min(distances)) 
     return sum(min_distances)
 
 def get_number_of_convex_hull_vertices_to_amount_of_points_ratio(stroke):
@@ -657,12 +656,11 @@ def get_circle_rectangle_features(candidate, strokes):
     labels = cluster_direction_vectors(direction_vectors, np.array([[point['x'], point['y']] for point in stroke]))
     # visualize_vectors(np.array([[point['x'], point['y']] for point in stroke]), direction_vectors, labels)
     # average_distance_to_template_shape_circle = calculate_average_min_distance_to_template_shape(stroke, candidate)[0]
-    # return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'directional_clusters'], 'features': [number_of_convex_hull_vertices, nearest_point_for_every_edge_point]}
-    # return {'feature_names': ['number_of_convex_hull_vertices','standard_deviation_to_template_with_vertical_lines', 'standard_deviation_to_template_with_horizontal_lines', 'direction_vectors'], 'features': [number_of_convex_hull_vertices, average_distance_to_template_with_vertical_lines, average_distance_to_template_with_horizontal_lines, count_clusters(labels)]}
+    # return {'feature_names': ['amount_of_convex_hull_vertices_to_amount_of_points_ratio','nearest_point_for_every_edge_point' ,'directional_clusters', 'template'], 'features': [number_of_convex_hull_vertices_to_amount_of_points_ratio, nearest_point_for_every_edge_point, count_clusters(labels), average_distance_to_template_with_vertical_lines + average_distance_to_template_with_horizontal_lines]}
+    # return {'feature_names': ['template'], 'features': [average_distance_to_template_with_vertical_lines + average_distance_to_template_with_horizontal_lines]}
     # print('candidate: ', candidate, closed_convex_hull, nearest_point_for_every_edge_point)
-    return {'feature_names': ['number_of_convex_hull_vertices_to_amount_of_points_ratio', 'nearest_point_for_every_edge_point', 'number_of_convex_hull_vertices', 'directional_clusters', 'template', 'total_stroke_length_to_diagonal_length'], 'features': [number_of_convex_hull_vertices_to_amount_of_points_ratio,nearest_point_for_every_edge_point,number_of_convex_hull_vertices, count_clusters(labels), average_distance_to_template_with_horizontal_lines + average_distance_to_template_with_vertical_lines, total_stroke_length_to_diagonal_length]}
-    # return {'feature_names': ['directional_clusters'], 'features': [count_clusters(labels) ]}
-    # return {'feature_names': ['amount_of_convex_hull_vertices_to_amount_of_points_ratio', ], 'features': [closed_shape] }
+    # return {'feature_names': ['nearest_point_for_every_edge_point'], 'features': [nearest_point_for_every_edge_point]}
+    return {'feature_names': ['number_of_convex_hull_vertices_to_amount_of_points_ratio', 'template', 'directional_clusters'], 'features': [number_of_convex_hull_vertices_to_amount_of_points_ratio, average_distance_to_template_with_horizontal_lines + average_distance_to_template_with_vertical_lines ,count_clusters(labels)] }
     # return {'feature_names': ['directional_clusters'], 'features': [count_clusters(labels)]}
 
 def get_hellinger_correlation_features(candidate, strokes):

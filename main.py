@@ -13,7 +13,7 @@ from classifier.shape_classifier.one_class_rectangle_svm import use as one_class
 from classifier.shape_classifier.classifier_with_threshold import use as classifier_with_threshold
 from classifier.shape_classifier.perfect_mock import use as perfect_mock_classifier
 from rejector.shape_rejector.threshold_and_ellipse import use as threshold_and_ellipse
-from rejector.shape_rejector.hellinger_and_correlation import use as hellinger_plus_correlation
+from rejector.shape_rejector.hellinger_and_cosine import use as hellinger_and_cosine
 from rejector.shape_rejector.linear_svm import use as linear_svm_rejector
 from rejector.shape_rejector.rbf_svm import use as rbf_svm_rejector
 from rejector.shape_rejector.rejector_with_threshold import use as rejector_with_threshold
@@ -61,7 +61,7 @@ REJECTORS = {
     'rbf_svm' : rbf_svm_rejector,
     'rejector_with_threshold' : rejector_with_threshold,
     'one_class_svm' : one_class_svm,
-    'hellinger_plus_correlation' : hellinger_plus_correlation,
+    'hellinger_and_cosine' : hellinger_and_cosine,
     'perfect_mock_rejector' : perfect_mock_rejector,
     'one_class_svm': one_class_svm
 }
@@ -86,7 +86,7 @@ parser.add_argument('--recognizer', dest='recognizer', type=str, nargs='?', acti
 parser.add_argument('--classifier', dest='classifier', type=str, nargs='?', action='store', default='linear_svm',
                     help='select a classifier, template_matching or linear_svm')
 parser.add_argument('--rejector', dest='rejector', type=str, nargs='?', action='store', default='rejector_with_threshold',
-                    help='select a rejector, like hellinger_plus_correlation')
+                    help='select a rejector, like hellinger_and_cosine')
 parser.add_argument('--other_ratio', dest='other_ratio', type=str, nargs='?', action='store',
                     help='scales input to another dimension')
 parser.add_argument('--production', dest='production', type=bool, nargs='?', action='store', default=False,
@@ -152,7 +152,6 @@ circle_features = None
 files_wo_es_nicht_geklappt_hat = []
 
 # next_threshold()
-# print('WHILE Lopp: Threshold:', get_threshold())
 for i, path in enumerate(file_paths):
     print('Processing file: ', path, i , 'of', len(file_paths))
     printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
@@ -192,6 +191,10 @@ for i, path in enumerate(file_paths):
     candidates_already_checked = []
     edges = []
     for i,candidate in enumerate(candidates):
+        # for dictionary in evaluationWrapper.get_truth():
+        #     for shape_name, trace_ids in dictionary.items():
+        #         if set(trace_ids) == set(candidate):
+        #             if shape_name == 'ellipse' or shape_name == 'circle' or shape_name == 'rectangle':
         # check if no values from the candidate are in recognized_strokes
         if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
             recognizer_result, shape_no_shape_features, rectangle_features = recognizer({'use': REJECTORS[args.rejector], 'name':args.rejector},  {'use': CLASSIFIERS[args.classifier], 'name': args.classifier}, candidate, resampled_content)
@@ -225,20 +228,18 @@ for i, path in enumerate(file_paths):
     #             files_wo_es_nicht_geklappt_hat.append(path)
                 
                 
-    #             exit()
-    # for i, shape in enumerate(results):
-    #     shape_name = list(shape['valid'].keys())[0]
-    #     if shape_name == 'circle':
-    #         shape_strokes.append({'shape_name': shape_name , 'shape_id': 'p' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
-    #     elif shape_name == 'rectangle':
-    #         shape_strokes.append({'shape_name': shape_name , 'shape_id': 't' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
+                # exit()
+    for i, shape in enumerate(results):
+        shape_name = list(shape['valid'].keys())[0]
+        if shape_name == 'circle':
+            shape_strokes.append({'shape_name': shape_name , 'shape_id': 'p' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
+        elif shape_name == 'rectangle':
+            shape_strokes.append({'shape_name': shape_name , 'shape_id': 't' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
 
        
-    # edges = connection_localizer(shape_strokes, unrecognized_strokes)
-    # print('Edges:', len(edges))
-    # for edge in edges:
-    #     print('Edge:', edge['valid']['line']['source'], edge['valid']['line']['target'])
-    # results.extend(edges)
+    edges = connection_localizer(shape_strokes, unrecognized_strokes)
+   
+    results.extend(edges)
 
 
 if not args.production:
@@ -252,9 +253,9 @@ if not args.production:
 if args.save == 'y':
     print('Saving results to file...')
     file_name1 = 'evaluation_results/results' + str(datetime.datetime.now()) +'.csv'
-    file_name2 = 'evaluation_results/connection_results' + str(datetime.datetime.now()) +'.csv'
+    # file_name2 = 'evaluation_results/connection_results' + str(datetime.datetime.now()) +'.csv'
     evaluationWrapper.matrix.to_csv(file_name1)
-    evaluationWrapper.matrix2.to_csv(file_name2)
+    # evaluationWrapper.matrix2.to_csv(file_name2)
     with open(file_name1, 'a') as f:
         f.write('# dataset: ' + str(args.files) + '\n')
         f.write('# grouper: ' + str(args.grouper) + '\n')
@@ -262,15 +263,22 @@ if args.save == 'y':
         f.write('# rejector: ' + str(args.rejector) + '\n')
         f.write('# shape no shape features: '+ ''.join(shape_no_shape_features) +'\n')
         f.write('# circle rectangle features: '+ ''.join(rectangle_features) +'\n')
-        f.write('# rejector threshold: '+ str(get_threshold()) +'\n')
-    with open(file_name2, 'a') as f:
-        f.write('# dataset: ' + str(args.files) + '\n')
-        f.write('# grouper: ' + str(args.grouper) + '\n')
-        f.write('# classifier: ' + str(args.classifier) + '\n')
-        f.write('# rejector: ' + str(args.rejector) + '\n')
-        f.write('# shape no shape features: '+ ''.join(shape_no_shape_features) +'\n')
-        f.write('# circle rectangle features: '+ ''.join(rectangle_features) +'\n')
-        f.write('# rejector threshold: '+ str(get_threshold()) +'\n')
+        f.write('# False negatives: '+ str(evaluationWrapper.get_false_negatives()) +'\n')
+        f.write('# False positives: '+ str(evaluationWrapper.get_false_positives()) +'\n')
+        f.write('# True negatives: '+ str(evaluationWrapper.get_true_negatives()) +'\n')
+        f.write('# False positive rate: '+ str(evaluationWrapper.get_false_positive_rate()) +'\n')
+        f.write('# False negative rate: '+ str(evaluationWrapper.get_false_negative_rate()) +'\n')
+        f.write('# rejector with threshold: '+ str(evaluationWrapper.threshold) +'\n')
+
+
+    # with open(file_name2, 'a') as f:
+    #     f.write('# dataset: ' + str(args.files) + '\n')
+    #     f.write('# grouper: ' + str(args.grouper) + '\n')
+    #     f.write('# classifier: ' + str(args.classifier) + '\n')
+    #     f.write('# rejector: ' + str(args.rejector) + '\n')
+    #     f.write('# shape no shape features: '+ ''.join(shape_no_shape_features) +'\n')
+    #     f.write('# circle rectangle features: '+ ''.join(rectangle_features) +'\n')
+    #     f.write('# rejector threshold: '+ str(get_threshold()) +'\n')
 
     
 
@@ -282,6 +290,7 @@ if args.production:
     for result in results:
         shape_name = next(iter(result['valid']))
         candidates = result['valid'][shape_name]
+        error_obj = None
         if not shape_name == 'line':
             strokes_of_candidate= get_strokes_from_candidate(candidates, content)
         else:
@@ -309,6 +318,12 @@ if args.production:
             height_factor_source = 80 / (source_min_y + source_max_y)
             height_factor_target = 80 / (target_min_y + target_max_y)
             line_candidate = [resampled_content.index(result['valid']['line']['stroke'])]
+            if 'p' in result['valid']['line']['source_id'] and 'p' in result['valid']['line']['target_id']:
+                print('nodes of the same class cannot be connected')
+                error_obj = {'error': f"node {result['valid']['line']['source_id']} and node {result['valid']['line']['target_id']} cannot be connected"}
+            if 't' in result['valid']['line']['source_id'] and 't' in result['valid']['line']['target_id']:
+                print('nodes of the same class cannot be connected')
+                error_obj = {'error': f"node {result['valid']['line']['source_id']} and node {result['valid']['line']['target_id']} cannot be connected"}
             result_obj = {'shape_name': shape_name, 'source_min_x': source_min_x, 'source_min_y': source_min_y, 'source_max_x': source_max_x, 'source_max_y': source_max_y, 'target_min_x': target_min_x , 'target_min_y': target_min_y, 'target_max_x': target_max_x, 'target_max_y': target_max_y, 'shape_id': shape_id, 'target_id': result['valid']['line']['target_id'], 'source_id': result['valid']['line']['source_id'], 'candidate': line_candidate}
         else:
             combined_strokes_of_candidate = []
@@ -317,6 +332,9 @@ if args.production:
             min_x, min_y, max_x, max_y, width, height = get_bounding_box(combined_strokes_of_candidate)
             result_obj = {'shape_name': shape_name,'min_x': min_x, 'min_y': min_y, 'max_x': max_x, 'max_y': max_y, 'width': width, 'height': height, 'shape_id': shape_id, 'candidates': candidates}
         with open(f'inkml_results/{file_name}.json', 'a') as f:
+            if error_obj:
+                json.dump(error_obj, f, indent=4)
+                f.write(',\n')
             json.dump(result_obj, f, indent=4)
             if id_counter < len(results) - 1:
                 f.write(',\n')

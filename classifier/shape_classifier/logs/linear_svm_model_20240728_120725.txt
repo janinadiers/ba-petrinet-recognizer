@@ -1,0 +1,3 @@
+features: ['directional_clusters']
+classifier: linear_svm
+C: 3.0

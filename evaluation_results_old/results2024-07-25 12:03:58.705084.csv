@@ -1,0 +1,17 @@
+,circle,rectangle,no_shape,total,truth,accuracy
+circle,720,0,0,720,720,100%
+rectangle,0,0,0,0,0,-
+diamond,0,0,0,0,0,-
+ellipse,0,0,0,0,0,-
+parallelogram,0,0,0,0,0,-
+line,0,0,2041,2041,2043,100%
+double circle,0,0,340,340,342,100%
+no_shape,0,0,24938,24938,53870,100%
+total,720,0,27319,56078,56975,0
+# dataset: ['./__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt']
+# grouper: optimized_grouper
+# classifier: perfect_mock_classifier
+# rejector: rejector_with_threshold
+# shape no shape features: closed_shape
+# circle rectangle features: 
+# rejector threshold: 1.1

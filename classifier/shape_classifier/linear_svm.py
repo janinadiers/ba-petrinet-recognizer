@@ -6,31 +6,40 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import joblib
 import datetime
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
 
 
 def train(X, y, feature_names):
   
     X = np.array(X)
     y = np.array(y)
+    print('X', len(X), X)
+    # Ensure X is 2D
+    if X.ndim == 1:
+        X = X.reshape(-1, 1)
     
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    class_weights = 'balanced'
-    probability= True
-    clf = svm.SVC(kernel='linear', class_weight=class_weights, C=3.0, probability=probability)
+    print('X reshaped', len(X), X)
+    scaler = StandardScaler()
+    scaled_x = scaler.fit_transform(X)
+    
+    clf = svm.SVC(kernel='linear', C=3.0)
+    clf.fit(scaled_x, y)
     print('Training the model...')
-    clf.fit(X_train, y_train)
-
-    y_pred = clf.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-    print(f'Accuracy: {accuracy * 100:.2f}%')
     
     # Generate a unique filename with a timestamp
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    # Save the scaler
+    scaler_file = f"classifier/shape_classifier/scalers/linear_svm_scaler_{timestamp}.joblib"
+
     # Save the model
     joblib_file = f"classifier/shape_classifier/linear_svm_models/svm_model_{timestamp}.joblib"
+    joblib.dump(scaler, scaler_file)
     joblib.dump(clf, joblib_file)
     
-    result = ['features: '+ str(feature_names), 'classifier: '+ 'linear_svm', 'accuracy: '+ str(accuracy * 100) + '%', 'C: 3.0', 'random_state: 42', f'class_weight:{class_weights}, probability: {probability}']
+    result = ['features: '+ str(feature_names), 'classifier: '+ 'linear_svm', 'C: 3.0']
    
 #    save model configuration to logs
     with open(f"classifier/shape_classifier/logs/linear_svm_model_{timestamp}.txt", 'w') as f:
@@ -39,21 +48,26 @@ def train(X, y, feature_names):
             
 
 def use(X, candidate)-> dict:
+    print('use linear svm', len(X))
     X = np.array(X)
+    X = [X]
+    # if X.ndim == 1:
+    #     X = X.reshape(-1, 1)
+   
     # get the right model
     # joblib_file = 'classifier/shape_classifier/linear_svm_models/svm_model_20240622_225934.joblib'
-    joblib_file = 'classifier/shape_classifier/linear_svm_models/svm_model_20240723_190621.joblib'
-
-    # Load the model
-    loaded_clf = joblib.load(joblib_file)
-     # Ensure X is a 2D array
-    if X.ndim == 1:
-        X = X.reshape(1, -1)
-
     
-    predicted_label = loaded_clf.predict(X)
-    # get probability of label 0
-    probability = loaded_clf.predict_proba(X)
+    joblib_file = 'classifier/shape_classifier/linear_svm_models/svm_model_20240729_122224.joblib'
+    scaler_file = 'classifier/shape_classifier/scalers/linear_svm_scaler_20240729_122224.joblib'
+    loaded_clf = joblib.load(joblib_file)
+    loaded_scaler = joblib.load(scaler_file)
+    print('X', len(X), X)
+    scaled_X = loaded_scaler.transform(X)
+    print('scaled_X', scaled_X)
+        
+    predicted_label = loaded_clf.predict(scaled_X)
+    
+   
     # print(f'Predicted label: {predicted_label[0]}')
     # print(f'Probability of label 0: {probability[0,0] * 100:.2f}%')
     # print(f'Probability of label 1: {probability[0,1] * 100:.2f}%')
@@ -67,15 +81,15 @@ def use(X, candidate)-> dict:
     #     return {'valid': {'rectangle': candidate}}
     # else:
     #     return {'invalid': candidate}
-    if probability[0,0] > probability[0,1]:
+    if predicted_label == 0:
         return {'valid': {'circle': candidate}}
-    elif probability[0,1] > probability[0,0]:
+    if predicted_label == 1:
         return {'valid': {'rectangle': candidate}}
-    else:
-        if predicted_label[0] == 0:
-            return {'valid': {'circle': candidate}}
-        elif predicted_label[0] == 1:
-            return {'valid': {'rectangle': candidate}}
+    # else:
+    #     if predicted_label[0] == 0:
+    #         return {'valid': {'circle': candidate}}
+    #     elif predicted_label[0] == 1:
+    #         return {'valid': {'rectangle': candidate}}
         # else:
         #     return {'invalid': candidate}
     #     return {'invalid': candidate}
