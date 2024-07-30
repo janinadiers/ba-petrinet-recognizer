@@ -72,9 +72,9 @@ def _toGlobalPath(path: str):
 
 parser = argparse.ArgumentParser(description='Petrinet recognizer 1.0.')
 # parser.add_argument('--files', dest='files', nargs='+',
-                # help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt'])
+                # help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FA_1.1/no_text/FA_Test.txt', './__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt'])
 # parser.add_argument('--files', dest='files', nargs='+',
-                    # help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FC_1.0/no_text/no_junk/FC_Train.txt', './__datasets__/FC_1.0/no_text/no_junk/FC_Validation.txt'])
+                    # help='glob to textfile(s) containing inkml file names', default=['./__datasets__/FC_1.0/no_text/no_junk/FC_Test.txt', './__datasets__/FC_1.0/no_text/no_junk/FC_Train.txt', './__datasets__/FC_1.0/no_text/no_junk/FC_Validation.txt'])
 parser.add_argument('--files', dest='files', nargs='+',
                     help='glob to textfile(s) containing inkml file names', default=['./__datasets__/PN_1.0/PN_Test.txt'])
 parser.add_argument('--inkml', dest='inkml', type=_toGlobalPath, nargs='?', action='store', default='',
@@ -190,12 +190,7 @@ for i, path in enumerate(file_paths):
     unrecognized_strokes = []
     candidates_already_checked = []
     edges = []
-    for i,candidate in enumerate(candidates):
-        # for dictionary in evaluationWrapper.truth:
-        #     for shape_name, trace_ids in dictionary.items():
-        #         if set(trace_ids) == set(candidate):
-        #             if shape_name == 'ellipse' or shape_name == 'circle' or shape_name == 'rectangle':
-                        
+    for i,candidate in enumerate(candidates):         
         # check if no values from the candidate are in recognized_strokes
         if not any(recognized_stroke in candidate for recognized_stroke in recognized_strokes):
             recognizer_result, shape_no_shape_features, rectangle_features = recognizer({'use': REJECTORS[args.rejector], 'name':args.rejector},  {'use': CLASSIFIERS[args.classifier], 'name': args.classifier}, candidate, resampled_content)
@@ -267,8 +262,11 @@ if args.save == 'y':
         f.write('# False negatives: '+ str(evaluationWrapper.get_false_negatives()) +'\n')
         f.write('# False positives: '+ str(evaluationWrapper.get_false_positives()) +'\n')
         f.write('# True negatives: '+ str(evaluationWrapper.get_true_negatives()) +'\n')
+        f.write('# True positives: '+ str(evaluationWrapper.get_true_positives()) +'\n')
         f.write('# False positive rate: '+ str(evaluationWrapper.get_false_positive_rate()) +'\n')
         f.write('# False negative rate: '+ str(evaluationWrapper.get_false_negative_rate()) +'\n')
+        f.write('# True positive rate: '+ str(evaluationWrapper.get_true_positive_rate()) +'\n')
+        f.write('# True negative rate: '+ str(evaluationWrapper.get_true_negative_rate()) +'\n')
         f.write('# rejector with threshold: '+ str(evaluationWrapper.threshold) +'\n')
 
 

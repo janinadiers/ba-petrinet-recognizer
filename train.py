@@ -196,7 +196,7 @@ def prepare_one_class_rejector_data(path):
         for dictionary in truth:
             for shape_name, trace_ids in dictionary.items():
                 if set(trace_ids) == set(candidate):
-                    if shape_name == 'circle':
+                    if shape_name == 'circle' or shape_name == 'ellipse':
                         result = get_circle_rectangle_features(candidate, resampled_content)
                         features.append(result['features'])
                         if not feature_names:

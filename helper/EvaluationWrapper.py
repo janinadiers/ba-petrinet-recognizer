@@ -8,7 +8,7 @@ class EvaluationWrapper:
         self._recognize = recognize
         self._group_connections = group_connections
         self.truth = None
-        self.columns = ['circle', 'rectangle','no_shape', 'total', 'truth', 'accuracy']
+        self.columns = ['circle', 'rectangle','no_shape','total', 'truth', 'accuracy']
         self.rows = ['circle', 'rectangle', 'diamond', 'ellipse', 'parallelogram', 'line', 'double circle', 'no_shape', 'total']
         self.rows2 = ['line', 'no_shape']
         self.columns2 = ['line', 'truth', 'accuracy']
@@ -20,7 +20,7 @@ class EvaluationWrapper:
         self.valid_shapes = 0
         self.file_path = None
         self.shaft_strokes_more_than_1 = 0
-        self.threshold = 3
+        self.threshold = 1.0
         
 
     def get_truth_without_lines(self):
@@ -31,19 +31,21 @@ class EvaluationWrapper:
                     truth_without_lines.append({shape_name: trace_ids})
         return truth_without_lines
     
+    def get_average_accuracy(self):
+        circle_correctly_recognized = self.matrix.at['circle', 'circle']
+        rectangle_correctly_recognized = self.matrix.at['rectangle', 'rectangle']
+        ellipse_correctly_recognized = self.matrix.at['ellipse', 'circle']
+        circle_truth = self.matrix.at['circle', 'truth']
+        rectangle_truth = self.matrix.at['rectangle', 'truth']
+        ellipse_truth = self.matrix.at['ellipse', 'truth']
+        return (circle_correctly_recognized + rectangle_correctly_recognized + ellipse_correctly_recognized) / (circle_truth + rectangle_truth + ellipse_truth)
+        
+    
     def get_false_positives(self):
-        candidate_amount_not_rejected = 0
-        amount_invalid_candidates = 0
-        amount_valid_shapes = 0
-        for row in self.rows:
-            if row == 'no_shape':
-                candidate_amount_not_rejected += self.matrix.at[row, 'truth'] - self.matrix.at[row, 'no_shape']
-                amount_invalid_candidates += self.matrix.at[row, 'truth']
-            if row == 'circle' or row == 'ellipse':
-                amount_valid_shapes += self.matrix.at[row, 'circle']
-            if row == 'rectangle':
-                amount_valid_shapes += self.matrix.at[row, 'rectangle']
-        return (candidate_amount_not_rejected - amount_valid_shapes) / amount_invalid_candidates
+        amount_invalid_candidates = self.matrix.at['no_shape', 'truth']
+        candidate_amount_not_rejected = amount_invalid_candidates - self.matrix.at['no_shape', 'no_shape']
+        
+        return candidate_amount_not_rejected
     
     def get_false_negatives(self):
         amount_valid_shapes = 0
@@ -52,12 +54,17 @@ class EvaluationWrapper:
             if column == 'circle' or column == 'rectangle' or column == 'ellipse':
                 amount_valid_shapes += self.matrix.at[column, 'truth']
                 amount_reognized_shapes += self.matrix.at[column, column]
-        return 1 - (amount_reognized_shapes / amount_valid_shapes)
+        return amount_valid_shapes - amount_reognized_shapes
     
     def get_true_negatives(self):
-        amount_no_shapes = self.matrix.at['no_shape', 'truth']
         amount_no_shapes_recognized = self.matrix.at['no_shape', 'no_shape']
-        return amount_no_shapes_recognized / amount_no_shapes
+        return amount_no_shapes_recognized
+    
+    def get_true_positives(self):
+        circle_correctly_recognized = self.matrix.at['circle', 'circle']
+        rectangle_correctly_recognized = self.matrix.at['rectangle', 'rectangle']
+        ellipse_correctly_recognized = self.matrix.at['ellipse', 'circle']
+        return circle_correctly_recognized + rectangle_correctly_recognized + ellipse_correctly_recognized
     
  
     def get_false_positive_rate(self):
@@ -67,8 +74,18 @@ class EvaluationWrapper:
     
     def get_false_negative_rate(self):
         false_negatives = self.get_false_negatives()
+        true_positives = self.get_true_positives()
+        return false_negatives / (false_negatives + true_positives)
+    
+    def get_true_positive_rate(self):
+        true_positives = self.get_true_positives()
+        false_negatives = self.get_false_negatives()
+        return true_positives / (true_positives + false_negatives)
+    
+    def get_true_negative_rate(self):
         true_negatives = self.get_true_negatives()
-        return false_negatives / (false_negatives + true_negatives)
+        false_positives = self.get_false_positives()
+        return true_negatives / (true_negatives + false_positives)
     
     def get_lines(self):
         lines = []
@@ -244,15 +261,15 @@ class EvaluationWrapper:
                     truth_contains_candidate = True
                     if 'valid' in recognizer_result[0]:
                         shape_name_recognizer_result = next(iter(recognizer_result[0]['valid']))
-                        # if not shape_name == shape_name_recognizer_result:
-                        #     print('shape not correctly recognized', self.file_path, shape_name_recognizer_result, candidate)
-                        #     exit()
                         
                         self.matrix.at[shape_name, shape_name_recognizer_result] += 1
                     else:  
                         self.matrix.at[shape_name, 'no_shape'] += 1
         
-        if not truth_contains_candidate and not 'valid' in recognizer_result[0]:
+        if not truth_contains_candidate and 'invalid by classifier' in recognizer_result[0]:
+            print('invalid by classifier eval')
+            
+        elif not truth_contains_candidate and 'invalid' in recognizer_result[0]:
             self.matrix.at['no_shape', 'no_shape'] += 1
             
         elif not truth_contains_candidate and 'valid' in recognizer_result[0]:

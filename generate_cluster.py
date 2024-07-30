@@ -86,14 +86,17 @@ rectangle_cluster_center = np.array(all_rectangle_features).mean(axis=0)
 
 # no_shape_cluster_center = np.array(all_no_shape_features).mean(axis=0)
 
-# circle_cosine_similarity_values = []
-circle_pearsons_correlation_values = []
+circle_cosine_similarity_values = []
+# circle_pearsons_correlation_values = []
+print('circle_cluster_center', circle_cluster_center)
 
 for vector in all_circle_features:
     similarity = cosine_similarity([vector], [list(circle_cluster_center)])
-    circle_pearsons_correlation_values.append(similarity)
+    # circle_pearsons_correlation_values.append(similarity)
+    circle_cosine_similarity_values.append(similarity)
    
-circle_pearsons_correlation = min(circle_pearsons_correlation_values)
+# circle_pearsons_correlation = min(circle_pearsons_correlation_values)
+circle_cosine_similarity = min(circle_cosine_similarity_values)
 circle_hellinger_distance_values = []
 for vector in all_circle_features:
     distance = hellinger_distance(vector, list(circle_cluster_center))
@@ -101,16 +104,16 @@ for vector in all_circle_features:
 circle_hellinger_distance = max(circle_hellinger_distance_values)
 
 
-# rectangle_cosine_similarity_values = []
-rectangle_pearsons_correlation_values = []
+rectangle_cosine_similarity_values = []
+# rectangle_pearsons_correlation_values = []
 
 for vector in all_rectangle_features:
     similarity = cosine_similarity([vector], [list(rectangle_cluster_center)])
-    # rectangle_cosine_similarity_values.append(similarity)
-    rectangle_pearsons_correlation_values.append(similarity)
+    rectangle_cosine_similarity_values.append(similarity)
+    # rectangle_pearsons_correlation_values.append(similarity)
    
-# rectangle_cosine_similarity = min(rectangle_cosine_similarity_values)
-rectangle_pearsons_correlation = min(rectangle_pearsons_correlation_values)
+rectangle_cosine_similarity = min(rectangle_cosine_similarity_values)
+# rectangle_pearsons_correlation = min(rectangle_pearsons_correlation_values)
 rectangle_hellinger_distance_values = []
 for vector in all_rectangle_features:
     distance = hellinger_distance(vector, list(rectangle_cluster_center))
@@ -129,23 +132,22 @@ rectangle_hellinger_distance = max(rectangle_hellinger_distance_values)
 #     print('hellinger_distance', distance)
 #     no_shape_hellinger_distance_values.append(distance)
 # no_shape_hellinger_distance = max(shape_hellinger_distance_values)
-print(circle_pearsons_correlation, rectangle_pearsons_correlation)
 
 result_obj = {
     'circle': {
-        'cluster_center': circle_cluster_center[0],
-        'similarity': circle_pearsons_correlation[0][0],
+        'cluster_center': list(circle_cluster_center),
+        'similarity': circle_cosine_similarity[0][0],
         'distance': circle_hellinger_distance,
     },
     'rectangle': {
-        'cluster_center': rectangle_cluster_center[0],
-        'similarity': rectangle_pearsons_correlation[0][0],
+        'cluster_center': list(rectangle_cluster_center),
+        'similarity': rectangle_cosine_similarity[0][0],
         'distance': rectangle_hellinger_distance,
     }
 }
  
 #write results into json file
-with open(f'rejector/clusters2.json', 'a') as f:
+with open(f'rejector/clusters.json', 'a') as f:
     json.dump(result_obj, f, indent=4)
     
 # all_circle_features.extend(all_no_shape_features)   

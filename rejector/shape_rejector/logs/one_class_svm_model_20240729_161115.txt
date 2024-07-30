@@ -1,0 +1,4 @@
+features: ['number_of_convex_hull_vertices_to_amount_of_points_ratio', 'nearest_point_for_every_edge_point']
+classifier: one_class_svm
+nu: 0.01
+kernel: linear

@@ -7,7 +7,10 @@ def use(X, candidate, expected_shapes) -> dict:
             if set(trace_ids) == set(candidate) and (shape_name == 'circle' or shape_name == 'rectangle' or shape_name == 'ellipse'):
                 if shape_name == 'ellipse': 
                     return {'valid': {'circle': candidate}}, [], []
+                    
+                
                 return {'valid': {shape_name: candidate}}, [], []
+                
             
             
         

@@ -1,0 +1,25 @@
+,circle,rectangle,no_shape,total,truth,accuracy
+circle,992,0,0,992,1004,98%
+rectangle,0,0,0,0,0,-
+diamond,0,0,0,0,0,-
+ellipse,0,0,0,0,0,-
+parallelogram,0,0,0,0,0,-
+line,102,2,2727,2831,2839,96%
+double circle,1,0,0,1,471,99%
+no_shape,1291,24,5957,7272,70292,98%
+total,2386,26,8684,22192,74606,0
+# dataset: ['./__datasets__/FA_1.1/no_text/FA_Test.txt', './__datasets__/FA_1.1/no_text/FA_Train.txt', './__datasets__/FA_1.1/no_text/FA_Validation.txt']
+# grouper: optimized_grouper
+# classifier: linear_svm
+# rejector: rejector_with_threshold
+# shape no shape features: closed_shape
+# circle rectangle features: number_of_convex_hull_vertices_to_amount_of_points_rationearest_point_for_every_edge_point
+# False negatives: 12
+# False positives: 64335
+# True negatives: 5957
+# True positives: 992
+# False positive rate: 0.9152535139133898
+# False negative rate: 0.01195219123505976
+# True positive rate: 0.9880478087649402
+# True negative rate: 0.08474648608661015
+# rejector with threshold: 1.0

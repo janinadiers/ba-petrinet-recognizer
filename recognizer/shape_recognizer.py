@@ -12,10 +12,20 @@ def recognize(rejector:callable, classifier:callable, candidate:list[int], strok
         return {'invalid': candidate}, feature_vector_shape_no_shape['feature_names'], feature_vector_circle_rectangle['feature_names']
     
     candidate_is_valid_shape = rejector['use'](feature_vector_shape_no_shape['features'], candidate, expected_shapes)
+    # candidate_is_valid_shape = rejector['use'](feature_vector_circle_rectangle['features'], candidate, expected_shapes)
+
     if 'invalid' in candidate_is_valid_shape:
+        
         return {'invalid': candidate}, feature_vector_shape_no_shape['feature_names'], feature_vector_circle_rectangle['feature_names']
     if classifier['name'] == 'perfect_mock_classifier':
-        return classifier['use'](feature_vector_shape_no_shape['features'], candidate, expected_shapes)
+        result, x, y =  classifier['use'](feature_vector_shape_no_shape['features'], candidate, expected_shapes)
+        if 'valid' in result:
+            return result, feature_vector_shape_no_shape['feature_names'], feature_vector_circle_rectangle['feature_names']
+
+        else:
+            print('invalid by classifier')
+            return {'invalid by classifier': candidate}, feature_vector_shape_no_shape['feature_names'], feature_vector_circle_rectangle['feature_names']
+
     else:
         result = classifier['use'](feature_vector_circle_rectangle['features'], candidate)
     if 'valid' in result:

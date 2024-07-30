@@ -1,0 +1,25 @@
+,circle,rectangle,no_shape,total,truth,accuracy
+circle,182,0,31,213,213,85%
+rectangle,0,150,33,183,183,81%
+diamond,0,0,0,0,0,-
+ellipse,0,0,0,0,0,-
+parallelogram,0,0,0,0,0,-
+line,0,0,417,417,417,100%
+double circle,0,0,0,0,0,-
+no_shape,0,0,2627,2627,5148,100%
+total,182,150,3108,6880,5961,0
+# dataset: ['./__datasets__/PN_1.0/PN_Test.txt']
+# grouper: optimized_grouper
+# classifier: perfect_mock_classifier
+# rejector: rejector_with_threshold
+# shape no shape features: closed_shape
+# circle rectangle features: 
+# False negatives: 64
+# False positives: 2521
+# True negatives: 2627
+# True positives: 332
+# False positive rate: 0.4897047397047397
+# False negative rate: 0.16161616161616163
+# True positive rate: 0.8383838383838383
+# True negative rate: 0.5102952602952603
+# rejector with threshold: 0.5

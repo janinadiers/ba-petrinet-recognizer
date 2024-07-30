@@ -12,12 +12,13 @@ def train(X, feature_names):
     # print('X', X[:25])
     if X.ndim == 1:
         X = X.reshape(-1, 1)
-    
+    print('X reshaped', X)
     # Create a pipeline that standardizes the data then fits the One-Class SVM
     scaler = StandardScaler()
     scaled_x = scaler.fit_transform(X)
     # print('scaled_x', scaled_x[:25])
-    clf = svm.OneClassSVM(nu=0.01, kernel='linear')
+    # clf = svm.OneClassSVM(nu=0.01, kernel='linear')
+    clf = svm.OneClassSVM()
     clf.fit(scaled_x)
     
     
@@ -41,17 +42,15 @@ def train(X, feature_names):
 def use(X, candidate, expected_shapes)-> dict:
     
     X = np.array(X)
-    # print('X', X )
-    if X.ndim == 1:
-        X = X.reshape(-1, 1)
-    # print('X reshaped', X )
-    # elif X.shape[0] == 1:
-    #     X = X.reshape(1, -1)
+    X = [X]
+    print('X', X )
+    # if X.ndim == 1:
+    #     X = X.reshape(-1, 1)
    
-    joblib_file1 = 'rejector/shape_rejector/one_class_svm_models/one_class_svm_model_20240729_074949.joblib'
-    scaler_file1 = 'rejector/shape_rejector/scalers/one_class_svm_scaler_20240729_074949.joblib'
-    joblib_file2 = 'rejector/shape_rejector/one_class_svm_models/one_class_svm_model_20240729_074951.joblib'
-    scaler_file2 = 'rejector/shape_rejector/scalers/one_class_svm_scaler_20240729_074951.joblib'
+    joblib_file1 = 'rejector/shape_rejector/one_class_svm_models/one_class_svm_model_20240730_105312.joblib'
+    scaler_file1 = 'rejector/shape_rejector/scalers/one_class_svm_scaler_20240730_105312.joblib'
+    joblib_file2 = 'rejector/shape_rejector/one_class_svm_models/one_class_svm_model_20240730_105416.joblib'
+    scaler_file2 = 'rejector/shape_rejector/scalers/one_class_svm_scaler_20240730_105416.joblib'
     
     loaded_clf1 = joblib.load(joblib_file1)
     loaded_scaler1 = joblib.load(scaler_file1)
@@ -60,9 +59,11 @@ def use(X, candidate, expected_shapes)-> dict:
     loaded_scaler2 = joblib.load(scaler_file2)
      
     
+    print('reshaped X', X)
     
     # Scale the new data using the loaded scaler
     scaled_X1 = loaded_scaler1.transform(X)
+    print('scaled_X1', scaled_X1)
     predicted_label1 = loaded_clf1.predict(scaled_X1)
     
     scaled_X2 = loaded_scaler2.transform(X)
