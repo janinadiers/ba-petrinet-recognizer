@@ -10,7 +10,6 @@ from classifier.shape_classifier.template_matching import use as template_matchi
 from classifier.shape_classifier.linear_svm import use as linear_svm
 from classifier.shape_classifier.rbf_svm import use as rbf_svm
 from classifier.shape_classifier.one_class_rectangle_svm import use as one_class_rectangle_svm
-from classifier.shape_classifier.classifier_with_threshold import use as classifier_with_threshold
 from classifier.shape_classifier.perfect_mock import use as perfect_mock_classifier
 from rejector.shape_rejector.threshold_and_ellipse import use as threshold_and_ellipse
 from rejector.shape_rejector.hellinger_and_cosine import use as hellinger_and_cosine
@@ -51,7 +50,6 @@ CLASSIFIERS = {
     'linear_svm' : linear_svm,
     'rbf_svm' : rbf_svm,
     'one_class_rectangle_svm' : one_class_rectangle_svm,
-    'classifier_with_threshold' : classifier_with_threshold,
     'perfect_mock_classifier' : perfect_mock_classifier
 }
 
