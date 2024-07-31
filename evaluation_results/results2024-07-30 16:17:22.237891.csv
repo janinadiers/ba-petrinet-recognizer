@@ -1,0 +1,25 @@
+,circle,rectangle,no_shape,total,truth,accuracy
+circle,377,0,4,381,382,98%
+rectangle,49,760,1,810,1300,58%
+diamond,617,0,0,617,768,19%
+ellipse,810,12,1,823,908,89%
+parallelogram,372,342,0,714,1221,28%
+line,6,10,4473,4489,4569,99%
+double circle,0,0,0,0,0,-
+no_shape,846,933,43240,45019,413588,99%
+total,3077,2057,47719,105706,422736,0
+# dataset: ['./__datasets__/FC_1.0/no_text/no_junk/FC_Test.txt', './__datasets__/FC_1.0/no_text/no_junk/FC_Train.txt', './__datasets__/FC_1.0/no_text/no_junk/FC_Validation.txt']
+# grouper: optimized_grouper
+# classifier: linear_svm
+# rejector: rejector_with_threshold
+# shape no shape features: closed_shape
+# circle rectangle features: number_of_convex_hull_vertices_to_amount_of_points_rationearest_point_for_every_edge_point
+# False negatives: 545
+# False positives: 370348
+# True negatives: 43240
+# True positives: 1947
+# False positive rate: 0.8954515121328471
+# False negative rate: 0.21869983948635635
+# True positive rate: 0.7813001605136437
+# True negative rate: 0.10454848786715282
+# rejector with threshold: 1.0

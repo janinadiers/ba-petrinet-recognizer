@@ -140,7 +140,6 @@ printProgressBar(0, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
 resampled_content = None
 content = None
 
-# while get_threshold() < 1:
     
 evaluationWrapper = None if args.production else EvaluationWrapper(RECOGNIZERS[args.recognizer], connection_grouper)
 recognizer = RECOGNIZERS[args.recognizer] if args.production else evaluationWrapper.recognize
@@ -149,9 +148,8 @@ grouper = GROUPERS[args.grouper]
 shape_no_shape_features = None
 rectangle_features = None
 circle_features = None
-files_wo_es_nicht_geklappt_hat = []
 
-# next_threshold()
+
 for i, path in enumerate(file_paths):
     print('Processing file: ', path, i , 'of', len(file_paths))
     printProgressBar(i + 1, l, prefix = 'Progress:', suffix = 'Complete', length = 50)
@@ -207,51 +205,33 @@ for i, path in enumerate(file_paths):
     shape_strokes = []
   
        
-    # truth = parse_ground_truth(path)
-    # for dictionary in truth:
-    #     for shape_name, trace_ids in dictionary.items():
-            
-    #         # Normalize candidates by sorting and converting to tuples
-    #         normalized_candidates = set(tuple(sorted(candidate)) for candidate in candidates)
-
-
-    #         # Normalize trace_ids by sorting and converting to a tuple
-    #         normalized_trace_ids = tuple(sorted(trace_ids))
-
-    #         # Check if normalized_trace_ids is in normalized_candidates
-    #         if 'rectangle' == shape_name and normalized_trace_ids not in normalized_candidates:
-    #             print('Rectangle not found', normalized_trace_ids, path)
-    #             files_wo_es_nicht_geklappt_hat.append(path)
-                
-                
-                # exit()
-    # for i, shape in enumerate(results):
-    #     shape_name = list(shape['valid'].keys())[0]
-    #     if shape_name == 'circle':
-    #         shape_strokes.append({'shape_name': shape_name , 'shape_id': 'p' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
-    #     elif shape_name == 'rectangle':
-    #         shape_strokes.append({'shape_name': shape_name , 'shape_id': 't' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
+    for i, shape in enumerate(results):
+        shape_name = list(shape['valid'].keys())[0]
+        if shape_name == 'circle':
+            shape_strokes.append({'shape_name': shape_name , 'shape_id': 'p' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
+        elif shape_name == 'rectangle':
+            shape_strokes.append({'shape_name': shape_name , 'shape_id': 't' + str(i), 'shape_candidates': shape['valid'][next(iter(shape['valid']))], 'shape_strokes': get_strokes_from_candidate(shape['valid'][next(iter(shape['valid']))], resampled_content)})
 
        
-    # edges = connection_localizer(shape_strokes, unrecognized_strokes)
+    edges = connection_localizer(shape_strokes, unrecognized_strokes)
    
-    # results.extend(edges)
+    results.extend(edges)
 
 
 if not args.production:
     evaluationWrapper.set_total()
     evaluationWrapper.set_accuracy()
     print(evaluationWrapper)
-    # print()
-    # print(evaluationWrapper.get_connection_evaluation())
+    print()
+    print(evaluationWrapper.get_connection_evaluation())
     
 
 if args.save == 'y':
     print('Saving results to file...')
     file_name1 = 'evaluation_results/results' + str(datetime.datetime.now()) +'.csv'
-    # file_name2 = 'evaluation_results/connection_results' + str(datetime.datetime.now()) +'.csv'
+    file_name2 = 'evaluation_results/connection_results' + str(datetime.datetime.now()) +'.csv'
     evaluationWrapper.matrix.to_csv(file_name1)
-    # evaluationWrapper.matrix2.to_csv(file_name2)
+    evaluationWrapper.matrix2.to_csv(file_name2)
     with open(file_name1, 'a') as f:
         f.write('# dataset: ' + str(args.files) + '\n')
         f.write('# grouper: ' + str(args.grouper) + '\n')
@@ -270,14 +250,14 @@ if args.save == 'y':
         f.write('# rejector with threshold: '+ str(evaluationWrapper.threshold) +'\n')
 
 
-    # with open(file_name2, 'a') as f:
-    #     f.write('# dataset: ' + str(args.files) + '\n')
-    #     f.write('# grouper: ' + str(args.grouper) + '\n')
-    #     f.write('# classifier: ' + str(args.classifier) + '\n')
-    #     f.write('# rejector: ' + str(args.rejector) + '\n')
-    #     f.write('# shape no shape features: '+ ''.join(shape_no_shape_features) +'\n')
-    #     f.write('# circle rectangle features: '+ ''.join(rectangle_features) +'\n')
-    #     f.write('# rejector threshold: '+ str(get_threshold()) +'\n')
+    with open(file_name2, 'a') as f:
+        f.write('# dataset: ' + str(args.files) + '\n')
+        f.write('# grouper: ' + str(args.grouper) + '\n')
+        f.write('# classifier: ' + str(args.classifier) + '\n')
+        f.write('# rejector: ' + str(args.rejector) + '\n')
+        f.write('# shape no shape features: '+ ''.join(shape_no_shape_features) +'\n')
+        f.write('# circle rectangle features: '+ ''.join(rectangle_features) +'\n')
+        f.write('# rejector threshold: '+ str(get_threshold()) +'\n')
 
     
 
