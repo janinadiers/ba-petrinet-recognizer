@@ -88,7 +88,6 @@ rectangle_cluster_center = np.array(all_rectangle_features).mean(axis=0)
 
 circle_cosine_similarity_values = []
 # circle_pearsons_correlation_values = []
-print('circle_cluster_center', circle_cluster_center)
 
 for vector in all_circle_features:
     similarity = cosine_similarity([vector], [list(circle_cluster_center)])

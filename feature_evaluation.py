@@ -10,7 +10,6 @@ feature_names = None
 
 def pearson_correlation(labels, features):
     # Ensure labels and features are numpy arrays of floats
-    print(features)
     try:
         labels = np.array(labels, dtype=np.float64)
         features = np.array(features, dtype=np.float64)
